@@ -1,4 +1,5 @@
 // Phase 2
-export default function CategoryPage({ params }: { params: { category: string } }) {
-  return <div>Category: {params.category} — Phase 2</div>
+export default async function CategoryPage({ params }: { params: Promise<{ category: string }> }) {
+  const { category } = await params
+  return <div>Category: {category} — Phase 2</div>
 }

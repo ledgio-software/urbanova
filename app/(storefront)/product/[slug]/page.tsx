@@ -1,4 +1,5 @@
 // Phase 2
-export default function ProductPage({ params }: { params: { slug: string } }) {
-  return <div>Product: {params.slug} — Phase 2</div>
+export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params
+  return <div>Product: {slug} — Phase 2</div>
 }
