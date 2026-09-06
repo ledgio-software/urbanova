@@ -13,6 +13,12 @@ jobs:
     name: Typecheck / build / validate schema
     runs-on: ubuntu-latest
 
+    # Prisma requires DATABASE_URL + DIRECT_URL at validate and generate time.
+    # These are dummy values — no real DB connection is made during CI.
+    env:
+      DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
+      DIRECT_URL: postgresql://ci:ci@localhost:5432/ci
+
     steps:
       - uses: actions/checkout@v4
 
@@ -32,8 +38,3 @@ jobs:
 
       - name: Build
         run: npm run build
-        env:
-          # Prisma requires a DATABASE_URL at build time for client generation.
-          # This is a dummy value — no real DB connection is made during build.
-          DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
-          DIRECT_URL: postgresql://ci:ci@localhost:5432/ci
