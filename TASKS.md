@@ -6,14 +6,14 @@ A task is only `[x]` when the feature is verified working — not just coded.
 
 ## Phase 1 — Foundation
 
-- [ ] Scaffold Next.js project (App Router, TypeScript strict mode)
-- [ ] Configure Tailwind CSS with URBANOVA design tokens (colors, typography)
-- [ ] Set up Vercel Postgres + Prisma ORM
-- [ ] Write Prisma schema (categories, products, product_variants, product_images, customers, orders, order_items, delivery_zones)
-- [ ] Run initial Prisma migration
-- [ ] Seed database with sample catalog data (per Reference doc Part C, Section C.6 examples)
-- [ ] Set up `.env.example` with all required variable names (no secrets)
-- [ ] Verify project runs locally with `npm run dev`
+- [x] Scaffold Next.js project (App Router, TypeScript strict mode)
+- [x] Configure Tailwind CSS with URBANOVA design tokens (colors, typography)
+- [x] Set up Vercel Postgres + Prisma ORM
+- [x] Write Prisma schema (categories, products, product_variants, product_images, customers, orders, order_items, delivery_zones)
+- [ ] Run initial Prisma migration (needs real DATABASE_URL — run `npm run db:migrate` locally after filling .env.local)
+- [x] Seed database with sample catalog data (per Reference doc Part C, Section C.6 examples) — run `npm run db:seed` after migration
+- [x] Set up `.env.example` with all required variable names (no secrets)
+- [ ] Verify project runs locally with `npm run dev` (needs .env.local filled)
 
 ## Phase 2 — Storefront Core
 

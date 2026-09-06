@@ -1,0 +1,154 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ─── Categories ───────────────────────────────────────────────────────────────
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  description String?
+  products    Product[]
+
+  @@map("categories")
+}
+
+// ─── Products ─────────────────────────────────────────────────────────────────
+
+model Product {
+  id          String           @id @default(cuid())
+  name        String
+  slug        String           @unique
+  categoryId  String
+  description String
+  basePrice   Int              // stored in pesewas (smallest GHS unit)
+  featured    Boolean          @default(false)
+  tags        String[]
+  createdAt   DateTime         @default(now())
+
+  category    Category         @relation(fields: [categoryId], references: [id])
+  variants    ProductVariant[]
+  images      ProductImage[]
+
+  @@index([slug])
+  @@index([featured])
+  @@map("products")
+}
+
+// ─── Product Variants (SKUs) ──────────────────────────────────────────────────
+// SKU format: URB-[CATEGORY]-[STYLE]-[COLOR]-[SIZE]
+// e.g. URB-TS-SKYLINE-BLK-M
+
+model ProductVariant {
+  id            String         @id @default(cuid())
+  productId     String
+  sku           String         @unique
+  size          String
+  color         String
+  stockQuantity Int            @default(0)
+  priceOverride Int?           // nullable — falls back to product.basePrice
+
+  product       Product        @relation(fields: [productId], references: [id])
+  images        ProductImage[]
+  orderItems    OrderItem[]
+
+  @@index([sku])
+  @@map("product_variants")
+}
+
+// ─── Product Images ───────────────────────────────────────────────────────────
+
+model ProductImage {
+  id        String          @id @default(cuid())
+  productId String
+  variantId String?         // nullable — color-specific images link to a variant
+  url       String
+  sortOrder Int             @default(0)
+
+  product   Product         @relation(fields: [productId], references: [id])
+  variant   ProductVariant? @relation(fields: [variantId], references: [id])
+
+  @@map("product_images")
+}
+
+// ─── Customers ────────────────────────────────────────────────────────────────
+
+model Customer {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String
+  createdAt DateTime @default(now())
+
+  orders    Order[]
+
+  @@map("customers")
+}
+
+// ─── Orders ───────────────────────────────────────────────────────────────────
+
+enum OrderStatus {
+  pending_payment
+  paid
+  packed
+  shipped
+  delivered
+  cancelled
+  returned
+}
+
+model Order {
+  id               String      @id @default(cuid())
+  customerId       String?     // nullable — guest checkout
+  status           OrderStatus @default(pending_payment)
+  subtotal         Int         // pesewas
+  deliveryFee      Int         // pesewas
+  total            Int         // pesewas
+  deliveryZone     String
+  deliveryAddress  String
+  paymentMethod    String
+  paymentReference String?     // Paystack transaction reference — set after webhook confirms payment
+
+  createdAt        DateTime    @default(now())
+
+  customer         Customer?   @relation(fields: [customerId], references: [id])
+  items            OrderItem[]
+
+  @@index([status])
+  @@map("orders")
+}
+
+// ─── Order Items ──────────────────────────────────────────────────────────────
+
+model OrderItem {
+  id        String         @id @default(cuid())
+  orderId   String
+  variantId String
+  quantity  Int
+  unitPrice Int            // pesewas — snapshot of price at time of purchase
+
+  order     Order          @relation(fields: [orderId], references: [id])
+  variant   ProductVariant @relation(fields: [variantId], references: [id])
+
+  @@map("order_items")
+}
+
+// ─── Delivery Zones ───────────────────────────────────────────────────────────
+// Editable from admin — fees and zones are still "to be confirmed" by founder.
+// See docs/URBANOVA_REFERENCE.md Appendix.
+
+model DeliveryZone {
+  id            String @id @default(cuid())
+  name          String
+  estimatedDays String // e.g. "1–2 business days"
+  fee           Int    // pesewas — editable from admin panel
+
+  @@map("delivery_zones")
+}
