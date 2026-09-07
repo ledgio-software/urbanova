@@ -20,11 +20,20 @@ export const metadata: Metadata = {
     default: 'URBANOVA — Bold City. Bold You.',
     template: '%s | URBANOVA',
   },
-  description:
-    'Streetwear made for the ones who don\'t wait to be noticed. Shop URBANOVA.',
+  description: "Streetwear made for the ones who don't wait to be noticed. Shop URBANOVA.",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'https://urbanova.store'),
   openGraph: {
     siteName: 'URBANOVA',
     type: 'website',
+    locale: 'en_GH',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    site: '@urbanovanow',
+  },
+  robots: {
+    index: true,
+    follow: true,
   },
 }
 
