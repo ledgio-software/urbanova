@@ -5,8 +5,14 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { initializePayment, generateReference } from '@/lib/paystack'
 import { CheckoutSchema } from '@/lib/validators'
+import { rateLimit, getIp } from '@/lib/rate-limit'
 
 export async function POST(req: NextRequest) {
+  // 5 checkout attempts per IP per minute
+  if (!rateLimit(getIp(req), 5, 60_000)) {
+    return NextResponse.json({ error: 'Too many requests. Please wait a moment and try again.' }, { status: 429 })
+  }
+
   let body: unknown
   try {
     body = await req.json()

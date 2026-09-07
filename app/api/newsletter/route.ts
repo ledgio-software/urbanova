@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { NewsletterSchema } from '@/lib/validators'
+import { rateLimit, getIp } from '@/lib/rate-limit'
 
 export async function POST(req: NextRequest) {
+  // 3 signups per IP per 5 minutes
+  if (!rateLimit(getIp(req), 3, 5 * 60_000)) {
+    return NextResponse.json({ error: 'Too many requests.' }, { status: 429 })
+  }
+
   let body: unknown
   try {
     // Support both JSON and form submissions
