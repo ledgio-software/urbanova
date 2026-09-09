@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 })
     }
 
-    // If Vercel Blob read/write token is present, upload to Vercel Blob
+    // 1. Try Vercel Blob storage if BLOB_READ_WRITE_TOKEN is present
     if (process.env.BLOB_READ_WRITE_TOKEN) {
       try {
         const { put } = await import('@vercel/blob')
@@ -22,24 +22,34 @@ export async function POST(req: NextRequest) {
         })
         return NextResponse.json({ url: blob.url })
       } catch (blobErr) {
-        console.error('Vercel Blob upload failed, falling back to local storage:', blobErr)
+        console.error('Vercel Blob upload failed:', blobErr)
       }
     }
 
-    // Local storage fallback: public/uploads/
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
 
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads')
-    await mkdir(uploadDir, { recursive: true })
+    // 2. Try local filesystem write to public/uploads/ (for local dev environments)
+    try {
+      const uploadDir = path.join(process.cwd(), 'public', 'uploads')
+      await mkdir(uploadDir, { recursive: true })
 
-    const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_')
-    const fileName = `${Date.now()}-${safeName}`
-    const filePath = path.join(uploadDir, fileName)
+      const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_')
+      const fileName = `${Date.now()}-${safeName}`
+      const filePath = path.join(uploadDir, fileName)
 
-    await writeFile(filePath, buffer)
+      await writeFile(filePath, buffer)
+      return NextResponse.json({ url: `/uploads/${fileName}` })
+    } catch (fsErr) {
+      console.warn('Filesystem write unavailable (serverless environment), generating Data URL fallback:', fsErr)
+    }
 
-    return NextResponse.json({ url: `/uploads/${fileName}` })
+    // 3. Serverless fallback: Convert file to Base64 Data URL
+    const mimeType = file.type || 'image/jpeg'
+    const base64Data = buffer.toString('base64')
+    const dataUrl = `data:${mimeType};base64,${base64Data}`
+
+    return NextResponse.json({ url: dataUrl })
   } catch (error: any) {
     console.error('Upload error:', error)
     return NextResponse.json({ error: error.message || 'Upload failed' }, { status: 500 })
