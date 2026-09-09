@@ -1,8 +1,9 @@
 import type { MetadataRoute } from 'next'
 import { prisma } from '@/lib/db'
+import { getSiteUrl } from '@/lib/site-url'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://urbanova.store'
+  const siteUrl = getSiteUrl()
 
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: siteUrl, changeFrequency: 'daily', priority: 1 },

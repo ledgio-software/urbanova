@@ -15,13 +15,15 @@ const bebasNeue = Bebas_Neue({
   display: 'swap',
 })
 
+import { getSiteUrl } from '@/lib/site-url'
+
 export const metadata: Metadata = {
   title: {
     default: 'URBANOVA — Bold City. Bold You.',
     template: '%s | URBANOVA',
   },
   description: "Streetwear made for the ones who don't wait to be noticed. Shop URBANOVA.",
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'https://urbanova.store'),
+  metadataBase: new URL(getSiteUrl()),
   openGraph: {
     siteName: 'URBANOVA',
     type: 'website',
