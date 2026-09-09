@@ -6,55 +6,67 @@ export async function Header() {
   const categories = await getCategories()
 
   return (
-    <header className="sticky top-0 z-50 bg-brand-navy border-b border-white/10">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between">
-          {/* Logo */}
-          <Link
-            href="/"
-            className="font-headline text-2xl uppercase tracking-widest text-brand-white hover:text-brand-red transition-colors"
-          >
-            URBANOVA
-          </Link>
+    <>
+      {/* Top Announcement Bar */}
+      <div className="bg-brand-red text-white text-[11px] font-body uppercase tracking-widest text-center py-2 px-4 font-semibold">
+        ⚡ FREE ACCRA DELIVERY ON ORDERS OVER GHS 500 &nbsp;|&nbsp; USE CODE <span className="underline font-bold font-mono">VIPNOVA10</span> FOR 10% OFF ⚡
+      </div>
 
-          {/* Nav */}
-          <nav className="hidden md:flex items-center gap-8">
-            <div className="group relative">
+      <header className="sticky top-0 z-50 bg-brand-navy border-b border-white/10">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex h-16 items-center justify-between">
+            {/* Logo */}
+            <Link
+              href="/"
+              className="font-headline text-2xl uppercase tracking-widest text-brand-white hover:text-brand-red transition-colors"
+            >
+              URBANOVA
+            </Link>
+
+            {/* Nav */}
+            <nav className="hidden md:flex items-center gap-8">
+              <div className="group relative">
+                <Link
+                  href="/shop"
+                  className="text-sm font-body uppercase tracking-widest text-brand-white/80 hover:text-brand-white transition-colors"
+                >
+                  Shop
+                </Link>
+                {categories.length > 0 && (
+                  <div className="absolute left-0 top-full hidden group-hover:block pt-2">
+                    <div className="bg-brand-navy border border-white/10 rounded py-2 min-w-[160px]">
+                      {categories.map((cat: CategoryRow) => (
+                        <Link
+                          key={cat.id}
+                          href={`/shop/${cat.slug}`}
+                          className="block px-4 py-2 text-sm text-brand-white/70 hover:text-brand-white hover:bg-white/5 uppercase tracking-wider transition-colors"
+                        >
+                          {cat.name}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
               <Link
-                href="/shop"
+                href="/about"
                 className="text-sm font-body uppercase tracking-widest text-brand-white/80 hover:text-brand-white transition-colors"
               >
-                Shop
+                About
               </Link>
-              {categories.length > 0 && (
-                <div className="absolute left-0 top-full hidden group-hover:block pt-2">
-                  <div className="bg-brand-navy border border-white/10 rounded py-2 min-w-[160px]">
-                    {categories.map((cat: CategoryRow) => (
-                      <Link
-                        key={cat.id}
-                        href={`/shop/${cat.slug}`}
-                        className="block px-4 py-2 text-sm text-brand-white/70 hover:text-brand-white hover:bg-white/5 uppercase tracking-wider transition-colors"
-                      >
-                        {cat.name}
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-            <Link
-              href="/about"
-              className="text-sm font-body uppercase tracking-widest text-brand-white/80 hover:text-brand-white transition-colors"
-            >
-              About
-            </Link>
-            <Link
-              href="/contact"
-              className="text-sm font-body uppercase tracking-widest text-brand-white/80 hover:text-brand-white transition-colors"
-            >
-              Contact
-            </Link>
-          </nav>
+              <Link
+                href="/track-order"
+                className="text-sm font-body uppercase tracking-widest text-brand-white/80 hover:text-brand-white transition-colors"
+              >
+                Track Order
+              </Link>
+              <Link
+                href="/contact"
+                className="text-sm font-body uppercase tracking-widest text-brand-white/80 hover:text-brand-white transition-colors"
+              >
+                Contact
+              </Link>
+            </nav>
 
           {/* Right icons */}
           <div className="flex items-center gap-4">
@@ -76,5 +88,6 @@ export async function Header() {
         </div>
       </div>
     </header>
+  </>
   )
 }
