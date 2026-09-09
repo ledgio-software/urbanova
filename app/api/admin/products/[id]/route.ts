@@ -20,11 +20,13 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
 
 const UpdateProductSchema = z.object({
   name: z.string().min(1).optional(),
+  slug: z.string().min(1).regex(/^[a-z0-9-]+$/).optional(),
   description: z.string().min(1).optional(),
   basePrice: z.number().int().positive().optional(),
   featured: z.boolean().optional(),
   tags: z.array(z.string()).optional(),
   categoryId: z.string().optional(),
+  images: z.array(z.string()).optional(),
 })
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -33,7 +35,26 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   const parsed = UpdateProductSchema.safeParse(body)
   if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 422 })
 
-  const product = await prisma.product.update({ where: { id }, data: parsed.data })
+  const { images, ...data } = parsed.data
+
+  if (images !== undefined) {
+    await prisma.productImage.deleteMany({ where: { productId: id } })
+    if (images.length > 0) {
+      await prisma.productImage.createMany({
+        data: images.map((url, idx) => ({
+          productId: id,
+          url,
+          sortOrder: idx,
+        })),
+      })
+    }
+  }
+
+  const product = await prisma.product.update({
+    where: { id },
+    data,
+    include: { images: { orderBy: { sortOrder: 'asc' } } },
+  })
   return NextResponse.json(product)
 }
 

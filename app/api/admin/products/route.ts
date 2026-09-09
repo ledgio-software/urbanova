@@ -24,6 +24,7 @@ const CreateProductSchema = z.object({
   basePrice: z.number().int().positive(),
   featured: z.boolean().optional(),
   tags: z.array(z.string()).optional(),
+  images: z.array(z.string()).optional(),
 })
 
 export async function POST(req: NextRequest) {
@@ -31,11 +32,25 @@ export async function POST(req: NextRequest) {
   const parsed = CreateProductSchema.safeParse(body)
   if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 422 })
 
+  const { images, ...data } = parsed.data
+
   const product = await prisma.product.create({
     data: {
-      ...parsed.data,
-      featured: parsed.data.featured ?? false,
-      tags: parsed.data.tags ?? [],
+      ...data,
+      featured: data.featured ?? false,
+      tags: data.tags ?? [],
+      images: images?.length
+        ? {
+            create: images.map((url, idx) => ({
+              url,
+              sortOrder: idx,
+            })),
+          }
+        : undefined,
+    },
+    include: {
+      images: { orderBy: { sortOrder: 'asc' } },
+      category: true,
     },
   })
   return NextResponse.json(product, { status: 201 })
