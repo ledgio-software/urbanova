@@ -109,28 +109,41 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* Newsletter */}
+      {/* Newsletter & WhatsApp VIP */}
       <section className="bg-brand-black py-20">
-        <div className="mx-auto max-w-xl px-6 text-center">
+        <div className="mx-auto max-w-2xl px-6 text-center">
           <h2 className="font-headline text-display-md uppercase text-brand-white">Join the Rise.</h2>
-          <p className="mt-3 font-body text-brand-white/50 text-sm">
-            Be first to know about new drops. No spam, just nova energy.
+          <p className="mt-3 font-body text-brand-white/70 text-sm max-w-md mx-auto leading-relaxed">
+            Join our WhatsApp group to get an exclusive discount, early drop access, and let&apos;s build the streets together.
           </p>
-          <form className="mt-8 flex gap-2" action="/api/newsletter" method="POST">
-            <input
-              type="email"
-              name="email"
-              placeholder="Email address"
-              required
-              className="flex-1 bg-white/10 border border-white/20 px-4 py-3 text-sm text-brand-white placeholder:text-white/30 focus:outline-none focus:border-brand-red transition-colors"
-            />
-            <button
-              type="submit"
-              className="bg-brand-red text-white font-body text-sm uppercase tracking-widest px-6 py-3 hover:bg-brand-red/80 transition-colors"
+          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+            <a
+              href="https://wa.me/233557786833?text=Hi%20URBANOVA%2C%20I%20want%20to%20join%20the%20VIP%20group%20for%20a%20discount!"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-[#25D366] text-black font-body text-xs font-semibold uppercase tracking-widest px-6 py-3.5 rounded hover:bg-[#20bd5a] transition-colors shadow-lg"
             >
-              Join
-            </button>
-          </form>
+              <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z" />
+              </svg>
+              Join WhatsApp Group
+            </a>
+            <form className="w-full sm:w-auto flex gap-2" action="/api/newsletter" method="POST">
+              <input
+                type="email"
+                name="email"
+                placeholder="Email address"
+                required
+                className="flex-1 sm:w-64 bg-white/10 border border-white/20 px-4 py-3 text-sm text-brand-white placeholder:text-white/30 focus:outline-none focus:border-brand-red transition-colors rounded"
+              />
+              <button
+                type="submit"
+                className="bg-brand-red text-white font-body text-xs uppercase tracking-widest px-6 py-3 rounded hover:bg-brand-red/80 transition-colors"
+              >
+                Join
+              </button>
+            </form>
+          </div>
         </div>
       </section>
     </>
