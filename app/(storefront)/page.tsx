@@ -12,21 +12,32 @@ export default async function HomePage() {
     <>
       {/* Hero */}
       <section className="relative flex min-h-[85vh] items-center justify-center bg-brand-navy overflow-hidden">
-        {/* Background pattern */}
-        <div className="absolute inset-0 opacity-5">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(215,38,56,0.3),transparent_70%)]" />
-        </div>
-        <div className="relative z-10 mx-auto max-w-4xl px-6 text-center">
-          <h1 className="font-headline text-display-xl uppercase text-brand-white leading-none">
+        {/* Background Video */}
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          poster="/hero-bg.jpg"
+          className="absolute inset-0 w-full h-full object-cover opacity-50"
+        >
+          <source src="/hero-video.mp4" type="video/mp4" />
+        </video>
+
+        {/* Brand Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-brand-navy via-brand-navy/50 to-brand-navy/30 z-10" />
+
+        <div className="relative z-20 mx-auto max-w-4xl px-6 text-center">
+          <h1 className="font-headline text-display-xl uppercase text-brand-white leading-none drop-shadow-lg">
             Bold City.{' '}
             <span className="text-brand-red">Bold You.</span>
           </h1>
-          <p className="mt-6 font-body text-brand-white/70 text-lg sm:text-xl max-w-xl mx-auto">
+          <p className="mt-6 font-body text-brand-white/90 text-lg sm:text-xl max-w-xl mx-auto">
             Streetwear made for the ones who don&apos;t wait to be noticed.
           </p>
           <Link
             href="/shop"
-            className="mt-10 inline-block bg-brand-red text-white font-body text-sm uppercase tracking-widest px-8 py-4 hover:bg-brand-red/80 transition-colors"
+            className="mt-10 inline-block bg-brand-red text-white font-body text-sm uppercase tracking-widest px-8 py-4 hover:bg-brand-red/80 transition-colors shadow-xl"
           >
             Shop Now
           </Link>
