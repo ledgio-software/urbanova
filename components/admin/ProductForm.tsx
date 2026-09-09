@@ -5,6 +5,14 @@ import { useRouter } from 'next/navigation'
 
 type Category = { id: string; name: string }
 
+type VariantData = {
+  id?: string
+  sku?: string
+  size: string
+  color: string
+  stockQuantity: number
+}
+
 type ProductData = {
   id: string
   name: string
@@ -15,12 +23,15 @@ type ProductData = {
   featured: boolean
   tags: string[]
   images?: { id?: string; url: string; sortOrder?: number }[]
+  variants?: VariantData[]
 }
 
 type Props = {
   categories: Category[]
   product?: ProductData
 }
+
+const DEFAULT_SIZES = ['S', 'M', 'L', 'XL', 'XXL']
 
 export function ProductForm({ categories, product }: Props) {
   const router = useRouter()
@@ -37,6 +48,23 @@ export function ProductForm({ categories, product }: Props) {
   const [images, setImages] = useState<string[]>(
     product?.images?.map((i) => i.url) ?? []
   )
+  const [variants, setVariants] = useState<VariantData[]>(() => {
+    if (product?.variants && product.variants.length > 0) {
+      return product.variants.map((v) => ({
+        id: v.id,
+        sku: v.sku,
+        size: v.size,
+        color: v.color,
+        stockQuantity: v.stockQuantity,
+      }))
+    }
+    return DEFAULT_SIZES.map((size) => ({
+      size,
+      color: 'Midnight City',
+      stockQuantity: 10,
+    }))
+  })
+
   const [imageUrlInput, setImageUrlInput] = useState('')
   const [uploading, setUploading] = useState(false)
   const [submitting, setSubmitting] = useState(false)
@@ -116,6 +144,23 @@ export function ProductForm({ categories, product }: Props) {
     })
   }
 
+  function updateVariant(index: number, field: keyof VariantData, value: string | number) {
+    setVariants((prev) =>
+      prev.map((v, i) => (i === index ? { ...v, [field]: value } : v))
+    )
+  }
+
+  function addVariant() {
+    setVariants((prev) => [
+      ...prev,
+      { size: 'M', color: 'Midnight City', stockQuantity: 10 },
+    ])
+  }
+
+  function removeVariant(index: number) {
+    setVariants((prev) => prev.filter((_, i) => i !== index))
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
@@ -130,6 +175,7 @@ export function ProductForm({ categories, product }: Props) {
       featured: form.featured,
       tags: form.tags.split(',').map((t) => t.trim()).filter(Boolean),
       images: images,
+      variants: variants,
     }
 
     const url = product ? `/api/admin/products/${product.id}` : '/api/admin/products'
@@ -299,6 +345,70 @@ export function ProductForm({ categories, product }: Props) {
             ))}
           </div>
         )}
+      </div>
+
+      {/* Inventory & Size Variants Section */}
+      <div className="space-y-3 pt-4 border-t border-gray-100">
+        <div className="flex items-center justify-between">
+          <label className="block text-xs font-body uppercase tracking-widest text-gray-500">
+            Inventory Stock per Variant ({variants.length})
+          </label>
+          <button
+            type="button"
+            onClick={addVariant}
+            className="text-xs font-body text-brand-red uppercase tracking-wider font-semibold hover:underline"
+          >
+            + Add Variant
+          </button>
+        </div>
+
+        <div className="space-y-2">
+          {variants.map((v, idx) => (
+            <div key={idx} className="flex items-center gap-2 bg-gray-50 p-2.5 rounded border border-gray-200 text-xs font-body">
+              <div className="w-20">
+                <label className="text-[10px] text-gray-400 uppercase tracking-wider block mb-0.5">Size</label>
+                <input
+                  type="text"
+                  value={v.size}
+                  onChange={(e) => updateVariant(idx, 'size', e.target.value)}
+                  className="w-full border border-gray-200 px-2 py-1 bg-white focus:outline-none focus:border-brand-black uppercase font-semibold text-center"
+                  required
+                />
+              </div>
+              <div className="flex-1">
+                <label className="text-[10px] text-gray-400 uppercase tracking-wider block mb-0.5">Color</label>
+                <input
+                  type="text"
+                  value={v.color}
+                  onChange={(e) => updateVariant(idx, 'color', e.target.value)}
+                  className="w-full border border-gray-200 px-2 py-1 bg-white focus:outline-none focus:border-brand-black"
+                  required
+                />
+              </div>
+              <div className="w-24">
+                <label className="text-[10px] text-gray-400 uppercase tracking-wider block mb-0.5">Stock Qty</label>
+                <input
+                  type="number"
+                  min="0"
+                  value={v.stockQuantity}
+                  onChange={(e) => updateVariant(idx, 'stockQuantity', parseInt(e.target.value) || 0)}
+                  className="w-full border border-gray-200 px-2 py-1 bg-white focus:outline-none focus:border-brand-black font-semibold text-center"
+                  required
+                />
+              </div>
+              {variants.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => removeVariant(idx)}
+                  className="text-red-500 hover:text-red-700 px-1 pt-3 font-bold text-sm"
+                  title="Remove variant"
+                >
+                  ×
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
       </div>
 
       <div className="flex items-center gap-3 pt-2">
