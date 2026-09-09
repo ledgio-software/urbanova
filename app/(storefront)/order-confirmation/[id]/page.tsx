@@ -99,6 +99,46 @@ export default async function OrderConfirmationPage({ params }: { params: Promis
         )}
       </div>
 
+      {/* MoMo Payment Instructions Card */}
+      {!isPaid && (
+        <div className="bg-amber-50 border border-amber-300 rounded-lg p-6 mb-8 text-brand-black">
+          <div className="flex items-center gap-3 mb-3">
+            <span className="bg-amber-500 text-white font-bold text-xs px-2.5 py-1 rounded-full uppercase tracking-wider">
+              Action Required
+            </span>
+            <h2 className="font-headline text-lg uppercase tracking-wider text-amber-950">
+              Mobile Money Payment Instructions
+            </h2>
+          </div>
+          <p className="text-sm font-body text-amber-900 mb-4">
+            Please transfer <strong>{formatPrice(order.total)}</strong> via Mobile Money to complete your order:
+          </p>
+
+          <div className="bg-white border border-amber-200 rounded p-4 space-y-3 text-sm font-body mb-4">
+            <div className="flex justify-between items-center pb-2 border-b border-amber-100">
+              <span className="text-amber-800 font-medium">MoMo Number:</span>
+              <span className="font-mono font-bold text-base text-brand-black tracking-wide">0557786833</span>
+            </div>
+            <div className="flex justify-between items-center pb-2 border-b border-amber-100">
+              <span className="text-amber-800 font-medium">Account Name:</span>
+              <span className="font-bold text-brand-black">ISAAC OKYERE</span>
+            </div>
+            <div className="flex justify-between items-center pb-2 border-b border-amber-100">
+              <span className="text-amber-800 font-medium">Amount to Send:</span>
+              <span className="font-bold text-brand-red text-base">{formatPrice(order.total)}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-amber-800 font-medium">Reference:</span>
+              <span className="font-mono font-bold text-brand-black">#{shortId}</span>
+            </div>
+          </div>
+
+          <p className="text-xs font-body text-amber-900/80 leading-relaxed">
+            💡 <strong>Important:</strong> Enter <strong>#{shortId}</strong> in the reference field when making your Mobile Money transfer. Once sent, we will verify your payment and process your shipment!
+          </p>
+        </div>
+      )}
+
       {/* Order items */}
       <div className="border border-brand-black/10 rounded p-6 mb-6">
         <h2 className="font-headline text-base uppercase tracking-widest text-brand-black mb-4">Your Order</h2>

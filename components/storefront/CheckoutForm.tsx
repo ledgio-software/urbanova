@@ -74,8 +74,8 @@ export function CheckoutForm({ zones }: Props) {
       }
 
       clearCart()
-      // Redirect to Paystack hosted checkout
-      window.location.href = data.authorizationUrl
+      // Redirect to Order Confirmation page with MoMo instructions
+      router.push(`/order-confirmation/${data.orderId}`)
     } catch {
       setError('Network error. Please check your connection and try again.')
     } finally {

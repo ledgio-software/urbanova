@@ -1,6 +1,6 @@
 import crypto from 'crypto'
 
-const PAYSTACK_SECRET = process.env.PAYSTACK_SECRET_KEY!
+const PAYSTACK_SECRET = process.env.PAYSTACK_SECRET_KEY ?? ''
 
 // ─── Initialise a payment ──────────────────────────────────────────────────────
 

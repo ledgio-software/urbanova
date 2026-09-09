@@ -1,9 +1,9 @@
 // Copy source: docs/URBANOVA_REFERENCE.md Part A.8, Part D.6, Part F.1
 // Security: All input validated with Zod before touching the DB.
-// Orders are created as pending_payment — only the Paystack webhook marks them paid.
+// Orders are created as pending_payment for direct Mobile Money verification.
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
-import { initializePayment, generateReference } from '@/lib/paystack'
+import { generateReference } from '@/lib/paystack'
 import { CheckoutSchema } from '@/lib/validators'
 import { rateLimit, getIp } from '@/lib/rate-limit'
 
@@ -90,23 +90,11 @@ export async function POST(req: NextRequest) {
     },
   })
 
-  // Initialise Paystack payment
   const reference = generateReference(order.id)
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
-
-  const paystack = await initializePayment({
-    email: input.email,
-    amountPesewas: total,
-    reference,
-    callbackUrl: `${siteUrl}/order-confirmation/${order.id}`,
-    metadata: { orderId: order.id, customerName: input.name },
-  })
-
-  // Store the reference so the webhook can match it
   await prisma.order.update({
     where: { id: order.id },
     data: { paymentReference: reference },
   })
 
-  return NextResponse.json({ authorizationUrl: paystack.data.authorization_url, orderId: order.id })
+  return NextResponse.json({ orderId: order.id })
 }
