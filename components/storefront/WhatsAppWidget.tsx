@@ -10,7 +10,7 @@ export function WhatsAppWidget() {
       {/* Floating Tooltip */}
       {showTooltip && (
         <div className="hidden sm:flex items-center gap-2 bg-brand-black text-white text-xs font-body px-3.5 py-2 rounded-lg shadow-xl border border-white/10 animate-pulse">
-          <span>Need help sizing or ordering? Chat with us!</span>
+          <span>Join URBANOVA WhatsApp VIP Group for 10% OFF!</span>
           <button
             onClick={() => setShowTooltip(false)}
             className="text-white/50 hover:text-white ml-1 text-sm font-bold"
@@ -23,7 +23,7 @@ export function WhatsAppWidget() {
 
       {/* Floating Button */}
       <a
-        href="https://wa.me/233557786833?text=Hi%20URBANOVA%2C%20I%20have%20a%20question%20about%20an%20item%2Forder"
+        href="https://chat.whatsapp.com/FdD9RuSUpIUFOAPfLJ16Vz"
         target="_blank"
         rel="noopener noreferrer"
         className="group relative flex items-center justify-center w-14 h-14 bg-[#25D366] hover:bg-[#20bd5a] text-black rounded-full shadow-2xl transition-transform hover:scale-110"
