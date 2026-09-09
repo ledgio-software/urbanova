@@ -34,7 +34,7 @@ export default async function AdminDashboard() {
   return (
     <div>
       <h1 className="font-headline text-2xl uppercase tracking-widest text-brand-black mb-8">Dashboard</h1>
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {tiles.map((t) => (
           <div key={t.label} className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
             <p className="text-xs font-body uppercase tracking-widest text-gray-400 mb-2">{t.label}</p>
