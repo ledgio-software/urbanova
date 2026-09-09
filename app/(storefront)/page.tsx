@@ -118,7 +118,7 @@ export default async function HomePage() {
           </p>
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
             <a
-              href="https://wa.me/233557786833?text=Hi%20URBANOVA%2C%20I%20want%20to%20join%20the%20VIP%20group%20for%20a%20discount!"
+              href="https://chat.whatsapp.com/FdD9RuSUpIUFOAPfLJ16Vz"
               target="_blank"
               rel="noopener noreferrer"
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-[#25D366] text-black font-body text-xs font-semibold uppercase tracking-widest px-6 py-3.5 rounded hover:bg-[#20bd5a] transition-colors shadow-lg"
