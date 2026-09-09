@@ -89,6 +89,14 @@ export function Sidebar() {
                   </Link>
                 )
               })}
+              <a
+                href="/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block px-4 py-3 text-sm font-body text-white/50 hover:text-white hover:bg-white/10 rounded-lg transition-colors border-t border-white/10 mt-4 pt-4"
+              >
+                View Storefront ↗
+              </a>
             </nav>
 
             <div className="px-4 py-4 border-t border-white/10">
@@ -107,7 +115,7 @@ export function Sidebar() {
       <aside className="hidden md:flex w-60 shrink-0 bg-brand-black min-h-screen flex-col border-r border-white/10">
         <div className="px-6 py-6 border-b border-white/10">
           <p className="font-headline text-xl tracking-widest text-brand-white uppercase">URBANOVA</p>
-          <p className="text-xs font-body text-white/30 mt-0.5">Admin</p>
+          <p className="text-xs font-body text-white/30 mt-0.5">Admin Console</p>
         </div>
         <nav className="flex-1 px-3 py-4 space-y-1">
           {NAV.map((item) => {
@@ -118,7 +126,7 @@ export function Sidebar() {
                 href={item.href}
                 className={`block px-3 py-2.5 text-sm font-body rounded transition-colors ${
                   active
-                    ? 'bg-brand-red/20 text-brand-red font-semibold border-l-2 border-brand-red'
+                    ? 'bg-brand-red text-white font-semibold shadow-sm'
                     : 'text-white/60 hover:text-white hover:bg-white/5'
                 }`}
               >
@@ -126,6 +134,14 @@ export function Sidebar() {
               </Link>
             )
           })}
+          <a
+            href="/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block px-3 py-2.5 text-xs font-body text-white/40 hover:text-white hover:bg-white/5 rounded transition-colors mt-6 border-t border-white/10 pt-4"
+          >
+            View Storefront ↗
+          </a>
         </nav>
         <div className="px-3 py-4 border-t border-white/10">
           <button
