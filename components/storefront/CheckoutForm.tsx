@@ -38,9 +38,29 @@ export function CheckoutForm({ zones }: Props) {
     paymentMethod: 'mtn_momo' as 'mtn_momo' | 'vodafone_cash' | 'airteltigo_money' | 'card',
   })
 
+  const [promoInput, setPromoInput] = useState('')
+  const [appliedPromo, setAppliedPromo] = useState<{ code: string; percent: number } | null>(null)
+  const [promoError, setPromoError] = useState<string | null>(null)
+
   const selectedZone = zones.find((z) => z.id === form.deliveryZoneId)
   const deliveryFee = selectedZone?.fee ?? 0
-  const total = subtotal() + deliveryFee
+  const sub = subtotal()
+  const discountAmount = appliedPromo ? Math.round(sub * (appliedPromo.percent / 100)) : 0
+  const total = Math.max(0, sub - discountAmount + deliveryFee)
+
+  function applyPromoCode(e: React.MouseEvent) {
+    e.preventDefault()
+    setPromoError(null)
+    const cleanCode = promoInput.trim().toUpperCase()
+
+    if (cleanCode === 'VIPNOVA10' || cleanCode === 'WELCOME10') {
+      setAppliedPromo({ code: cleanCode, percent: 10 })
+    } else if (cleanCode === 'NOVA15') {
+      setAppliedPromo({ code: cleanCode, percent: 15 })
+    } else {
+      setPromoError('Invalid promo code. Try VIPNOVA10')
+    }
+  }
 
   // Redirect to shop if cart is empty
   useEffect(() => {
@@ -192,18 +212,61 @@ export function CheckoutForm({ zones }: Props) {
                 </div>
               ))}
             </div>
+            {/* Promo Code Input */}
+            <div className="border-t border-brand-black/10 pt-4 mb-4">
+              <label className="block text-xs font-body uppercase tracking-widest text-brand-black/50 mb-2">
+                Have a Promo Code?
+              </label>
+              {appliedPromo ? (
+                <div className="flex justify-between items-center bg-green-50 border border-green-200 p-2.5 rounded text-xs font-body text-green-800">
+                  <span className="font-semibold">Code &quot;{appliedPromo.code}&quot; applied (-{appliedPromo.percent}%)</span>
+                  <button
+                    onClick={() => setAppliedPromo(null)}
+                    className="text-red-600 hover:underline font-bold"
+                  >
+                    Remove
+                  </button>
+                </div>
+              ) : (
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={promoInput}
+                    onChange={(e) => setPromoInput(e.target.value)}
+                    placeholder="e.g. VIPNOVA10"
+                    className="flex-1 border border-brand-black/20 bg-white px-3 py-2 text-xs font-body text-brand-black uppercase placeholder:normal-case focus:outline-none focus:border-brand-black rounded"
+                  />
+                  <button
+                    onClick={applyPromoCode}
+                    className="bg-brand-black text-white text-xs font-body uppercase tracking-wider px-3 py-2 rounded hover:bg-brand-black/80 transition-colors"
+                  >
+                    Apply
+                  </button>
+                </div>
+              )}
+              {promoError && (
+                <p className="mt-1.5 text-xs font-body text-brand-red">{promoError}</p>
+              )}
+            </div>
+
             <div className="border-t border-brand-black/10 pt-4 space-y-2 text-sm font-body">
               <div className="flex justify-between">
                 <span className="text-brand-black/60">Subtotal</span>
-                <span>{formatPrice(subtotal())}</span>
+                <span>{formatPrice(sub)}</span>
               </div>
+              {appliedPromo && (
+                <div className="flex justify-between text-green-700 font-medium">
+                  <span>Discount ({appliedPromo.code})</span>
+                  <span>-{formatPrice(discountAmount)}</span>
+                </div>
+              )}
               <div className="flex justify-between">
                 <span className="text-brand-black/60">Delivery</span>
                 <span>{formatPrice(deliveryFee)}</span>
               </div>
               <div className="flex justify-between font-semibold text-base pt-2 border-t border-brand-black/10">
                 <span>Total</span>
-                <span>{formatPrice(total)}</span>
+                <span className="text-brand-red">{formatPrice(total)}</span>
               </div>
             </div>
 

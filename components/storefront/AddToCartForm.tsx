@@ -108,8 +108,15 @@ export function AddToCartForm({ productId, productName, basePrice, variants, ima
             )
           })}
         </div>
-        {!selectedSize && (
+        {!selectedSize ? (
           <p className="mt-2 text-xs font-body text-brand-black/40">Select a size to continue</p>
+        ) : (
+          selectedVariant && selectedVariant.stockQuantity > 0 && selectedVariant.stockQuantity <= 3 && (
+            <p className="mt-2 text-xs font-body font-semibold text-amber-700 bg-amber-50 border border-amber-200 px-3 py-2 rounded inline-flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping" />
+              Only {selectedVariant.stockQuantity} left in Size {selectedVariant.size} — Order soon!
+            </p>
+          )
         )}
       </div>
 
