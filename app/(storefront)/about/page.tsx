@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import HeroSlideshow from './HeroSlideshow'
 
 export const metadata: Metadata = {
   title: 'About',
@@ -8,21 +9,8 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <div>
-      {/* Hero */}
-      <section className="relative bg-brand-navy text-brand-white py-24 px-4 overflow-hidden">
-        <div className="absolute inset-0 opacity-20">
-          <img src="/about-image.jpg" alt="URBANOVA Brand" className="w-full h-full object-cover" />
-        </div>
-        <div className="relative z-10 max-w-3xl mx-auto text-center">
-          <h1 className="font-headline text-display-lg uppercase tracking-widest mb-6 drop-shadow-md">
-            We Don&apos;t Wait.
-          </h1>
-          <p className="font-body text-lg text-brand-white/90 leading-relaxed">
-            URBANOVA started with one idea: the city moves fast, and the ones who own it move faster.
-            Every piece we drop is built for that person — the one who walks in and changes the temperature of the room.
-          </p>
-        </div>
-      </section>
+      {/* Hero — background photo slideshow */}
+      <HeroSlideshow />
 
       {/* Brand Media Showcase */}
       <section className="max-w-5xl mx-auto px-4 sm:px-6 py-12">
