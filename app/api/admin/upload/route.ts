@@ -19,6 +19,8 @@ export async function POST(req: NextRequest) {
         const { put } = await import('@vercel/blob')
         const blob = await put(`products/${Date.now()}-${file.name}`, file, {
           access: 'public',
+          // Cache for 1 year on Vercel's CDN — images are immutable (content-addressed names)
+          cacheControlMaxAge: 31536000,
         })
         return NextResponse.json({ url: blob.url })
       } catch (blobErr) {
@@ -45,11 +47,17 @@ export async function POST(req: NextRequest) {
     }
 
     // 3. Serverless fallback: Convert file to Base64 Data URL
+    // WARNING: data: URLs are stored in the database and bypass Next.js image optimisation.
+    // Images will load slowly. Set BLOB_READ_WRITE_TOKEN in Vercel env vars to fix this.
+    console.error(
+      '[upload] BLOB_READ_WRITE_TOKEN not set — falling back to base64 data URL. ' +
+      'Images will be slow. Add BLOB_READ_WRITE_TOKEN in Vercel project settings.'
+    )
     const mimeType = file.type || 'image/jpeg'
     const base64Data = buffer.toString('base64')
     const dataUrl = `data:${mimeType};base64,${base64Data}`
 
-    return NextResponse.json({ url: dataUrl })
+    return NextResponse.json({ url: dataUrl, warning: 'Image stored as data URL. Set BLOB_READ_WRITE_TOKEN for fast CDN delivery.' })
   } catch (error: any) {
     console.error('Upload error:', error)
     return NextResponse.json({ error: error.message || 'Upload failed' }, { status: 500 })

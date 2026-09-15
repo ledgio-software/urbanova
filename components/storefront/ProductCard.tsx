@@ -11,11 +11,15 @@ type Props = {
     images: { url: string; sortOrder: number }[]
     variants: { priceOverride: number | null; stockQuantity: number }[]
   }
+  /** Mark true for the first few visible cards so they load eagerly above the fold */
+  priority?: boolean
 }
 
-export function ProductCard({ product }: Props) {
+export function ProductCard({ product, priority = false }: Props) {
   const imageUrl = product.images[0]?.url ?? null
   const inStock = product.variants.some((v) => v.stockQuantity > 0)
+  // data: URLs are unoptimised — flag them so the Image component doesn't error
+  const isDataUrl = imageUrl?.startsWith('data:') ?? false
 
   return (
     <Link href={`/product/${product.slug}`} className="group block">
@@ -25,6 +29,8 @@ export function ProductCard({ product }: Props) {
             src={imageUrl}
             alt={product.name}
             fill
+            priority={priority}
+            unoptimized={isDataUrl}
             className="object-cover transition-transform duration-500 group-hover:scale-105"
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
           />
