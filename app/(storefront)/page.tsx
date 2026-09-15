@@ -1,5 +1,6 @@
 // Copy source: docs/URBANOVA_REFERENCE.md Part E, Section E.1 and Part D, Section D.2
 import Link from 'next/link'
+import Image from 'next/image'
 import { getFeaturedProducts, getCategories, type ProductSummary, type CategoryRow } from '@/lib/products'
 import { ProductCard } from '@/components/storefront/ProductCard'
 
@@ -61,6 +62,42 @@ export default async function HomePage() {
         </section>
       )}
 
+      {/* Editorial lookbook strip */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+          {/* Wide group shot */}
+          <Link href="/shop" className="group relative aspect-[3/2] overflow-hidden rounded shadow-lg block">
+            <Image
+              src="/lookbook-group.webp"
+              alt="URBANOVA crew"
+              fill
+              sizes="(max-width: 640px) 100vw, 50vw"
+              className="object-cover object-center transition-transform duration-700 group-hover:scale-105"
+            />
+            <div className="absolute inset-0 bg-brand-black/40 group-hover:bg-brand-black/30 transition-colors duration-300" />
+            <div className="absolute bottom-6 left-6 text-white">
+              <p className="font-body text-xs uppercase tracking-widest text-white/70 mb-1">The Crew</p>
+              <p className="font-headline text-2xl uppercase leading-none">Own The Block</p>
+            </div>
+          </Link>
+          {/* Close-up editorial portrait */}
+          <Link href="/shop" className="group relative aspect-[3/2] overflow-hidden rounded shadow-lg block">
+            <Image
+              src="/lookbook-portrait.webp"
+              alt="URBANOVA editorial"
+              fill
+              sizes="(max-width: 640px) 100vw, 50vw"
+              className="object-cover object-top transition-transform duration-700 group-hover:scale-105"
+            />
+            <div className="absolute inset-0 bg-brand-black/40 group-hover:bg-brand-black/30 transition-colors duration-300" />
+            <div className="absolute bottom-6 left-6 text-white">
+              <p className="font-body text-xs uppercase tracking-widest text-white/70 mb-1">Editorial</p>
+              <p className="font-headline text-2xl uppercase leading-none">Make The Statement</p>
+            </div>
+          </Link>
+        </div>
+      </section>
+
       {/* Brand story teaser */}
       <section className="bg-brand-navy py-20">
         <div className="mx-auto max-w-3xl px-6 text-center">
@@ -88,13 +125,23 @@ export default async function HomePage() {
                 : cat.slug === 'hoodies'
                 ? 'City nights start here.'
                 : `Shop ${cat.name}.`
+              const tilePhoto = cat.slug === 't-shirts' ? '/lookbook-portrait.webp' : cat.slug === 'hoodies' ? '/lookbook-group.webp' : null
               return (
                 <Link
                   key={cat.id}
                   href={`/shop/${cat.slug}`}
                   className="group relative aspect-[4/3] bg-brand-navy flex items-end overflow-hidden rounded"
                 >
-                  <div className="absolute inset-0 bg-brand-red/0 group-hover:bg-brand-red/10 transition-colors duration-300" />
+                  {tilePhoto && (
+                    <Image
+                      src={tilePhoto}
+                      alt=""
+                      fill
+                      sizes="(max-width: 640px) 100vw, 50vw"
+                      className="object-cover object-center transition-transform duration-700 group-hover:scale-105"
+                    />
+                  )}
+                  <div className="absolute inset-0 bg-brand-black/50 group-hover:bg-brand-black/40 transition-colors duration-300" />
                   <div className="relative z-10 p-8">
                     <p className="font-headline text-display-md uppercase text-brand-white leading-none">{cat.name}</p>
                     <p className="mt-2 text-sm font-body text-brand-white/60">{tagline}</p>
