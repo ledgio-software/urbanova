@@ -1,0 +1,52 @@
+// Editable business details and policy parameters used by the policy and movement pages.
+//
+// Reference: docs/URBANOVA_REFERENCE.md Part H and docs/approved/URBANOVA_Policies_Terms.md s.1.1.
+// Nothing here is a final founder decision unless it is set through an environment variable:
+// - Identity fields (business name, registration number, TIN, addresses, DPC number) come from env
+//   and are simply left off the public pages while unset — never shown as a placeholder.
+// - `policyTerms` holds the suggested bracketed numbers from the Policies document. Founders and
+//   their lawyer confirm or change them here, in one place.
+
+const env = (key: string): string | undefined => process.env[key]?.trim() || undefined
+
+export const siteConfig = {
+  businessName: env('BUSINESS_NAME'),
+  registrationNumber: env('BUSINESS_REGISTRATION_NUMBER'),
+  tin: env('BUSINESS_TIN'),
+  address: env('BUSINESS_ADDRESS'),
+  digitalAddress: env('BUSINESS_DIGITAL_ADDRESS'),
+  phone: env('CONTACT_PHONE'),
+  email: env('CONTACT_EMAIL') ?? 'hello@urbanova.store',
+  movementEntityName: env('MOVEMENT_ENTITY_NAME'),
+  dpcRegistrationNumber: env('DPC_REGISTRATION_NUMBER'),
+  safeguardingLeadName: env('SAFEGUARDING_LEAD_NAME'),
+  safeguardingLeadContact: env('SAFEGUARDING_LEAD_CONTACT'),
+  /** Shown as "Effective: …" on each policy when set (e.g. "1 November 2026"). */
+  policyEffectiveDate: env('POLICY_EFFECTIVE_DATE'),
+}
+
+export type SiteConfig = typeof siteConfig
+
+// Suggested values from the bracketed numbers in the Policies document — pending founder/legal sign-off.
+export const policyTerms = {
+  dispatchDays: '1–2',
+  faultyReportDays: 30,
+  damageReportHours: 48,
+  returnBackDays: 7,
+  refundProcessingDays: 7,
+  failedDeliveryAttempts: 2,
+  unclaimedOrderDays: 14,
+  orderRecordYears: 6,
+  memberRecordYears: 2,
+  dataRequestReplyDays: 21,
+  contentRemovalDays: 7,
+  donationRefundDays: 30,
+  memberAgeRange: '16–30',
+  starterFundMinMembershipMonths: 1,
+  starterFundFollowUpMonths: 3,
+  complaintAcknowledgeDays: 2,
+  complaintResolveDays: 10,
+  complaintReviewDays: 10,
+}
+
+export type PolicyTerms = typeof policyTerms

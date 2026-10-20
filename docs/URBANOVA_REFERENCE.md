@@ -686,6 +686,8 @@ Build as editable records in the `delivery_zones` table, manageable from the adm
 
 ### F.5 Returns & Exchanges Policy
 
+> **Superseded (Oct 2026):** the founder-approved Policies document (Part H, `docs/approved/URBANOVA_Policies_Terms.md` s.6) replaces the 7-day exchange-only rule below with a 14-day right to cancel and refund, as required by Ghana's Electronic Transactions Act 2008 (Act 772, s.49). The table below is kept for history only; the published Shipping & Returns page follows Part H.
+
 | Rule | Detail |
 |---|---|
 | Exchange window | 7 days from delivery (size exchanges only — not full refunds) |
@@ -846,6 +848,64 @@ URBANOVA is a new streetwear and lifestyle clothing brand built around the ident
 - Delivery zones and shipping costs
 - Who will manage day-to-day order fulfillment after launch?
 - Social media handles / domain name availability for "URBANOVA"
+
+---
+
+## PART H — MOVEMENT, VISION & POLICIES (founder-approved additions, Oct 2026)
+
+> Four documents were approved by the founder in October 2026 and extend this reference. Full text is kept in `docs/approved/`. Where they conflict with Parts A–G, **Part H wins**.
+
+| Source document | Path | Used for |
+|---|---|---|
+| Vision & Mission v1.0 | `docs/approved/URBANOVA_Vision_Mission.md` | `/vision-mission` page |
+| The URBANOVA Movement v1.0 | `docs/approved/URBANOVA_Movement.md` | `/movement` page (programs, partners, funding, roadmap) |
+| Foundation Phases v1.0 | `docs/approved/URBANOVA_Foundation_Phases.md` | Public "Road Ahead" summary on `/movement`. **Internal plan — budget, risks, team roles, gates and 30-day checklist are not published.** |
+| Policies and Terms & Conditions v1.0 | `docs/approved/URBANOVA_Policies_Terms.md` | `/legal/[slug]` pages (below) |
+
+### H.1 New and changed pages (extends Part D)
+
+| Route | Content |
+|---|---|
+| `/vision-mission` | Vision, mission, values, who we serve, commitments, manifesto |
+| `/movement` | Two arms, five programs, showcase & fairness, partners, funding, road ahead, movement policy links. Anchors: `#partners`, `#policies` |
+| `/legal/terms-of-service` | Terms & Conditions of Sale (Policies s.2) |
+| `/legal/privacy-policy` | Privacy Policy (s.3) |
+| `/legal/shipping-returns` | Shipping & Delivery (s.5) + Returns, Exchanges & Refunds (s.6). Zones table is read live from `delivery_zones` |
+| `/legal/website-terms` | Website Terms of Use (s.7) |
+| `/legal/membership-terms`, `spotlight-consent`, `partner-sponsorship`, `donations-fundraising`, `starter-fund`, `safeguarding`, `community-code` | Movement policies (s.8, 9, 11–15) |
+| `/legal/complaints` | Complaints Policy (s.17) |
+
+Header gains **Movement**; footer gains Vision & Mission, The Movement, Partner With Us, Terms & Conditions, Website Terms, Complaints, Movement Policies.
+
+### H.2 Business rules that change
+
+- **Returns:** 14-day right to cancel and refund for any reason (customer pays direct return cost unless faulty/wrong); faulty/wrong items always free; refunds to original payment method. Replaces F.5.
+- **Delivery:** orders delivered within 14 days unless a longer time is clearly agreed (pre-orders).
+- **Marketing consent** must be opt-in (unticked) with date and source stored.
+
+### H.3 Configurable fields (do not hardcode)
+
+Business identity (name, registration no., TIN, address, digital address, phone, email, Movement entity name, DPC number, Safeguarding Lead, effective date) is read from environment variables — see `.env.example`. Numeric policy parameters (dispatch time, report windows, refund time, retention years, etc.) are the suggested bracketed values from the Policies document, held in `lib/site-config.ts` until the founder and a Ghana-qualified lawyer confirm them. Unset identity fields are omitted from the public pages, never shown as placeholders.
+
+### H.4 Deliberately not published yet
+
+| Item | Why |
+|---|---|
+| Cookie Policy (s.4) | Describes a cookie banner and "Cookie settings" link that do not exist yet — publish with the banner |
+| Nova Market Seller Terms (s.10) | Document says publish only when the marketplace launches; needs specific legal review |
+| Conflict of Interest, Fraud & Financial Controls (s.16, 18) | Internal policies |
+| Movement funding split (50/25/15/10), partner tier amounts, Year 1/3 targets, budget | Marked as placeholders by the source documents |
+| Spotlight, Join the Movement, Donate, Annual Report pages | Need schema/API not defined in A.4 and the safeguarding/donation gates in the Foundation Phases plan |
+
+### H.5 Open items (founder action required)
+
+1. Lawyer (Ghana) review of all policies before the effective date is set — source marks them "Draft for legal review, not legal advice".
+2. Confirm every bracketed number in `lib/site-config.ts`.
+3. Fill the business identity env vars.
+4. Confirm payment-method names (Policies s.2.6 names MTN Mobile Money, Telecel Cash, AT Money, Visa/Mastercard; this reference still says Vodafone Cash / AirtelTigo Money).
+5. Register with the Data Protection Commission and supply the number.
+6. Appoint a Safeguarding Lead and deputy before any under-18 joins.
+7. Update the checkout and operations to match Part H (checkout T&C checkbox, unticked marketing checkbox, return request flow, cookie banner, customer data export/delete) — tracked in TASKS.md.
 
 ---
 

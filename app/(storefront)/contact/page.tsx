@@ -52,7 +52,7 @@ export default function ContactPage() {
             },
             {
               q: 'Can I exchange my size?',
-              a: 'Yes, within 7 days of delivery, provided the item is unworn and in original packaging. Reach out before sending anything back.',
+              a: 'Yes. You have 14 days from receiving your order to return it for a size change or a refund, provided the item is unworn, unwashed and has its tags. Message us first with your order number, and see our Shipping & Returns policy for the full details.',
             },
             {
               q: 'Do you ship outside Ghana?',

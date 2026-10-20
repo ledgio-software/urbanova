@@ -57,3 +57,23 @@ A task is only `[x]` when the feature is verified working — not just coded.
 - [ ] All copy reviewed against Reference doc Part E and signed off by founder
 - [ ] All open items from Reference doc Appendix resolved or confirmed as deferred
 - [ ] Founder sign-off on go-live
+
+## Phase 5b — Movement, Vision & Policies (founder-approved Oct 2026, Reference Part H)
+
+- [x] Vision & Mission page (`/vision-mission`) — typecheck + build + 200 on production build; not yet checked on a phone
+- [x] Movement page (`/movement`) — same verification as above
+- [x] Policy pages under `/legal/*` from the approved Policies document (12 policies)
+- [x] Returns policy updated to the 14-day right to cancel (Reference F.5 superseded)
+- [x] Header/footer/sitemap links for new pages
+- [ ] Mobile pass over `/movement`, `/vision-mission`, `/legal/*` (header has no working mobile menu — footer is the only mobile route to these pages)
+- [ ] Founder: fill business identity env vars and confirm bracketed numbers in `lib/site-config.ts`
+- [ ] Founder: Ghana lawyer review of all policies; then set `POLICY_EFFECTIVE_DATE`
+- [ ] Founder: confirm payment-method names (Telecel Cash / AT Money vs Vodafone Cash / AirtelTigo Money) against checkout
+- [ ] Checkout: required T&C + Returns checkbox; unticked marketing opt-in stored with date and source (needs schema decision)
+- [ ] Return request form and order-cancellation flow (needs schema/API)
+- [ ] Cookie banner + publish Cookie Policy (Policies s.4)
+- [ ] Customer data export/delete on request
+- [x] Contact FAQ exchange answer updated to the 14-day rule
+- [ ] Update the internal operations doc to the 14-day rule
+- [ ] Membership sign-up, Spotlight, Donate, Annual Report pages — blocked on schema/API, Safeguarding Lead appointment and registration gates (Foundation Phases)
+- [ ] Nova Market Seller Terms — publish only when marketplace launches, after legal review
