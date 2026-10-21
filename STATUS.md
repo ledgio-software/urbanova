@@ -4,6 +4,18 @@ Reverse-chronological. Update this file after every meaningful change.
 
 ---
 
+## 2026-10-21 — Ad pixels with cookie consent, installable app, copyright notice
+
+**What:**
+- **Retargeting pixels:** Meta and TikTok pixels (`META_PIXEL_ID`, `TIKTOK_PIXEL_ID`) load only after the visitor taps Accept in a new cookie banner (`components/storefront/MarketingConsent.tsx`); choice stored in the browser (`lib/consent.ts`), changeable via a footer "Cookie settings" link; withdrawing consent reloads the page without the pixels. Page views are reported on client-side navigation too. No IDs set → no banner, no tracking.
+- **Cookie Policy** (`/legal/cookie-policy`, Policies s.4) published now that the banner exists; Privacy Policy lists the ad platforms only when a pixel is configured.
+- **Installable app:** `app/manifest.ts`, placeholder icons (`public/icons/`, `app/icon.png`, `app/apple-icon.png`), theme colour and iOS web-app metadata; footer shows an "Add to home screen" button (Android/Chrome) or Share → Add to Home Screen hint (iPhone). Brand colours read from `tailwind.config.ts` via `lib/brand.ts`.
+- **Copyright:** footer notice that names, logos, designs, graphics and photos are protected, linking to Website Terms.
+
+**Verified:** typecheck + production builds with and without pixel IDs. Browser test (mobile): no pixel requests before a choice; Reject → none; Cookie settings reopens banner; Accept → both pixel scripts load and a PageView fires on client navigation; choice persists across reloads; withdrawing consent removes the pixels; no page errors. Manifest and icons served; iPhone UA shows the install hint. Without IDs: no banner, Cookie Policy says essential only. Not verified: the Android install prompt (needs a real device) and live pixel delivery to Meta/TikTok (needs real IDs).
+
+---
+
 ## 2026-10-21 — Movement gallery: tap-to-view lightbox
 
 **What:** Every gallery tile on `/movement` (24 photos + the crew video) now opens a full-screen viewer showing the whole uncropped image. Navigate with ‹ › buttons, ← → keys or swipe; close with ×, Esc or a tap outside the photo. The video opens with playback controls. Built on the native `<dialog>` element in a new client component, `components/storefront/LookbookGallery.tsx` (no new dependency); page scroll is locked while it is open.

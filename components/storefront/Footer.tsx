@@ -1,4 +1,7 @@
 import Link from 'next/link'
+import { CookieSettingsButton } from './CookieSettingsButton'
+import { InstallAppButton } from './InstallAppButton'
+import { siteConfig } from '@/lib/site-config'
 
 export function Footer() {
   return (
@@ -9,6 +12,7 @@ export function Footer() {
           <div className="col-span-2 md:col-span-1">
             <p className="font-headline text-xl uppercase tracking-widest text-brand-white">URBANOVA</p>
             <p className="mt-2 text-sm text-brand-white/50 font-body">Bold City. Bold You.</p>
+            <InstallAppButton />
           </div>
 
           {/* Shop links */}
@@ -40,6 +44,10 @@ export function Footer() {
               <li><Link href="/legal/shipping-returns" className="text-sm text-brand-white/70 hover:text-brand-white transition-colors">Shipping & Returns</Link></li>
               <li><Link href="/legal/terms-of-service" className="text-sm text-brand-white/70 hover:text-brand-white transition-colors">Terms &amp; Conditions</Link></li>
               <li><Link href="/legal/privacy-policy" className="text-sm text-brand-white/70 hover:text-brand-white transition-colors">Privacy Policy</Link></li>
+              <li><Link href="/legal/cookie-policy" className="text-sm text-brand-white/70 hover:text-brand-white transition-colors">Cookie Policy</Link></li>
+              {(siteConfig.metaPixelId || siteConfig.tiktokPixelId) && (
+                <li><CookieSettingsButton className="text-sm text-brand-white/70 hover:text-brand-white transition-colors" /></li>
+              )}
               <li><Link href="/legal/website-terms" className="text-sm text-brand-white/70 hover:text-brand-white transition-colors">Website Terms of Use</Link></li>
               <li><Link href="/legal/complaints" className="text-sm text-brand-white/70 hover:text-brand-white transition-colors">Complaints</Link></li>
               <li><Link href="/movement#policies" className="text-sm text-brand-white/70 hover:text-brand-white transition-colors">Movement Policies</Link></li>
@@ -89,9 +97,18 @@ export function Footer() {
 
         {/* Bottom row */}
         <div className="mt-8 pt-6 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-brand-white/30 font-body">
-            &copy; {new Date().getFullYear()} URBANOVA. All rights reserved.
-          </p>
+          <div className="text-center md:text-left">
+            <p className="text-xs text-brand-white/50 font-body">
+              &copy; {new Date().getFullYear()} URBANOVA. All rights reserved.
+            </p>
+            <p className="mt-1 max-w-xl text-[11px] leading-relaxed text-brand-white/30 font-body">
+              The URBANOVA name, logos, designs, graphics and photos are protected. You may not copy, print or sell
+              them, or use our name or logo on products, without written permission.{' '}
+              <Link href="/legal/website-terms" className="underline underline-offset-2 hover:text-brand-white/60">
+                Website Terms
+              </Link>
+            </p>
+          </div>
           <div className="flex items-center gap-4">
             {/* Social icons */}
             <a href="#" aria-label="Instagram" className="text-brand-white/40 hover:text-brand-white transition-colors">

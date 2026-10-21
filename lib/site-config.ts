@@ -9,6 +9,12 @@
 
 const env = (key: string): string | undefined => process.env[key]?.trim() || undefined
 
+// Ad pixel IDs are injected into a script, so only plain alphanumeric IDs are accepted.
+const pixelId = (key: string): string | undefined => {
+  const value = env(key)
+  return value && /^[A-Za-z0-9]+$/.test(value) ? value : undefined
+}
+
 export const siteConfig = {
   businessName: env('BUSINESS_NAME'),
   registrationNumber: env('BUSINESS_REGISTRATION_NUMBER'),
@@ -23,6 +29,9 @@ export const siteConfig = {
   safeguardingLeadContact: env('SAFEGUARDING_LEAD_CONTACT'),
   /** Shown as "Effective: …" on each policy when set (e.g. "1 November 2026"). */
   policyEffectiveDate: env('POLICY_EFFECTIVE_DATE'),
+  /** Retargeting pixels — loaded only after the visitor accepts marketing cookies. */
+  metaPixelId: pixelId('META_PIXEL_ID'),
+  tiktokPixelId: pixelId('TIKTOK_PIXEL_ID'),
 }
 
 export type SiteConfig = typeof siteConfig

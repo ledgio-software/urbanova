@@ -29,6 +29,60 @@ function businessLines(cfg: SiteConfig): string[] {
   return lines
 }
 
+const hasPixels = (cfg: SiteConfig) => Boolean(cfg.metaPixelId || cfg.tiktokPixelId)
+
+function pixelPlatforms(cfg: SiteConfig): string {
+  return [cfg.metaPixelId && 'Meta (Facebook, Instagram)', cfg.tiktokPixelId && 'TikTok'].filter(Boolean).join(' and ')
+}
+
+export function cookiePolicy({ cfg }: Ctx): PolicyDoc {
+  const pixels = hasPixels(cfg)
+  return {
+    slug: 'cookie-policy',
+    title: 'Cookie Policy',
+    description: 'How the URBANOVA website uses cookies and how to change your choice.',
+    intro: 'Cookies are small files a website stores on your device. We use them as follows:',
+    sections: [
+      {
+        title: 'The Cookies We Use',
+        blocks: [
+          {
+            type: 'table',
+            head: ['Type', 'What it does', 'Can you turn it off?'],
+            rows: [
+              ['Essential', 'Keeps your cart, login and checkout working; security', 'No, the store cannot work without them'],
+              pixels
+                ? [
+                    'Marketing',
+                    `Measures and shows URBANOVA ads on ${pixelPlatforms(cfg)} to people who have visited the site`,
+                    'Yes',
+                  ]
+                : ['Marketing', 'Not currently used', '—'],
+            ],
+          },
+        ],
+      },
+      {
+        title: 'Your Choice',
+        blocks: [
+          {
+            type: 'ul',
+            items: pixels
+              ? [
+                  'Non-essential cookies are only used if you accept them in the cookie banner.',
+                  'You can change your choice at any time via the “Cookie settings” link in the footer or your browser settings.',
+                ]
+              : [
+                  'We currently use essential cookies only.',
+                  'If we add marketing cookies, they will only be used if you accept them in a cookie banner.',
+                ],
+          },
+        ],
+      },
+    ],
+  }
+}
+
 export function termsOfSale({ cfg, t }: Ctx): PolicyDoc {
   return {
     slug: 'terms-of-service',
@@ -274,6 +328,12 @@ export function privacyPolicy({ cfg, t }: Ctx): PolicyDoc {
               ['Delivery partner / rider', 'Name, phone and address only, to deliver'],
               ['Website hosting and database (Vercel)', 'To run the website and store data'],
               ['Email provider (Resend)', 'To send receipts and messages'],
+              ...(hasPixels(cfg)
+                ? [[
+                    `Advertising platforms (${pixelPlatforms(cfg)})`,
+                    'Website visit data from their pixels, only if you accept marketing cookies, to show you URBANOVA ads',
+                  ]]
+                : []),
               ['Accountant / auditor', 'Legal and financial record keeping'],
               ['Authorities', 'Only where the law requires'],
             ],
@@ -320,7 +380,9 @@ export function privacyPolicy({ cfg, t }: Ctx): PolicyDoc {
         blocks: [
           {
             type: 'p',
-            text: 'Our store uses cookies for essential functions only, such as keeping your cart working. We do not use tracking or advertising cookies.',
+            text: hasPixels(cfg)
+              ? `Essential cookies keep the store working. Marketing cookies from ${pixelPlatforms(cfg)} are only used if you accept them in the cookie banner. See our Cookie Policy.`
+              : 'Our store uses cookies for essential functions only, such as keeping your cart working. We do not use tracking or advertising cookies.',
           },
         ],
       },

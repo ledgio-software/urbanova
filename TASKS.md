@@ -71,7 +71,10 @@ A task is only `[x]` when the feature is verified working — not just coded.
 - [ ] Founder: confirm payment-method names (Telecel Cash / AT Money vs Vodafone Cash / AirtelTigo Money) against checkout
 - [ ] Checkout: required T&C + Returns checkbox; unticked marketing opt-in stored with date and source (needs schema decision)
 - [ ] Return request form and order-cancellation flow (needs schema/API)
-- [ ] Cookie banner + publish Cookie Policy (Policies s.4)
+- [x] Cookie banner + publish Cookie Policy (Policies s.4) — consent-gated Meta/TikTok pixels; browser-tested
+- [ ] Founder: add `META_PIXEL_ID` / `TIKTOK_PIXEL_ID` in Vercel and redeploy
+- [ ] Replace placeholder app icons in `public/icons/` and `app/icon.png`, `app/apple-icon.png` with the final logo
+- [ ] Optional: send AddToCart / Purchase events to the pixels for better ad targeting
 - [ ] Customer data export/delete on request
 - [x] Contact FAQ exchange answer updated to the 14-day rule
 - [ ] Update the internal operations doc to the 14-day rule

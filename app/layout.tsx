@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Inter, Bebas_Neue } from 'next/font/google'
 import './globals.css'
 
@@ -15,6 +15,7 @@ const bebasNeue = Bebas_Neue({
   display: 'swap',
 })
 
+import { brandColors } from '@/lib/brand'
 import { getSiteUrl } from '@/lib/site-url'
 
 export const metadata: Metadata = {
@@ -37,6 +38,16 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
+  // Home-screen install on iPhone (Android uses app/manifest.ts)
+  appleWebApp: {
+    capable: true,
+    title: 'URBANOVA',
+    statusBarStyle: 'black-translucent',
+  },
+}
+
+export const viewport: Viewport = {
+  themeColor: brandColors.navy,
 }
 
 export default function RootLayout({

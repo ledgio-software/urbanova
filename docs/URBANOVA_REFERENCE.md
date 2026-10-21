@@ -872,6 +872,7 @@ URBANOVA is a new streetwear and lifestyle clothing brand built around the ident
 | `/legal/privacy-policy` | Privacy Policy (s.3) |
 | `/legal/shipping-returns` | Shipping & Delivery (s.5) + Returns, Exchanges & Refunds (s.6). Zones table is read live from `delivery_zones` |
 | `/legal/website-terms` | Website Terms of Use (s.7) |
+| `/legal/cookie-policy` | Cookie Policy (s.4); lists marketing cookies only when an ad pixel is configured |
 | `/legal/membership-terms`, `spotlight-consent`, `partner-sponsorship`, `donations-fundraising`, `starter-fund`, `safeguarding`, `community-code` | Movement policies (s.8, 9, 11–15) |
 | `/legal/complaints` | Complaints Policy (s.17) |
 
@@ -887,11 +888,16 @@ Header gains **Movement**; footer gains Vision & Mission, The Movement, Partner 
 
 Business identity (name, registration no., TIN, address, digital address, phone, email, Movement entity name, DPC number, Safeguarding Lead, effective date) is read from environment variables — see `.env.example`. Numeric policy parameters (dispatch time, report windows, refund time, retention years, etc.) are the suggested bracketed values from the Policies document, held in `lib/site-config.ts` until the founder and a Ghana-qualified lawyer confirm them. Unset identity fields are omitted from the public pages, never shown as placeholders.
 
+### H.3a Ad pixels, cookie banner and installable app (Oct 2026, founder request)
+
+- **Retargeting pixels:** Meta and TikTok pixels are configured by `META_PIXEL_ID` / `TIKTOK_PIXEL_ID`. They load only after the visitor taps **Accept** in the cookie banner (Policies s.4, Act 843); the choice is stored in the visitor's browser and can be changed via **Cookie settings** in the footer. With no IDs set there is no banner and no tracking.
+- **Installable app:** `app/manifest.ts` + `public/icons/*` make the storefront installable ("Add to Home Screen"); the footer shows a one-tap install button on Android/Chrome and instructions on iPhone. Icons are a placeholder "U" mark until the final logo is confirmed (A.10 #1).
+- **Copyright:** footer notice based on Website Terms s.7.1, linking to `/legal/website-terms`.
+
 ### H.4 Deliberately not published yet
 
 | Item | Why |
 |---|---|
-| Cookie Policy (s.4) | Describes a cookie banner and "Cookie settings" link that do not exist yet — publish with the banner |
 | Nova Market Seller Terms (s.10) | Document says publish only when the marketplace launches; needs specific legal review |
 | Conflict of Interest, Fraud & Financial Controls (s.16, 18) | Internal policies |
 | Movement funding split (50/25/15/10), partner tier amounts, Year 1/3 targets, budget | Marked as placeholders by the source documents |
