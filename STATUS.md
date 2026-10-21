@@ -4,6 +4,16 @@ Reverse-chronological. Update this file after every meaningful change.
 
 ---
 
+## 2026-10-21 — Movement gallery: 17 more lookbook photos
+
+**What:** Added 17 founder-supplied lookbook photos to the `/movement` gallery (now the video + 20 photos). The video is a 2×2 feature tile so the grid stays even (4×6 on desktop, 2 columns on phones).
+
+**Files added:** `public/movement/lookbook-01…17.webp` (resized to max 1200px, ~1.8 MB total; lazy-loaded and resized per device by `next/image`).
+
+**Verified:** typecheck + production build; at 390px and 1366px all 20 images load, no horizontal overflow, video tile 358×477 on phone and 544×720 on desktop.
+
+---
+
 ## 2026-10-21 — Movement page: crew photo & video gallery
 
 **What:** Added a gallery to `/movement` (below the hero) with the 3 crew photos and the crew video supplied by the founder. People pictured agreed to appear on the site (confirmed by the requester).

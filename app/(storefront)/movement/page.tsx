@@ -14,10 +14,28 @@ export const metadata: Metadata = {
     'URBANOVA is a streetwear brand and youth movement that helps young people be themselves and build their own ventures.',
 }
 
+// Lookbook shots supplied by the founder; everyone pictured agreed to appear on the site.
 const GALLERY = [
+  { src: '/movement/lookbook-03.webp', alt: 'Three crew members: two in "No Risk No Story" tees either side of the "Rise Above" back print' },
+  { src: '/movement/lookbook-06.webp', alt: 'Three crew members in "The Strong Survive" and "Chase Your Dreams" tees' },
+  { src: '/movement/lookbook-04.webp', alt: 'Two crew members in black and white "Dreams Not Excuses" tees' },
+  { src: '/movement/lookbook-01.webp', alt: 'Crew member in the black "Rise Above" long-sleeve walking down a tree-lined road' },
   { src: '/movement/crew-front.webp', alt: 'Two URBANOVA crew members in black and brown tees standing on a city street' },
+  { src: '/movement/lookbook-09.webp', alt: 'Portrait in the black "No Risk No Story" tee' },
+  { src: '/movement/lookbook-13.webp', alt: 'Three crew members holding URBANOVA "Own the Street" shopping bags' },
+  { src: '/movement/lookbook-11.webp', alt: 'Back print of the white "The Strong Survive" tee' },
+  { src: '/movement/lookbook-15.webp', alt: 'Two crew members on stone steps in "Dreams Not Excuses" tees' },
+  { src: '/movement/lookbook-05.webp', alt: 'Crew member in the black "No Risk No Story" tee carrying a bag' },
   { src: '/movement/crew-temple.webp', alt: 'URBANOVA brown tee with temple back print, worn beside the black logo tee' },
+  { src: '/movement/lookbook-14.webp', alt: 'Brown "The Strong Survive" tee with the "Chase Your Dreams" tee behind' },
+  { src: '/movement/lookbook-12.webp', alt: 'Portrait in the black "Dreams Not Excuses" tee' },
+  { src: '/movement/lookbook-07.webp', alt: '"Rise Above" back print between two "No Risk No Story" tees' },
+  { src: '/movement/lookbook-02.webp', alt: 'Back view of the "Rise Above" long-sleeve on a tree-lined road' },
+  { src: '/movement/lookbook-10.webp', alt: 'Two crew members leaning on a stone wall in "Dreams Not Excuses" tees' },
   { src: '/movement/crew-back.webp', alt: 'Back prints of the URBANOVA "Believe in Yourself" black tee and the brown temple tee' },
+  { src: '/movement/lookbook-08.webp', alt: 'Crew member looking down in the "No Risk No Story" tee' },
+  { src: '/movement/lookbook-16.webp', alt: 'Crew member in the "No Risk No Story" tee under a frangipani tree' },
+  { src: '/movement/lookbook-17.webp', alt: 'Three crew members in "No Risk No Story" and "Rise Above" tees under a tree' },
 ]
 
 const ARMS = [
@@ -143,7 +161,7 @@ export default function MovementPage() {
           Wear the version of you that isn&apos;t afraid.
         </SectionTitle>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-          <div className="relative aspect-[3/4] overflow-hidden bg-brand-black">
+          <div className="relative col-span-2 row-span-2 aspect-[3/4] lg:aspect-auto overflow-hidden bg-brand-black">
             <video
               autoPlay
               loop
