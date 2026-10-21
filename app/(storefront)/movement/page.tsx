@@ -153,6 +153,10 @@ export default function MovementPage() {
         eyebrow="The Movement"
         title="Be yourself, loudly. Build something of your own."
         lead="URBANOVA is a streetwear brand and youth movement that helps young people be themselves and build their own ventures: a community of bold young people, backed by partner businesses."
+        background={{
+          src: '/movement/lookbook-17.webp',
+          alt: 'Three URBANOVA crew members in "No Risk No Story" and "Rise Above" tees under a tree',
+        }}
         actions={[
           { label: 'Our Vision & Mission', href: '/vision-mission' },
           { label: 'Shop Now', href: '/shop', variant: 'ghost' },

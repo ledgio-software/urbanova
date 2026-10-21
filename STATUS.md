@@ -4,6 +4,14 @@ Reverse-chronological. Update this file after every meaningful change.
 
 ---
 
+## 2026-10-21 — Movement hero background photo
+
+**What:** The `/movement` hero ("Be yourself, loudly. Build something of your own.") now has a background photo (`lookbook-17`, the three-person group shot) under a navy gradient overlay so the text stays legible. `PageHero` gains an optional `background` prop; other pages using it are unchanged.
+
+**Verified:** typecheck + production build; screenshots at 390px and 1366px show the photo with readable white text and no horizontal overflow.
+
+---
+
 ## 2026-10-21 — Movement gallery: 4 more lookbook photos
 
 **What:** Added 4 founder-supplied photos (courtyard walk ×2, café ×2) to the `/movement` gallery, spread through the grid. Gallery is now the video + 24 photos (4×7 on desktop, 2 columns on phones).
