@@ -4,6 +4,50 @@ Reverse-chronological. Update this file after every meaningful change.
 
 ---
 
+## 2026-10-21 — Movement gallery: 17 more lookbook photos
+
+**What:** Added 17 founder-supplied lookbook photos to the `/movement` gallery (now the video + 20 photos). The video is a 2×2 feature tile so the grid stays even (4×6 on desktop, 2 columns on phones).
+
+**Files added:** `public/movement/lookbook-01…17.webp` (resized to max 1200px, ~1.8 MB total; lazy-loaded and resized per device by `next/image`).
+
+**Verified:** typecheck + production build; at 390px and 1366px all 20 images load, no horizontal overflow, video tile 358×477 on phone and 544×720 on desktop.
+
+---
+
+## 2026-10-21 — Movement page: crew photo & video gallery
+
+**What:** Added a gallery to `/movement` (below the hero) with the 3 crew photos and the crew video supplied by the founder. People pictured agreed to appear on the site (confirmed by the requester).
+
+**Files added:** `public/movement/crew-{front,temple,back}.webp` (converted from JPEG, 135–290 KB), `public/movement/crew-video.mp4` (audio stripped — it plays muted; faststart), `public/movement/crew-video-poster.webp`.
+
+**Copy:** heading is the approved voice line from Reference B.3; lead line from Vision & Mission s.2.1.
+
+**Verified:** typecheck + production build; screenshots at 390px and 1366px — gallery renders as 2×2 on phones and 4-across on desktop, no horizontal overflow on `/movement`, `/vision-mission`, `/legal/shipping-returns`.
+
+---
+
+## 2026-10-20 — Phase 5: Movement, Vision & Mission, and policy pages
+
+**What:** Added the four founder-approved documents to the site: new `/vision-mission` and `/movement` pages, and replaced the three hand-written legal pages with the approved Policies & Terms (12 policies under `/legal/[slug]`).
+
+**Files added:**
+- `docs/approved/*.md` — the four approved documents (Vision & Mission, Movement, Foundation Phases, Policies & Terms), converted to Markdown for traceability
+- `docs/URBANOVA_REFERENCE.md` — new Part H (approved additions, pages, rule changes, what is not published, open items); F.5 marked superseded
+- `lib/site-config.ts` — business identity (env-driven) and suggested policy numbers, editable in one place
+- `lib/content/{types,store-policies,movement-policies,policies,policy-index}.ts` — typed policy content; shipping zones read live from `delivery_zones`
+- `components/storefront/PolicyDocument.tsx`, `components/storefront/PageHero.tsx`
+- `app/(storefront)/vision-mission/page.tsx`, `app/(storefront)/movement/page.tsx`
+
+**Files changed:** `app/(storefront)/legal/[slug]/page.tsx` (now renders from content modules; `terms-of-service` is now Terms & Conditions of Sale), `app/(storefront)/about/page.tsx` (link band to new pages), `app/(storefront)/contact/page.tsx` (FAQ exchange answer now states the 14-day rule), `components/storefront/{Header,Footer}.tsx`, `app/sitemap.ts`, `.env.example`.
+
+**Behaviour changes:** returns policy is now the 14-day right to cancel (was 7-day exchange-only) per Act 772; data retention is 6 years (was 7); privacy page no longer mentions customer accounts (none exist yet).
+
+**Not published (see Reference H.4):** Cookie Policy (no banner yet), Nova Market Seller Terms, internal policies, placeholder figures, and the internal parts of Foundation Phases.
+
+**Verified:** `npm run typecheck` passes; `next build` succeeds; all 12 `/legal/*`, `/movement`, `/vision-mission` return 200 against a production build, unknown slugs 404, no bracketed placeholders in rendered policies. Not verified: visual review on a phone (no browser pass done); policies are unreviewed by a lawyer.
+
+---
+
 ## 2026-09-06 — Phase 1: Foundation
 
 **What:** Full Phase 1 implementation — Next.js scaffold, Tailwind design tokens, Prisma schema, seed data, lib helpers, CI fix.

@@ -80,6 +80,23 @@ export default function AboutPage() {
         </div>
       </section>
 
+      {/* Movement */}
+      <section className="bg-brand-navy text-brand-white py-16 px-4 text-center">
+        <p className="font-body text-xs uppercase tracking-[0.3em] text-brand-red mb-3">More than a label</p>
+        <h2 className="font-headline text-display-md uppercase tracking-widest mb-4">A city of the bold, built by the young.</h2>
+        <p className="font-body text-brand-white/70 mb-8 max-w-xl mx-auto leading-relaxed">
+          URBANOVA is a streetwear brand and a youth movement that helps young people be themselves and build what they believe in.
+        </p>
+        <div className="flex flex-wrap gap-3 justify-center">
+          <a href="/vision-mission" className="inline-block bg-brand-red text-white font-body text-sm uppercase tracking-widest px-8 py-3.5 hover:bg-brand-red/80 transition-colors">
+            Vision &amp; Mission
+          </a>
+          <a href="/movement" className="inline-block border border-white/30 text-brand-white font-body text-sm uppercase tracking-widest px-8 py-3.5 hover:bg-white/10 transition-colors">
+            The Movement
+          </a>
+        </div>
+      </section>
+
       {/* CTA */}
       <section className="py-20 px-4 text-center">
         <h2 className="font-headline text-display-md uppercase tracking-widest text-brand-black mb-4">Ready to Move?</h2>

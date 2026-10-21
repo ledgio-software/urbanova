@@ -26,6 +26,9 @@ export function Footer() {
             <p className="text-xs font-body uppercase tracking-widest text-brand-white/40 mb-3">Company</p>
             <ul className="space-y-2">
               <li><Link href="/about" className="text-sm text-brand-white/70 hover:text-brand-white transition-colors">About</Link></li>
+              <li><Link href="/vision-mission" className="text-sm text-brand-white/70 hover:text-brand-white transition-colors">Vision &amp; Mission</Link></li>
+              <li><Link href="/movement" className="text-sm text-brand-white/70 hover:text-brand-white transition-colors">The Movement</Link></li>
+              <li><Link href="/movement#partners" className="text-sm text-brand-white/70 hover:text-brand-white transition-colors">Partner With Us</Link></li>
               <li><Link href="/contact" className="text-sm text-brand-white/70 hover:text-brand-white transition-colors">Contact</Link></li>
             </ul>
           </div>
@@ -35,8 +38,11 @@ export function Footer() {
             <p className="text-xs font-body uppercase tracking-widest text-brand-white/40 mb-3">Legal</p>
             <ul className="space-y-2">
               <li><Link href="/legal/shipping-returns" className="text-sm text-brand-white/70 hover:text-brand-white transition-colors">Shipping & Returns</Link></li>
+              <li><Link href="/legal/terms-of-service" className="text-sm text-brand-white/70 hover:text-brand-white transition-colors">Terms &amp; Conditions</Link></li>
               <li><Link href="/legal/privacy-policy" className="text-sm text-brand-white/70 hover:text-brand-white transition-colors">Privacy Policy</Link></li>
-              <li><Link href="/legal/terms-of-service" className="text-sm text-brand-white/70 hover:text-brand-white transition-colors">Terms of Service</Link></li>
+              <li><Link href="/legal/website-terms" className="text-sm text-brand-white/70 hover:text-brand-white transition-colors">Website Terms of Use</Link></li>
+              <li><Link href="/legal/complaints" className="text-sm text-brand-white/70 hover:text-brand-white transition-colors">Complaints</Link></li>
+              <li><Link href="/movement#policies" className="text-sm text-brand-white/70 hover:text-brand-white transition-colors">Movement Policies</Link></li>
             </ul>
           </div>
         </div>

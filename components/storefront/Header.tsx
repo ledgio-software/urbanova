@@ -55,6 +55,12 @@ export async function Header() {
                 About
               </Link>
               <Link
+                href="/movement"
+                className="text-sm font-body uppercase tracking-widest text-brand-white/80 hover:text-brand-white transition-colors"
+              >
+                Movement
+              </Link>
+              <Link
                 href="/track-order"
                 className="text-sm font-body uppercase tracking-widest text-brand-white/80 hover:text-brand-white transition-colors"
               >
