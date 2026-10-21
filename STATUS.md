@@ -4,6 +4,14 @@ Reverse-chronological. Update this file after every meaningful change.
 
 ---
 
+## 2026-10-21 — Partner enquiry email
+
+**What:** "Become a Partner" on `/movement` now emails urbanovaclothing6@gmail.com (founder-confirmed), via a new `partnerEmail` setting (`PARTNER_EMAIL` env overrides). The general contact email is unchanged.
+
+**Verified:** production build renders `mailto:urbanovaclothing6@gmail.com?subject=Partnering%20with%20URBANOVA`.
+
+---
+
 ## 2026-10-21 — Ad pixels with cookie consent, installable app, copyright notice
 
 **What:**

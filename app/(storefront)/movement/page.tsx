@@ -145,7 +145,7 @@ const ROADMAP = [
 ]
 
 export default function MovementPage() {
-  const partnerMail = `mailto:${siteConfig.email}?subject=${encodeURIComponent('Partnering with URBANOVA')}`
+  const partnerMail = `mailto:${siteConfig.partnerEmail}?subject=${encodeURIComponent('Partnering with URBANOVA')}`
 
   return (
     <div>
