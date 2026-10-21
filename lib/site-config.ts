@@ -27,6 +27,9 @@ export const siteConfig = {
   email: env('CONTACT_EMAIL') ?? 'urbanovaclothing6@gmail.com',
   /** Where "Become a Partner" on /movement sends enquiries (founder-confirmed Oct 2026). */
   partnerEmail: env('PARTNER_EMAIL') ?? 'urbanovaclothing6@gmail.com',
+  /** Social profiles shown in the footer (founder-supplied Oct 2026). */
+  tiktokUrl: env('TIKTOK_URL') ?? 'https://www.tiktok.com/@urbanova55771',
+  snapchatUrl: env('SNAPCHAT_URL') ?? 'https://www.snapchat.com/add/urban264474',
   movementEntityName: env('MOVEMENT_ENTITY_NAME'),
   dpcRegistrationNumber: env('DPC_REGISTRATION_NUMBER'),
   safeguardingLeadName: env('SAFEGUARDING_LEAD_NAME'),
