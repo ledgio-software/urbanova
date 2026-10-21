@@ -4,6 +4,16 @@ Reverse-chronological. Update this file after every meaningful change.
 
 ---
 
+## 2026-10-21 — Movement gallery: 4 more lookbook photos
+
+**What:** Added 4 founder-supplied photos (courtyard walk ×2, café ×2) to the `/movement` gallery, spread through the grid. Gallery is now the video + 24 photos (4×7 on desktop, 2 columns on phones).
+
+**Files added:** `public/movement/lookbook-18…21.webp` (35–126 KB each).
+
+**Verified:** typecheck + production build; at 390px and 1366px all 24 images load with no horizontal overflow.
+
+---
+
 ## 2026-10-21 — Movement gallery: 17 more lookbook photos
 
 **What:** Added 17 founder-supplied lookbook photos to the `/movement` gallery (now the video + 20 photos). The video is a 2×2 feature tile so the grid stays even (4×6 on desktop, 2 columns on phones).
