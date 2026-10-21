@@ -4,6 +4,14 @@ Reverse-chronological. Update this file after every meaningful change.
 
 ---
 
+## 2026-10-21 — Movement gallery: tap-to-view lightbox
+
+**What:** Every gallery tile on `/movement` (24 photos + the crew video) now opens a full-screen viewer showing the whole uncropped image. Navigate with ‹ › buttons, ← → keys or swipe; close with ×, Esc or a tap outside the photo. The video opens with playback controls. Built on the native `<dialog>` element in a new client component, `components/storefront/LookbookGallery.tsx` (no new dependency); page scroll is locked while it is open.
+
+**Verified:** typecheck + production build; scripted browser test at 1366px and 390px (touch): 24 photo tiles + 1 video tile clickable, Next/←/wrap-around/swipe all move the counter correctly, Esc and outside-tap close it and restore scroll, video opens with controls, no page errors.
+
+---
+
 ## 2026-10-21 — Movement hero background photo
 
 **What:** The `/movement` hero ("Be yourself, loudly. Build something of your own.") now has a background photo (`lookbook-17`, the three-person group shot) under a navy gradient overlay so the text stays legible. `PageHero` gains an optional `background` prop; other pages using it are unchanged.

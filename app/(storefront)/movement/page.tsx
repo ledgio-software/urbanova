@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
-import Image from 'next/image'
 import Link from 'next/link'
+import { LookbookGallery } from '@/components/storefront/LookbookGallery'
 import { PageHero, SectionTitle } from '@/components/storefront/PageHero'
 import { MOVEMENT_POLICY_SLUGS, POLICY_LINKS } from '@/lib/content/policy-index'
 import { siteConfig } from '@/lib/site-config'
@@ -168,33 +168,17 @@ export default function MovementPage() {
         <SectionTitle lead="Every URBANOVA purchase supports the movement. Every member of the movement carries the brand forward.">
           Wear the version of you that isn&apos;t afraid.
         </SectionTitle>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-          <div className="relative col-span-2 row-span-2 aspect-[3/4] lg:aspect-auto overflow-hidden bg-brand-black">
-            <video
-              autoPlay
-              loop
-              muted
-              playsInline
-              preload="metadata"
-              poster="/movement/crew-video-poster.webp"
-              aria-label="URBANOVA crew in the city"
-              className="absolute inset-0 h-full w-full object-cover"
-            >
-              <source src="/movement/crew-video.mp4" type="video/mp4" />
-            </video>
-          </div>
-          {GALLERY.map((g) => (
-            <div key={g.src} className="relative aspect-[3/4] overflow-hidden bg-brand-black/5">
-              <Image
-                src={g.src}
-                alt={g.alt}
-                fill
-                sizes="(min-width: 1024px) 25vw, 50vw"
-                className="object-cover"
-              />
-            </div>
-          ))}
-        </div>
+        <LookbookGallery
+          items={[
+            {
+              type: 'video',
+              src: '/movement/crew-video.mp4',
+              poster: '/movement/crew-video-poster.webp',
+              alt: 'URBANOVA crew in the city',
+            },
+            ...GALLERY.map((g) => ({ type: 'image' as const, ...g })),
+          ]}
+        />
       </section>
 
       {/* What we believe */}
