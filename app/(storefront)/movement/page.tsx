@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
 import { PageHero, SectionTitle } from '@/components/storefront/PageHero'
 import { MOVEMENT_POLICY_SLUGS, POLICY_LINKS } from '@/lib/content/policy-index'
@@ -12,6 +13,12 @@ export const metadata: Metadata = {
   description:
     'URBANOVA is a streetwear brand and youth movement that helps young people be themselves and build their own ventures.',
 }
+
+const GALLERY = [
+  { src: '/movement/crew-front.webp', alt: 'Two URBANOVA crew members in black and brown tees standing on a city street' },
+  { src: '/movement/crew-temple.webp', alt: 'URBANOVA brown tee with temple back print, worn beside the black logo tee' },
+  { src: '/movement/crew-back.webp', alt: 'Back prints of the URBANOVA "Believe in Yourself" black tee and the brown temple tee' },
+]
 
 const ARMS = [
   {
@@ -129,6 +136,40 @@ export default function MovementPage() {
           { label: 'Shop Now', href: '/shop', variant: 'ghost' },
         ]}
       />
+
+      {/* In the city — copy: Reference B.3 voice line + Vision & Mission s.2.1 */}
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 pt-16 sm:pt-20">
+        <SectionTitle lead="Every URBANOVA purchase supports the movement. Every member of the movement carries the brand forward.">
+          Wear the version of you that isn&apos;t afraid.
+        </SectionTitle>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          <div className="relative aspect-[3/4] overflow-hidden bg-brand-black">
+            <video
+              autoPlay
+              loop
+              muted
+              playsInline
+              preload="metadata"
+              poster="/movement/crew-video-poster.webp"
+              aria-label="URBANOVA crew in the city"
+              className="absolute inset-0 h-full w-full object-cover"
+            >
+              <source src="/movement/crew-video.mp4" type="video/mp4" />
+            </video>
+          </div>
+          {GALLERY.map((g) => (
+            <div key={g.src} className="relative aspect-[3/4] overflow-hidden bg-brand-black/5">
+              <Image
+                src={g.src}
+                alt={g.alt}
+                fill
+                sizes="(min-width: 1024px) 25vw, 50vw"
+                className="object-cover"
+              />
+            </div>
+          ))}
+        </div>
+      </section>
 
       {/* What we believe */}
       <section className="max-w-4xl mx-auto px-4 sm:px-6 py-20">
