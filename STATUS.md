@@ -4,6 +4,14 @@ Reverse-chronological. Update this file after every meaningful change.
 
 ---
 
+## 2026-10-21 — Link previews (share images)
+
+**What:** Shared links (WhatsApp, Instagram/Facebook, X, iMessage) now show a picture card, not just a title. `app/opengraph-image.jpg` is the site-wide card (crew group shot + "URBANOVA / Bold City. Bold You." + hero line from Reference E.1); `app/(storefront)/movement/opengraph-image.jpg` is the Movement card ("Be yourself, loudly. Build something of your own."). Both 1200×630 JPEG (125 KB / 88 KB), headlines in Bebas Neue (OFL), alt text in `*.alt.txt`. Product pages keep their own product photo.
+
+**Verified:** production build emits `og:image` / `twitter:image` with absolute URLs, 1200×630 size and alt text on `/`, `/movement`, `/contact`, `/legal/*`; the Movement image URL serves as `image/jpeg`. Not verified: an actual WhatsApp/Facebook fetch (needs the public URL). Messaging apps cache previews, so a link shared before this deploy may keep its old card for a while.
+
+---
+
 ## 2026-10-21 — Working mobile menu + WhatsApp number
 
 **What:**
