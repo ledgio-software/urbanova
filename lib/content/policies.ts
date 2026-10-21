@@ -10,7 +10,7 @@ import {
   spotlightConsent,
   starterFundPolicy,
 } from './movement-policies'
-import { privacyPolicy, shippingReturns, termsOfSale, websiteTerms } from './store-policies'
+import { cookiePolicy, privacyPolicy, shippingReturns, termsOfSale, websiteTerms } from './store-policies'
 import type { DeliveryZoneInfo, PolicyDoc } from './types'
 
 async function loadZones(): Promise<DeliveryZoneInfo[]> {
@@ -30,6 +30,8 @@ export async function getPolicy(slug: string): Promise<PolicyDoc | null> {
       return termsOfSale({ ...ctx, zones: [] })
     case 'privacy-policy':
       return privacyPolicy({ ...ctx, zones: [] })
+    case 'cookie-policy':
+      return cookiePolicy({ ...ctx, zones: [] })
     case 'shipping-returns':
       return shippingReturns({ ...ctx, zones: await loadZones() })
     case 'website-terms':

@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import Link from 'next/link'
 
 interface PageHeroProps {
@@ -5,11 +6,19 @@ interface PageHeroProps {
   title: string
   lead: string
   actions?: { label: string; href: string; variant?: 'primary' | 'ghost' }[]
+  /** Optional photo behind the hero; a navy overlay keeps the text legible. */
+  background?: { src: string; alt: string }
 }
 
-export function PageHero({ eyebrow, title, lead, actions }: PageHeroProps) {
+export function PageHero({ eyebrow, title, lead, actions, background }: PageHeroProps) {
   return (
-    <section className="bg-brand-navy text-brand-white">
+    <section className="relative isolate overflow-hidden bg-brand-navy text-brand-white">
+      {background && (
+        <>
+          <Image src={background.src} alt={background.alt} fill priority sizes="100vw" className="-z-20 object-cover" />
+          <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-r from-brand-navy/95 via-brand-navy/80 to-brand-navy/50" />
+        </>
+      )}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-20 sm:py-28">
         <p className="font-body text-xs uppercase tracking-[0.3em] text-brand-red mb-4">{eyebrow}</p>
         <h1 className="font-headline text-display-lg uppercase tracking-widest">{title}</h1>

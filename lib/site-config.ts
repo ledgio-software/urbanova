@@ -9,6 +9,12 @@
 
 const env = (key: string): string | undefined => process.env[key]?.trim() || undefined
 
+// Ad pixel IDs are injected into a script, so only plain alphanumeric IDs are accepted.
+const pixelId = (key: string): string | undefined => {
+  const value = env(key)
+  return value && /^[A-Za-z0-9]+$/.test(value) ? value : undefined
+}
+
 export const siteConfig = {
   businessName: env('BUSINESS_NAME'),
   registrationNumber: env('BUSINESS_REGISTRATION_NUMBER'),
@@ -16,13 +22,19 @@ export const siteConfig = {
   address: env('BUSINESS_ADDRESS'),
   digitalAddress: env('BUSINESS_DIGITAL_ADDRESS'),
   phone: env('CONTACT_PHONE'),
-  email: env('CONTACT_EMAIL') ?? 'hello@urbanova.store',
+  /** Customer contact email: Contact page and policy pages (founder-confirmed Oct 2026). */
+  email: env('CONTACT_EMAIL') ?? 'urbanovaclothing6@gmail.com',
+  /** Where "Become a Partner" on /movement sends enquiries (founder-confirmed Oct 2026). */
+  partnerEmail: env('PARTNER_EMAIL') ?? 'urbanovaclothing6@gmail.com',
   movementEntityName: env('MOVEMENT_ENTITY_NAME'),
   dpcRegistrationNumber: env('DPC_REGISTRATION_NUMBER'),
   safeguardingLeadName: env('SAFEGUARDING_LEAD_NAME'),
   safeguardingLeadContact: env('SAFEGUARDING_LEAD_CONTACT'),
   /** Shown as "Effective: …" on each policy when set (e.g. "1 November 2026"). */
   policyEffectiveDate: env('POLICY_EFFECTIVE_DATE'),
+  /** Retargeting pixels — loaded only after the visitor accepts marketing cookies. */
+  metaPixelId: pixelId('META_PIXEL_ID'),
+  tiktokPixelId: pixelId('TIKTOK_PIXEL_ID'),
 }
 
 export type SiteConfig = typeof siteConfig

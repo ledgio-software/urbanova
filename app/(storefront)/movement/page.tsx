@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
-import Image from 'next/image'
 import Link from 'next/link'
+import { LookbookGallery } from '@/components/storefront/LookbookGallery'
 import { PageHero, SectionTitle } from '@/components/storefront/PageHero'
 import { MOVEMENT_POLICY_SLUGS, POLICY_LINKS } from '@/lib/content/policy-index'
 import { siteConfig } from '@/lib/site-config'
@@ -20,17 +20,21 @@ const GALLERY = [
   { src: '/movement/lookbook-06.webp', alt: 'Three crew members in "The Strong Survive" and "Chase Your Dreams" tees' },
   { src: '/movement/lookbook-04.webp', alt: 'Two crew members in black and white "Dreams Not Excuses" tees' },
   { src: '/movement/lookbook-01.webp', alt: 'Crew member in the black "Rise Above" long-sleeve walking down a tree-lined road' },
+  { src: '/movement/lookbook-18.webp', alt: 'Two crew members walking through a courtyard in the brown logo tee and the "Chase Your Dreams" tee' },
   { src: '/movement/crew-front.webp', alt: 'Two URBANOVA crew members in black and brown tees standing on a city street' },
   { src: '/movement/lookbook-09.webp', alt: 'Portrait in the black "No Risk No Story" tee' },
   { src: '/movement/lookbook-13.webp', alt: 'Three crew members holding URBANOVA "Own the Street" shopping bags' },
   { src: '/movement/lookbook-11.webp', alt: 'Back print of the white "The Strong Survive" tee' },
+  { src: '/movement/lookbook-20.webp', alt: 'Crew member seated at a café table in the cream "URBANOVA Worldwide" angel tee' },
   { src: '/movement/lookbook-15.webp', alt: 'Two crew members on stone steps in "Dreams Not Excuses" tees' },
   { src: '/movement/lookbook-05.webp', alt: 'Crew member in the black "No Risk No Story" tee carrying a bag' },
   { src: '/movement/crew-temple.webp', alt: 'URBANOVA brown tee with temple back print, worn beside the black logo tee' },
   { src: '/movement/lookbook-14.webp', alt: 'Brown "The Strong Survive" tee with the "Chase Your Dreams" tee behind' },
   { src: '/movement/lookbook-12.webp', alt: 'Portrait in the black "Dreams Not Excuses" tee' },
+  { src: '/movement/lookbook-19.webp', alt: 'Two crew members walking under a timber canopy in URBANOVA tees' },
   { src: '/movement/lookbook-07.webp', alt: '"Rise Above" back print between two "No Risk No Story" tees' },
   { src: '/movement/lookbook-02.webp', alt: 'Back view of the "Rise Above" long-sleeve on a tree-lined road' },
+  { src: '/movement/lookbook-21.webp', alt: 'Crew member in sunglasses seated in the cream "URBANOVA Worldwide" angel tee' },
   { src: '/movement/lookbook-10.webp', alt: 'Two crew members leaning on a stone wall in "Dreams Not Excuses" tees' },
   { src: '/movement/crew-back.webp', alt: 'Back prints of the URBANOVA "Believe in Yourself" black tee and the brown temple tee' },
   { src: '/movement/lookbook-08.webp', alt: 'Crew member looking down in the "No Risk No Story" tee' },
@@ -141,7 +145,7 @@ const ROADMAP = [
 ]
 
 export default function MovementPage() {
-  const partnerMail = `mailto:${siteConfig.email}?subject=${encodeURIComponent('Partnering with URBANOVA')}`
+  const partnerMail = `mailto:${siteConfig.partnerEmail}?subject=${encodeURIComponent('Partnering with URBANOVA')}`
 
   return (
     <div>
@@ -149,6 +153,10 @@ export default function MovementPage() {
         eyebrow="The Movement"
         title="Be yourself, loudly. Build something of your own."
         lead="URBANOVA is a streetwear brand and youth movement that helps young people be themselves and build their own ventures: a community of bold young people, backed by partner businesses."
+        background={{
+          src: '/movement/lookbook-17.webp',
+          alt: 'Three URBANOVA crew members in "No Risk No Story" and "Rise Above" tees under a tree',
+        }}
         actions={[
           { label: 'Our Vision & Mission', href: '/vision-mission' },
           { label: 'Shop Now', href: '/shop', variant: 'ghost' },
@@ -160,33 +168,17 @@ export default function MovementPage() {
         <SectionTitle lead="Every URBANOVA purchase supports the movement. Every member of the movement carries the brand forward.">
           Wear the version of you that isn&apos;t afraid.
         </SectionTitle>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-          <div className="relative col-span-2 row-span-2 aspect-[3/4] lg:aspect-auto overflow-hidden bg-brand-black">
-            <video
-              autoPlay
-              loop
-              muted
-              playsInline
-              preload="metadata"
-              poster="/movement/crew-video-poster.webp"
-              aria-label="URBANOVA crew in the city"
-              className="absolute inset-0 h-full w-full object-cover"
-            >
-              <source src="/movement/crew-video.mp4" type="video/mp4" />
-            </video>
-          </div>
-          {GALLERY.map((g) => (
-            <div key={g.src} className="relative aspect-[3/4] overflow-hidden bg-brand-black/5">
-              <Image
-                src={g.src}
-                alt={g.alt}
-                fill
-                sizes="(min-width: 1024px) 25vw, 50vw"
-                className="object-cover"
-              />
-            </div>
-          ))}
-        </div>
+        <LookbookGallery
+          items={[
+            {
+              type: 'video',
+              src: '/movement/crew-video.mp4',
+              poster: '/movement/crew-video-poster.webp',
+              alt: 'URBANOVA crew in the city',
+            },
+            ...GALLERY.map((g) => ({ type: 'image' as const, ...g })),
+          ]}
+        />
       </section>
 
       {/* What we believe */}

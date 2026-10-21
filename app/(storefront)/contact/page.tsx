@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { siteConfig } from '@/lib/site-config'
 
 export const metadata: Metadata = {
   title: 'Contact',
@@ -34,10 +35,10 @@ export default function ContactPage() {
             For order issues, wholesale enquiries, or press. We reply within 24 hours.
           </p>
           <a
-            href="mailto:hello@urbanova.store"
+            href={`mailto:${siteConfig.email}`}
             className="inline-block border border-brand-black text-brand-black font-body text-sm uppercase tracking-widest px-6 py-3 hover:bg-brand-black hover:text-white transition-colors"
           >
-            hello@urbanova.store
+            {siteConfig.email}
           </a>
         </div>
       </div>
@@ -60,7 +61,7 @@ export default function ContactPage() {
             },
             {
               q: 'Are you open to wholesale or pop-up partnerships?',
-              a: "Absolutely. Email us at hello@urbanova.store with your proposal and we'll get back to you.",
+              a: `Absolutely. Email us at ${siteConfig.email} with your proposal and we'll get back to you.`,
             },
           ].map((faq) => (
             <div key={faq.q} className="border-b border-brand-black/10 pb-6">
