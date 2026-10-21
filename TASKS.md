@@ -65,7 +65,8 @@ A task is only `[x]` when the feature is verified working — not just coded.
 - [x] Policy pages under `/legal/*` from the approved Policies document (12 policies)
 - [x] Returns policy updated to the 14-day right to cancel (Reference F.5 superseded)
 - [x] Header/footer/sitemap links for new pages
-- [ ] Mobile pass over `/movement`, `/vision-mission`, `/legal/*` (header has no working mobile menu — footer is the only mobile route to these pages)
+- [x] Mobile pass over `/movement`, `/vision-mission`, `/legal/*`
+- [x] Working mobile header menu
 - [ ] Founder: fill business identity env vars and confirm bracketed numbers in `lib/site-config.ts`
 - [ ] Founder: Ghana lawyer review of all policies; then set `POLICY_EFFECTIVE_DATE`
 - [ ] Founder: confirm payment-method names (Telecel Cash / AT Money vs Vodafone Cash / AirtelTigo Money) against checkout

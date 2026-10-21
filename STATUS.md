@@ -4,6 +4,24 @@ Reverse-chronological. Update this file after every meaningful change.
 
 ---
 
+## 2026-10-21 — Link previews (share images)
+
+**What:** Shared links (WhatsApp, Instagram/Facebook, X, iMessage) now show a picture card, not just a title. `app/opengraph-image.jpg` is the site-wide card (crew group shot + "URBANOVA / Bold City. Bold You." + hero line from Reference E.1); `app/(storefront)/movement/opengraph-image.jpg` is the Movement card ("Be yourself, loudly. Build something of your own."). Both 1200×630 JPEG (125 KB / 88 KB), headlines in Bebas Neue (OFL), alt text in `*.alt.txt`. Product pages keep their own product photo.
+
+**Verified:** production build emits `og:image` / `twitter:image` with absolute URLs, 1200×630 size and alt text on `/`, `/movement`, `/contact`, `/legal/*`; the Movement image URL serves as `image/jpeg`. Not verified: an actual WhatsApp/Facebook fetch (needs the public URL). Messaging apps cache previews, so a link shared before this deploy may keep its old card for a while.
+
+---
+
+## 2026-10-21 — Working mobile menu + WhatsApp number
+
+**What:**
+- **Mobile menu:** the header's ☰ button on phones was a non-working placeholder. New `components/storefront/MobileMenu.tsx` opens a panel under the sticky header with Shop (+ categories), About, Movement, Vision & Mission, Track Order, Contact and Cart; current page highlighted. Closes on link tap, ✕, tap outside or Esc; page scroll locked while open. Desktop nav unchanged.
+- **WhatsApp:** contact phone is now +233 55 778 6833 (founder-supplied 055 778 6833; `CONTACT_PHONE` overrides). Contact page "Message Us" opens `https://wa.me/233557786833` (was the `233000000000` placeholder); policy pages show the number next to the email. The floating WhatsApp button and "Join WhatsApp Group" links still open the VIP group invite.
+
+**Verified:** typecheck + production build; scripted phone test (360px, touch): menu opens with all links, header stays usable, link tap navigates and closes, outside tap / ✕ / Esc close, scroll locked and restored, menu sits under the header when scrolled, no page errors; desktop shows the normal nav and no ☰. Contact "Message Us" → `https://wa.me/233557786833`; Terms and Complaints pages show the number. Category sub-links not exercised locally (no database), they use the same data as the desktop dropdown.
+
+---
+
 ## 2026-10-21 — Contact email switched to Gmail
 
 **What:** The customer contact email is now urbanovaclothing6@gmail.com (founder request). The Contact page (email button + wholesale FAQ) now reads `siteConfig.email` instead of a hardcoded `hello@urbanova.store`, so it and the policy pages show the same address. `CONTACT_EMAIL` env still overrides.

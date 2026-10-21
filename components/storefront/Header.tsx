@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { getCategories, type CategoryRow } from '@/lib/products'
 import { CartCount } from './CartCount'
+import { MobileMenu } from './MobileMenu'
 
 export async function Header() {
   const categories = await getCategories()
@@ -84,12 +85,7 @@ export async function Header() {
               <CartCount />
             </Link>
 
-            {/* Mobile menu placeholder — full implementation in Phase 5 */}
-            <button className="md:hidden p-1 text-brand-white/80 hover:text-brand-white transition-colors" aria-label="Open menu">
-              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-              </svg>
-            </button>
+            <MobileMenu categories={categories.map((c: CategoryRow) => ({ id: c.id, name: c.name, slug: c.slug }))} />
           </div>
         </div>
       </div>
