@@ -4,6 +4,14 @@ Reverse-chronological. Update this file after every meaningful change.
 
 ---
 
+## 2026-10-21 — TikTok link in footer
+
+**What:** Footer social row gains a TikTok icon linking to https://www.tiktok.com/@urbanova55771 (founder-supplied; share-tracking query params dropped), opening in a new tab. URL lives in `siteConfig.tiktokUrl` (`TIKTOK_URL` overrides). The existing Instagram and X icons still point to `#` until handles are supplied.
+
+**Verified:** typecheck + production build; on `/`, `/movement`, `/legal/privacy-policy` the footer shows the TikTok link with the correct href and `target="_blank"`; visual check at 390px.
+
+---
+
 ## 2026-10-21 — Link previews (share images)
 
 **What:** Shared links (WhatsApp, Instagram/Facebook, X, iMessage) now show a picture card, not just a title. `app/opengraph-image.jpg` is the site-wide card (crew group shot + "URBANOVA / Bold City. Bold You." + hero line from Reference E.1); `app/(storefront)/movement/opengraph-image.jpg` is the Movement card ("Be yourself, loudly. Build something of your own."). Both 1200×630 JPEG (125 KB / 88 KB), headlines in Bebas Neue (OFL), alt text in `*.alt.txt`. Product pages keep their own product photo.
