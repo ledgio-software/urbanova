@@ -4,6 +4,14 @@ Reverse-chronological. Update this file after every meaningful change.
 
 ---
 
+## 2026-10-21 — Snapchat link in footer
+
+**What:** Footer social row gains a Snapchat icon linking to https://www.snapchat.com/add/urban264474 (founder-supplied; `share_id`/`locale` tracking params dropped), opening in a new tab. URL in `siteConfig.snapchatUrl` (`SNAPCHAT_URL` overrides). Order: TikTok, Snapchat, Instagram, X.
+
+**Verified:** typecheck + production build; footer shows both TikTok and Snapchat links with correct hrefs and `target="_blank"`; visual check at 390px.
+
+---
+
 ## 2026-10-21 — TikTok link in footer
 
 **What:** Footer social row gains a TikTok icon linking to https://www.tiktok.com/@urbanova55771 (founder-supplied; share-tracking query params dropped), opening in a new tab. URL lives in `siteConfig.tiktokUrl` (`TIKTOK_URL` overrides). The existing Instagram and X icons still point to `#` until handles are supplied.
