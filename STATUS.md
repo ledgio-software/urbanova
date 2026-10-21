@@ -4,6 +4,14 @@ Reverse-chronological. Update this file after every meaningful change.
 
 ---
 
+## 2026-10-21 — Contact email switched to Gmail
+
+**What:** The customer contact email is now urbanovaclothing6@gmail.com (founder request). The Contact page (email button + wholesale FAQ) now reads `siteConfig.email` instead of a hardcoded `hello@urbanova.store`, so it and the policy pages show the same address. `CONTACT_EMAIL` env still overrides.
+
+**Verified:** production build — `/contact`, `/legal/privacy-policy`, `/legal/shipping-returns`, `/legal/terms-of-service` show the Gmail address and no `hello@urbanova.store`.
+
+---
+
 ## 2026-10-21 — Partner enquiry email
 
 **What:** "Become a Partner" on `/movement` now emails urbanovaclothing6@gmail.com (founder-confirmed), via a new `partnerEmail` setting (`PARTNER_EMAIL` env overrides). The general contact email is unchanged.

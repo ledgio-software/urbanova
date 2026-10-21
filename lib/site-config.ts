@@ -22,7 +22,8 @@ export const siteConfig = {
   address: env('BUSINESS_ADDRESS'),
   digitalAddress: env('BUSINESS_DIGITAL_ADDRESS'),
   phone: env('CONTACT_PHONE'),
-  email: env('CONTACT_EMAIL') ?? 'hello@urbanova.store',
+  /** Customer contact email: Contact page and policy pages (founder-confirmed Oct 2026). */
+  email: env('CONTACT_EMAIL') ?? 'urbanovaclothing6@gmail.com',
   /** Where "Become a Partner" on /movement sends enquiries (founder-confirmed Oct 2026). */
   partnerEmail: env('PARTNER_EMAIL') ?? 'urbanovaclothing6@gmail.com',
   movementEntityName: env('MOVEMENT_ENTITY_NAME'),
