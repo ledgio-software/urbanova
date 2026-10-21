@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { siteConfig } from '@/lib/site-config'
+import { siteConfig, whatsappChatUrl } from '@/lib/site-config'
 
 export const metadata: Metadata = {
   title: 'Contact',
@@ -21,7 +21,7 @@ export default function ContactPage() {
             Fastest way to reach us. We respond same day on business days.
           </p>
           <a
-            href="https://wa.me/233000000000"
+            href={whatsappChatUrl() ?? '/contact'}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-block bg-brand-black text-white font-body text-sm uppercase tracking-widest px-6 py-3 hover:bg-brand-black/80 transition-colors"

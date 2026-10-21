@@ -21,7 +21,8 @@ export const siteConfig = {
   tin: env('BUSINESS_TIN'),
   address: env('BUSINESS_ADDRESS'),
   digitalAddress: env('BUSINESS_DIGITAL_ADDRESS'),
-  phone: env('CONTACT_PHONE'),
+  /** Customer phone/WhatsApp, shown on policy pages (founder-confirmed Oct 2026). */
+  phone: env('CONTACT_PHONE') ?? '+233 55 778 6833',
   /** Customer contact email: Contact page and policy pages (founder-confirmed Oct 2026). */
   email: env('CONTACT_EMAIL') ?? 'urbanovaclothing6@gmail.com',
   /** Where "Become a Partner" on /movement sends enquiries (founder-confirmed Oct 2026). */
@@ -38,6 +39,14 @@ export const siteConfig = {
 }
 
 export type SiteConfig = typeof siteConfig
+
+/** WhatsApp click-to-chat link for the contact phone (wa.me needs digits only, with country code). */
+export function whatsappChatUrl(): string | undefined {
+  if (!siteConfig.phone) return undefined
+  let digits = siteConfig.phone.replace(/\D/g, '')
+  if (digits.startsWith('0')) digits = `233${digits.slice(1)}` // local Ghana format, e.g. 055…
+  return `https://wa.me/${digits}`
+}
 
 // Suggested values from the bracketed numbers in the Policies document — pending founder/legal sign-off.
 export const policyTerms = {
