@@ -21,7 +21,7 @@ Brand tone carries into the UI: bold, high-contrast, confident. Apply colors and
 |---|---|---|
 | Framework | Next.js (App Router) | Single codebase for frontend + API routes/Server Actions |
 | Language | TypeScript | Strict mode on |
-| Database | Vercel Postgres | Use `@vercel/postgres` or Prisma/Drizzle ORM |
+| Database | Supabase Postgres (founder decision Nov 2026; was Vercel Postgres) | Prisma ORM. Migration steps: `docs/SUPABASE_MIGRATION.md` |
 | ORM | Prisma (recommended) | Simpler migrations for a solo/small team |
 | Styling | Tailwind CSS | Use design tokens from Brand Brief |
 | Auth (admin) | Auth.js (NextAuth) | Credential-based admin login only |

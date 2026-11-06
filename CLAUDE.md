@@ -55,7 +55,7 @@ URBANOVA is a mobile-first e-commerce website for a Ghanaian streetwear brand. C
 | Layer | Choice |
 |---|---|
 | Framework | Next.js App Router + TypeScript (strict mode) |
-| Database | Vercel Postgres + Prisma ORM |
+| Database | Supabase Postgres + Prisma ORM (founder decision Nov 2026, replaces Vercel Postgres) |
 | Styling | Tailwind CSS — design tokens from Brand Brief (Part B), never hardcoded |
 | Auth (admin) | Auth.js / NextAuth — credential-based only |
 | Payments | Paystack — hosted checkout or inline popup only |

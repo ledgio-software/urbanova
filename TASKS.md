@@ -9,6 +9,8 @@ A task is only `[x]` when the feature is verified working — not just coded.
 - [x] Scaffold Next.js project (App Router, TypeScript strict mode)
 - [x] Configure Tailwind CSS with URBANOVA design tokens (colors, typography)
 - [x] Set up Vercel Postgres + Prisma ORM
+- [x] Supabase migration script + guide (`docs/SUPABASE_MIGRATION.md`)
+- [ ] Founder: create Supabase project, run `scripts/move-db-to-supabase.sh`, update Vercel + GitHub secrets, redeploy, check live site
 - [x] Write Prisma schema (categories, products, product_variants, product_images, customers, orders, order_items, delivery_zones)
 - [ ] Run initial Prisma migration (needs real DATABASE_URL — run `npm run db:migrate` locally after filling .env.local)
 - [x] Seed database with sample catalog data (per Reference doc Part C, Section C.6 examples) — run `npm run db:seed` after migration

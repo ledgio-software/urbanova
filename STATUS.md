@@ -4,6 +4,20 @@ Reverse-chronological. Update this file after every meaningful change.
 
 ---
 
+## 2026-11-06 — Database moving to Supabase (prepared, not yet switched)
+
+**What:** Founder decision to move the production database from Vercel Postgres to Supabase, keeping all data.
+- `scripts/move-db-to-supabase.sh`: backs up the current database, restores it into an empty Supabase project in one transaction (refuses a non-empty target), applies this branch's schema with `prisma db push`, then compares row counts for every table. It never writes to the old database.
+- `docs/SUPABASE_MIGRATION.md`: step-by-step for the founder (create project, which URLs to use, run the script, update Vercel + GitHub secrets, redeploy, check, roll back).
+- Supabase connection format in `.env.example`: `DATABASE_URL` = transaction pooler (6543, `?pgbouncer=true&connection_limit=1`), `DIRECT_URL` = session pooler (5432). Tech stack updated in README, CLAUDE.md, CONTRIBUTING (also corrected the stale Render rollback rows) and Reference A.
+- `.gitignore` excludes `urbanova-backup-*.sql` (customer data).
+
+**Verified:** script run locally against Postgres 16: database built from `main`'s schema with data → empty database owned by a non-superuser (like Supabase's `postgres` role) → all 13 tables match, new Nova Market columns added with defaults; a second run refuses to overwrite.
+
+**Not done here:** the switch itself — needs the founder's Supabase project and Vercel access (this environment can't reach outside databases). Running the script also applies the Nova Market schema, which replaces the separate `prisma db push` step for PR #28.
+
+---
+
 ## 2026-11-06 — Nova Market: partners list and sell their products
 
 **What:** Partners can now list products, and customers can browse and buy them (Reference Part I, phases 2–3).
