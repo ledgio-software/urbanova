@@ -1,25 +1,39 @@
-import { auth } from '@/auth'
+import NextAuth from 'next-auth'
 import { NextResponse } from 'next/server'
+import { authConfig } from './auth.config'
+
+// Edge-safe auth (no providers) — only reads the session JWT.
+const { auth } = NextAuth(authConfig)
+
+// /admin and /partner are separate areas: each needs its own role, so a partner
+// session can never reach admin pages or APIs (and vice versa).
+const inArea = (pathname: string, base: string) => pathname === base || pathname.startsWith(`${base}/`)
 
 export default auth((req) => {
-  const isAdminRoute = req.nextUrl.pathname.startsWith('/admin')
-  const isLoginPage = req.nextUrl.pathname === '/admin/login'
-  const isApiAuth = req.nextUrl.pathname.startsWith('/api/auth')
+  const { pathname } = req.nextUrl
+  const role = req.auth?.user?.role
 
-  if (isApiAuth) return NextResponse.next()
-  if (isAdminRoute && !isLoginPage && !req.auth) {
-    return NextResponse.redirect(new URL('/admin/login', req.url))
+  if (inArea(pathname, '/api/admin')) {
+    if (role !== 'admin') return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    return NextResponse.next()
   }
-  if (isLoginPage && req.auth) {
-    return NextResponse.redirect(new URL('/admin', req.url))
+  if (inArea(pathname, '/api/partner')) {
+    if (role !== 'partner') return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    return NextResponse.next()
   }
 
-  // Protect all /api/admin/* routes
-  if (req.nextUrl.pathname.startsWith('/api/admin') && !req.auth) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  for (const [base, requiredRole] of [['/admin', 'admin'], ['/partner', 'partner']] as const) {
+    if (!inArea(pathname, base)) continue
+    const loginPath = `${base}/login`
+    if (pathname === loginPath) {
+      return role === requiredRole ? NextResponse.redirect(new URL(base, req.url)) : NextResponse.next()
+    }
+    if (role !== requiredRole) return NextResponse.redirect(new URL(loginPath, req.url))
   }
+
+  return NextResponse.next()
 })
 
 export const config = {
-  matcher: ['/admin/:path*', '/api/admin/:path*'],
+  matcher: ['/admin/:path*', '/api/admin/:path*', '/partner/:path*', '/api/partner/:path*'],
 }

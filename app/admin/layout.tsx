@@ -4,8 +4,8 @@ import { Sidebar } from '@/components/admin/Sidebar'
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const session = await auth()
 
-  // If user is not logged in (e.g. on /admin/login page), render full-screen without sidebar
-  if (!session) {
+  // Not an admin (e.g. on /admin/login): render full-screen without the admin sidebar
+  if (session?.user?.role !== 'admin') {
     return <>{children}</>
   }
 

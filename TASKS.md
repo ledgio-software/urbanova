@@ -81,3 +81,18 @@ A task is only `[x]` when the feature is verified working — not just coded.
 - [ ] Update the internal operations doc to the 14-day rule
 - [ ] Membership sign-up, Spotlight, Donate, Annual Report pages — blocked on schema/API, Safeguarding Lead appointment and registration gates (Foundation Phases)
 - [ ] Nova Market Seller Terms — publish only when marketplace launches, after legal review
+
+## Partner Marketplace (Nova Market) — Reference Part I
+
+- [x] Roles in session (admin / partner); admin-only and partner-only areas enforced
+- [x] Partner schema (partners, partner_users, products.partnerId)
+- [x] Admin: add / edit / suspend partners, commission, logins, password reset
+- [x] Partner dashboard: login, first-login password change, dashboard, My Page editor
+- [ ] **Before merging part 1:** apply schema to production DB (`npx prisma db push`) or fix the Migrate DB workflow
+- [ ] Partner product listings (dashboard) + "Sold by" on products
+- [ ] Public partner pages `/partners/[slug]` + partners directory; partner products in Shop
+- [ ] Partner orders: per-partner order parts, shipped status, notifications; earnings/payout ledger in admin
+- [ ] Paystack business account (founder) → Paystack checkout → partner subaccounts + split payments
+- [ ] Lawyer review + publish Nova Market Seller Terms (Policies s.10)
+- [ ] Founder: set commission for each partner
+

@@ -33,12 +33,17 @@ model Product {
   tags        String[]
   createdAt   DateTime         @default(now())
 
+  // null = sold by URBANOVA itself; set = listed by a marketplace partner (Reference Part I)
+  partnerId   String?
+
   category    Category         @relation(fields: [categoryId], references: [id])
+  partner     Partner?         @relation(fields: [partnerId], references: [id])
   variants    ProductVariant[]
   images      ProductImage[]
 
   @@index([slug])
   @@index([featured])
+  @@index([partnerId])
   @@map("products")
 }
 
@@ -151,4 +156,56 @@ model DeliveryZone {
   fee           Int    // pesewas — editable from admin panel
 
   @@map("delivery_zones")
+}
+
+// ─── Marketplace partners (Nova Market) ───────────────────────────────────────
+// Founder-approved Nov 2026 — see docs/URBANOVA_REFERENCE.md Part I.
+// Partners get a page on the site and a dashboard; URBANOVA keeps a commission.
+
+enum PartnerStatus {
+  pending   // created by admin, not yet live
+  active    // public page + products visible
+  suspended // hidden; partner logins blocked
+}
+
+model Partner {
+  id                  String        @id @default(cuid())
+  name                String
+  slug                String        @unique
+  tagline             String?
+  description         String?
+  logoUrl             String?
+  bannerUrl           String?
+  contactEmail        String
+  contactPhone        String        // WhatsApp-reachable number
+  location            String?
+  status              PartnerStatus @default(pending)
+  commissionBps       Int?          // URBANOVA's cut in basis points (1000 = 10%); set by admin before activation
+  payoutMethod        String?       // e.g. mtn_momo, telecel_cash, at_money, bank
+  payoutAccountName   String?
+  payoutAccountNumber String?
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  users               PartnerUser[]
+  products            Product[]
+
+  @@index([status])
+  @@map("partners")
+}
+
+model PartnerUser {
+  id                 String    @id @default(cuid())
+  partnerId          String
+  name               String
+  email              String    @unique // stored lowercase
+  passwordHash       String    // scrypt — see lib/password.ts
+  mustChangePassword Boolean   @default(true)
+  lastLoginAt        DateTime?
+  createdAt          DateTime  @default(now())
+
+  partner            Partner   @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+
+  @@index([partnerId])
+  @@map("partner_users")
 }

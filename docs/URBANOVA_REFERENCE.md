@@ -915,4 +915,50 @@ Business identity (name, registration no., TIN, address, digital address, phone,
 
 ---
 
+## PART I — PARTNER MARKETPLACE (Nova Market) — founder-approved Nov 2026
+
+> Founder request (Nov 2026): onboard partner businesses onto the site, each with their own page, managed through a dashboard URBANOVA provides. This is the **Nova Market** program from the approved Movement document (Part H, `docs/approved/URBANOVA_Movement.md` s.4), brought forward from Foundation Phases Phase 6.
+
+### I.1 Founder decisions
+
+| Decision | Choice |
+|---|---|
+| Payments | **Paystack split payments** (each partner a Paystack subaccount; URBANOVA keeps commission automatically). Not available yet: checkout is still manual MoMo and URBANOVA has no Paystack business account. **Interim:** partner sales are paid to URBANOVA like today; the admin tracks what each partner is owed and URBANOVA pays them out. |
+| Commission | Set per partner by the admin (`partners.commissionBps`, basis points). Required before a partner can go live. No default. |
+| Delivery | **Partners deliver their own orders** and mark them shipped in their dashboard. |
+| Listing approval | **Live immediately** — partner products go live when posted; admin can hide anything. |
+| What partners sell | **Anything legal** (not only clothing). Prohibited items per the Nova Market Seller Terms (Policies s.10). |
+| Who joins | Admin creates and approves partners (no public self-signup yet). |
+
+### I.2 Schema (extends A.4)
+
+- **partners** — id, name, slug (unique, page address), tagline, description, logo_url, banner_url, contact_email, contact_phone, location, status (`pending` \| `active` \| `suspended`), commission_bps, payout_method, payout_account_name, payout_account_number, created_at, updated_at
+- **partner_users** — id, partner_id (FK, cascade), name, email (unique, lowercase), password_hash (scrypt), must_change_password, last_login_at, created_at
+- **products.partner_id** — nullable FK; null = sold by URBANOVA. Partner products will use their own SKU prefix (not `URB-`), defined with the product-listing build.
+
+### I.3 Access rules
+
+- Two roles in the session: `admin` and `partner`. `/admin` + `/api/admin/*` require `admin`; `/partner` + `/api/partner/*` require `partner` (middleware + per-route checks).
+- A partner can only read/write their own partner record — the id always comes from the session, never the request.
+- Suspending a partner hides them and blocks their logins; existing sessions end on their next request.
+- Partner logins: admin creates them with a one-time password (shown once, shareable on WhatsApp); the partner must set their own password (10+ characters) before using the dashboard. Login and password-change endpoints are rate-limited.
+
+### I.4 Build phases
+
+1. **Foundations (done):** roles, schema, admin partner management, partner login / password / dashboard / page editor.
+2. Partner product listings in the dashboard (photos, variants or simple items, stock), "Sold by" on products.
+3. Public partner pages (`/partners/[slug]`) and a partners directory; partner products in Shop.
+4. Orders: split each order into per-partner parts; partner order view + shipped status; partner notification; earnings/payout ledger in admin (interim manual payouts).
+5. Paystack checkout for the whole store, then partner subaccounts + split payments.
+6. Publish Nova Market Seller Terms (Policies s.10) after legal review — needed before partners take real orders.
+
+### I.5 Open items
+
+- Commission rate(s) per partner.
+- Paystack business account (needs business registration).
+- Lawyer review of Nova Market Seller Terms, especially who is the legal seller to the customer (Act 772).
+- Production database must receive schema changes (the Migrate DB workflow has been failing — see STATUS).
+
+---
+
 *End of URBANOVA Complete Project Reference — v1.0*

@@ -4,6 +4,23 @@ Reverse-chronological. Update this file after every meaningful change.
 
 ---
 
+## 2026-11-06 — Partner marketplace, part 1: roles, partner accounts, dashboard
+
+**What:** Foundations for Nova Market (Reference Part I) — partners get a login and a dashboard; the admin onboards and manages them.
+- **Roles (security fix):** sessions now carry `role` (`admin` | `partner`). Previously any signed-in session was treated as admin. Middleware gates `/admin`+`/api/admin` to admins and `/partner`+`/api/partner` to partners; route handlers re-check (`lib/authz.ts`). Auth split into edge-safe `auth.config.ts` (middleware) and `auth.ts` (providers). Admin and partner logins rate-limited (10 per IP per 15 min). **Existing admin sessions must log in again after deploy.**
+- **Schema:** `partners`, `partner_users`, `products.partnerId` (nullable).
+- **Admin:** `/admin/partners` list, add (creates the partner + first login with a one-time password, copy/WhatsApp share), edit (status, commission %, page, contact, payouts), extra logins, password reset. Going live requires a commission.
+- **Partner dashboard** (`/partner`): login, forced password change on first login, dashboard (status, set-up checklist, commission, payout), "My Page" editor (tagline, about, logo, banner, contact, payout details). Partners can't change their name, page address, status or commission.
+- **Uploads:** shared `lib/upload.ts`; new `/api/partner/upload` accepts only JPG/PNG/WebP up to 5 MB.
+
+**Verified:** typecheck + production build; 36-check browser test against a real Postgres (seeded): signed-out access blocked; admin creates partners (commission required to go live, duplicate login rejected); partner first login forced to set password (page + API blocked until then); profile + logo + payout save; partner cannot reach admin pages/APIs and admin cannot use partner APIs; partner can't change protected fields or another partner; no password hashes in API output; password reset invalidates old password; suspension ends the session and blocks login; storefront unaffected; no page errors.
+
+**Deploy warning:** `products.partnerId` is a new column. If the production database doesn't get the schema change (Migrate DB workflow has been failing on main), product queries will fail and the shop will show nothing. Run `npx prisma db push` against production (or fix the workflow) **before or at merge**.
+
+**Not built yet:** partner products, public partner pages, partner orders/earnings, Paystack split — see Reference I.4.
+
+---
+
 ## 2026-10-21 — Snapchat link in footer
 
 **What:** Footer social row gains a Snapchat icon linking to https://www.snapchat.com/add/urban264474 (founder-supplied; `share_id`/`locale` tracking params dropped), opening in a new tab. URL in `siteConfig.snapchatUrl` (`SNAPCHAT_URL` overrides). Order: TikTok, Snapchat, Instagram, X.
