@@ -4,6 +4,43 @@ Reverse-chronological. Update this file after every meaningful change.
 
 ---
 
+## 2026-11-06 — URBANOVA Delivery core: riders, delivery jobs, tracking, delivery codes
+
+**What:** First part of the URBANOVA delivery system (Reference Part J).
+- **Schema:** `riders`, `delivery_jobs`, `delivery_events`; `orders` ↔ one delivery.
+- **Rider role** (`/rider`, `/api/rider`) alongside admin and partner; admin-created logins with one-time passwords, forced password change, rate-limited login.
+- **Admin:** Riders page (add, suspend/reactivate, reset password); Deliveries list (Open / Delivered / Cancelled / All), "New booking" for parcels booked by phone/WhatsApp, delivery detail (code, pickup/drop-off with call + map, rider, timeline, assign/reassign, cancel, "mark delivered" override); "Send with URBANOVA Delivery" on paid/packed order pages. Sidebar: Deliveries, Riders. `STORE_PICKUP_ADDRESS` pre-fills pickup.
+- **Rider dashboard** (phone-first): assigned jobs with big Call / Map buttons, "I've picked it up", "On my way", "Delivered — enter code" (4-digit, 5 tries), "Can't complete" with reason; recent jobs.
+- **Customers:** delivery code + "Track your delivery" on the order confirmation page; public `/track/[code]` timeline (first names only, no addresses/phones/code).
+- **Order sync:** picked up → order `shipped`, delivered → order `delivered`.
+- **Fix:** admin login now refreshes after signing in, so the sidebar appears without a manual reload (pre-existing bug).
+- Shared password-change handler and form for partners and riders.
+
+**Verified:** typecheck + production build; 46-check browser test on a real Postgres: order → paid → sent with delivery from the order page; unpaid/duplicate refused; customer sees code + tracking; tracking page leaks no address/phone/surname/code on a fresh load; rider first login, sees only own jobs, can't skip steps, wrong code counted, correct code delivers; order goes shipped → delivered; manual booking; another rider's job → 404; 5 wrong codes lock out; reassign blocked once picked up; admin override + timeline note; failed → reassign; cancel is final; role isolation (rider ↔ admin ↔ partner ↔ anonymous); suspended rider logged out and can't be assigned; no page errors. Partner suite (36 checks) re-run: all pass.
+
+**Deploy warning:** new tables — the production database needs `npx prisma db push` (see Part I entry).
+
+**Not built yet:** WhatsApp messages, partner-order delivery choice, outside-business booking page + distance pricing — Reference J.4.
+
+---
+
+## 2026-11-06 — Partner marketplace, part 1: roles, partner accounts, dashboard
+
+**What:** Foundations for Nova Market (Reference Part I) — partners get a login and a dashboard; the admin onboards and manages them.
+- **Roles (security fix):** sessions now carry `role` (`admin` | `partner`). Previously any signed-in session was treated as admin. Middleware gates `/admin`+`/api/admin` to admins and `/partner`+`/api/partner` to partners; route handlers re-check (`lib/authz.ts`). Auth split into edge-safe `auth.config.ts` (middleware) and `auth.ts` (providers). Admin and partner logins rate-limited (10 per IP per 15 min). **Existing admin sessions must log in again after deploy.**
+- **Schema:** `partners`, `partner_users`, `products.partnerId` (nullable).
+- **Admin:** `/admin/partners` list, add (creates the partner + first login with a one-time password, copy/WhatsApp share), edit (status, commission %, page, contact, payouts), extra logins, password reset. Going live requires a commission.
+- **Partner dashboard** (`/partner`): login, forced password change on first login, dashboard (status, set-up checklist, commission, payout), "My Page" editor (tagline, about, logo, banner, contact, payout details). Partners can't change their name, page address, status or commission.
+- **Uploads:** shared `lib/upload.ts`; new `/api/partner/upload` accepts only JPG/PNG/WebP up to 5 MB.
+
+**Verified:** typecheck + production build; 36-check browser test against a real Postgres (seeded): signed-out access blocked; admin creates partners (commission required to go live, duplicate login rejected); partner first login forced to set password (page + API blocked until then); profile + logo + payout save; partner cannot reach admin pages/APIs and admin cannot use partner APIs; partner can't change protected fields or another partner; no password hashes in API output; password reset invalidates old password; suspension ends the session and blocks login; storefront unaffected; no page errors.
+
+**Deploy warning:** `products.partnerId` is a new column. If the production database doesn't get the schema change (Migrate DB workflow has been failing on main), product queries will fail and the shop will show nothing. Run `npx prisma db push` against production (or fix the workflow) **before or at merge**.
+
+**Not built yet:** partner products, public partner pages, partner orders/earnings, Paystack split — see Reference I.4.
+
+---
+
 ## 2026-10-21 — Snapchat link in footer
 
 **What:** Footer social row gains a Snapchat icon linking to https://www.snapchat.com/add/urban264474 (founder-supplied; `share_id`/`locale` tracking params dropped), opening in a new tab. URL in `siteConfig.snapchatUrl` (`SNAPCHAT_URL` overrides). Order: TikTok, Snapchat, Instagram, X.

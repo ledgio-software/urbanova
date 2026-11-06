@@ -33,12 +33,17 @@ model Product {
   tags        String[]
   createdAt   DateTime         @default(now())
 
+  // null = sold by URBANOVA itself; set = listed by a marketplace partner (Reference Part I)
+  partnerId   String?
+
   category    Category         @relation(fields: [categoryId], references: [id])
+  partner     Partner?         @relation(fields: [partnerId], references: [id])
   variants    ProductVariant[]
   images      ProductImage[]
 
   @@index([slug])
   @@index([featured])
+  @@index([partnerId])
   @@map("products")
 }
 
@@ -120,6 +125,7 @@ model Order {
 
   customer         Customer?   @relation(fields: [customerId], references: [id])
   items            OrderItem[]
+  delivery         DeliveryJob?
 
   @@index([status])
   @@map("orders")
@@ -151,4 +157,144 @@ model DeliveryZone {
   fee           Int    // pesewas — editable from admin panel
 
   @@map("delivery_zones")
+}
+
+// ─── Marketplace partners (Nova Market) ───────────────────────────────────────
+// Founder-approved Nov 2026 — see docs/URBANOVA_REFERENCE.md Part I.
+// Partners get a page on the site and a dashboard; URBANOVA keeps a commission.
+
+enum PartnerStatus {
+  pending   // created by admin, not yet live
+  active    // public page + products visible
+  suspended // hidden; partner logins blocked
+}
+
+model Partner {
+  id                  String        @id @default(cuid())
+  name                String
+  slug                String        @unique
+  tagline             String?
+  description         String?
+  logoUrl             String?
+  bannerUrl           String?
+  contactEmail        String
+  contactPhone        String        // WhatsApp-reachable number
+  location            String?
+  status              PartnerStatus @default(pending)
+  commissionBps       Int?          // URBANOVA's cut in basis points (1000 = 10%); set by admin before activation
+  payoutMethod        String?       // e.g. mtn_momo, telecel_cash, at_money, bank
+  payoutAccountName   String?
+  payoutAccountNumber String?
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  users               PartnerUser[]
+  products            Product[]
+
+  @@index([status])
+  @@map("partners")
+}
+
+model PartnerUser {
+  id                 String    @id @default(cuid())
+  partnerId          String
+  name               String
+  email              String    @unique // stored lowercase
+  passwordHash       String    // scrypt — see lib/password.ts
+  mustChangePassword Boolean   @default(true)
+  lastLoginAt        DateTime?
+  createdAt          DateTime  @default(now())
+
+  partner            Partner   @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+
+  @@index([partnerId])
+  @@map("partner_users")
+}
+
+// ─── URBANOVA Delivery ────────────────────────────────────────────────────────
+// Founder-approved Nov 2026 — see docs/URBANOVA_REFERENCE.md Part J.
+// URBANOVA's own riders deliver website orders (later: partner orders and outside bookings).
+
+enum RiderStatus {
+  active
+  suspended // logins blocked, can't be assigned
+}
+
+model Rider {
+  id                 String        @id @default(cuid())
+  name               String
+  phone              String
+  email              String        @unique // login, stored lowercase
+  passwordHash       String        // scrypt — see lib/password.ts
+  mustChangePassword Boolean       @default(true)
+  vehicle            String?       // e.g. "Motorbike GR-1234-24"
+  status             RiderStatus   @default(active)
+  lastLoginAt        DateTime?
+  createdAt          DateTime      @default(now())
+
+  jobs               DeliveryJob[]
+
+  @@map("riders")
+}
+
+enum DeliveryStatus {
+  pending    // created, no rider yet
+  assigned   // rider assigned, not collected
+  picked_up  // rider has the parcel
+  on_the_way // heading to the customer
+  delivered  // confirmed with the customer's delivery code
+  failed     // couldn't deliver (reason recorded)
+  cancelled
+}
+
+enum DeliverySource {
+  store_order   // URBANOVA website order
+  partner_order // marketplace partner order (Part I)
+  booking       // outside business parcel booking
+}
+
+model DeliveryJob {
+  id             String         @id @default(cuid())
+  trackingCode   String         @unique // public, used in /track/[code]
+  deliveryCode   String         // 4-digit PIN the customer gives the rider; never shown on public/rider views
+  codeAttempts   Int            @default(0)
+  source         DeliverySource
+  orderId        String?        @unique
+  riderId        String?
+  status         DeliveryStatus @default(pending)
+
+  pickupName     String
+  pickupPhone    String
+  pickupAddress  String
+  dropoffName    String
+  dropoffPhone   String
+  dropoffAddress String
+  notes          String?
+  fee            Int            // pesewas charged for the delivery
+  failureReason  String?
+
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  order          Order?         @relation(fields: [orderId], references: [id])
+  rider          Rider?         @relation(fields: [riderId], references: [id])
+  events         DeliveryEvent[]
+
+  @@index([status])
+  @@index([riderId])
+  @@map("delivery_jobs")
+}
+
+model DeliveryEvent {
+  id        String         @id @default(cuid())
+  jobId     String
+  status    DeliveryStatus
+  note      String?
+  actor     String         // "admin" | "rider" | "system"
+  createdAt DateTime       @default(now())
+
+  job       DeliveryJob    @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@index([jobId])
+  @@map("delivery_events")
 }

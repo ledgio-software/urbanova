@@ -915,4 +915,95 @@ Business identity (name, registration no., TIN, address, digital address, phone,
 
 ---
 
+## PART I — PARTNER MARKETPLACE (Nova Market) — founder-approved Nov 2026
+
+> Founder request (Nov 2026): onboard partner businesses onto the site, each with their own page, managed through a dashboard URBANOVA provides. This is the **Nova Market** program from the approved Movement document (Part H, `docs/approved/URBANOVA_Movement.md` s.4), brought forward from Foundation Phases Phase 6.
+
+### I.1 Founder decisions
+
+| Decision | Choice |
+|---|---|
+| Payments | **Paystack split payments** (each partner a Paystack subaccount; URBANOVA keeps commission automatically). Not available yet: checkout is still manual MoMo and URBANOVA has no Paystack business account. **Interim:** partner sales are paid to URBANOVA like today; the admin tracks what each partner is owed and URBANOVA pays them out. |
+| Commission | Set per partner by the admin (`partners.commissionBps`, basis points). Required before a partner can go live. No default. |
+| Delivery | **Partners deliver their own orders** and mark them shipped in their dashboard. |
+| Listing approval | **Live immediately** — partner products go live when posted; admin can hide anything. |
+| What partners sell | **Anything legal** (not only clothing). Prohibited items per the Nova Market Seller Terms (Policies s.10). |
+| Who joins | Admin creates and approves partners (no public self-signup yet). |
+
+### I.2 Schema (extends A.4)
+
+- **partners** — id, name, slug (unique, page address), tagline, description, logo_url, banner_url, contact_email, contact_phone, location, status (`pending` \| `active` \| `suspended`), commission_bps, payout_method, payout_account_name, payout_account_number, created_at, updated_at
+- **partner_users** — id, partner_id (FK, cascade), name, email (unique, lowercase), password_hash (scrypt), must_change_password, last_login_at, created_at
+- **products.partner_id** — nullable FK; null = sold by URBANOVA. Partner products will use their own SKU prefix (not `URB-`), defined with the product-listing build.
+
+### I.3 Access rules
+
+- Two roles in the session: `admin` and `partner`. `/admin` + `/api/admin/*` require `admin`; `/partner` + `/api/partner/*` require `partner` (middleware + per-route checks).
+- A partner can only read/write their own partner record — the id always comes from the session, never the request.
+- Suspending a partner hides them and blocks their logins; existing sessions end on their next request.
+- Partner logins: admin creates them with a one-time password (shown once, shareable on WhatsApp); the partner must set their own password (10+ characters) before using the dashboard. Login and password-change endpoints are rate-limited.
+
+### I.4 Build phases
+
+1. **Foundations (done):** roles, schema, admin partner management, partner login / password / dashboard / page editor.
+2. Partner product listings in the dashboard (photos, variants or simple items, stock), "Sold by" on products.
+3. Public partner pages (`/partners/[slug]`) and a partners directory; partner products in Shop.
+4. Orders: split each order into per-partner parts; partner order view + shipped status; partner notification; earnings/payout ledger in admin (interim manual payouts).
+5. Paystack checkout for the whole store, then partner subaccounts + split payments.
+6. Publish Nova Market Seller Terms (Policies s.10) after legal review — needed before partners take real orders.
+
+### I.5 Open items
+
+- Commission rate(s) per partner.
+- Paystack business account (needs business registration).
+- Lawyer review of Nova Market Seller Terms, especially who is the legal seller to the customer (Act 772).
+- Production database must receive schema changes (the Migrate DB workflow has been failing — see STATUS).
+
+---
+
+## PART J — URBANOVA DELIVERY — founder-approved Nov 2026
+
+> Founder request (Nov 2026): an **URBANOVA delivery system** with URBANOVA's own riders, delivering website orders, partner orders (partners may choose URBANOVA delivery instead of delivering themselves — amends I.1 "Delivery") and parcels for outside businesses.
+
+### J.1 Founder decisions
+
+| Decision | Choice |
+|---|---|
+| Who it serves | Website orders, partner orders **and outside businesses** (courier service) |
+| Riders | **URBANOVA's own riders**, each with a rider dashboard on their phone |
+| Customer experience | **Tracking page**, **WhatsApp updates**, **delivery code** confirmed at the door |
+| Fees for partner orders using URBANOVA delivery | **Customer pays** the delivery fee at checkout (zone fee, as today) |
+| Outside-business pricing | **By distance** (needs a maps API key — open item) |
+| Messaging | **WhatsApp Business API** (needs a verified Meta Business account + approved templates — open item) |
+| Build order | Delivery core first, then partner parts 2–4, then messages, then outside bookings |
+
+### J.2 Schema (extends A.4)
+
+- **riders** — id, name, phone, email (unique login), password_hash, must_change_password, vehicle, status (`active` \| `suspended`), last_login_at, created_at
+- **delivery_jobs** — id, tracking_code (unique, public, `UD-XXXXXXXX`), delivery_code (4 digits), code_attempts, source (`store_order` \| `partner_order` \| `booking`), order_id (unique, nullable), rider_id, status (`pending` \| `assigned` \| `picked_up` \| `on_the_way` \| `delivered` \| `failed` \| `cancelled`), pickup name/phone/address, drop-off name/phone/address, notes, fee (pesewas), failure_reason, created_at, updated_at
+- **delivery_events** — id, job_id, status, note, actor (`admin` \| `rider` \| `system`), created_at — the timeline
+
+### J.3 Rules
+
+- Admin creates a delivery from a **paid/packed** website order (one per order) or as a manual **booking** (e.g. a business that called/WhatsApped); assigns/reassigns riders while the parcel isn't yet with a rider, or after a failed attempt; can cancel or override "delivered" with a recorded reason.
+- Riders see only their own jobs and move them one step at a time: assigned → picked up → on the way → delivered (or failed with a reason). **Delivered requires the customer's 4-digit code**; 5 wrong codes lock the job until the admin confirms.
+- Order status follows the delivery: picked up / on the way → `shipped`; delivered → `delivered` (never moves an order backwards).
+- Customers: order confirmation shows the delivery code + "Track your delivery"; `/track/[code]` shows progress and the rider's first name only — no addresses, phone numbers, surnames or the code.
+- `/rider` area requires the `rider` role (same isolation as `/admin` and `/partner`); riders set their own password on first login; login rate-limited.
+
+### J.4 Next steps
+
+1. WhatsApp Business API messages (pickup, on the way with tracking link + code) — needs Meta Business verification.
+2. Partner orders (Part I phase 4): each partner order chooses "partner delivers" or "URBANOVA delivers".
+3. Outside-business booking page with distance pricing (Google Maps API key) and payment (Paystack, Part I phase 5).
+4. Rider pay/earnings, proof-of-delivery photo, live location — not requested yet.
+
+### J.5 Open items
+
+- `STORE_PICKUP_ADDRESS` (where riders collect URBANOVA orders).
+- Meta Business account for WhatsApp; Google Maps API key for distance pricing.
+- Existing `/track-order` page finds orders by partial phone number — anyone can look up someone else's order. Should switch to order number + phone (or the new tracking code).
+
+---
+
 *End of URBANOVA Complete Project Reference — v1.0*

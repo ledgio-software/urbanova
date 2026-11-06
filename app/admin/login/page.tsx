@@ -24,6 +24,7 @@ export default function AdminLoginPage() {
       setError('Invalid username or password.')
     } else {
       router.push('/admin')
+      router.refresh() // re-render the admin layout so the sidebar appears without a manual reload
     }
   }
 

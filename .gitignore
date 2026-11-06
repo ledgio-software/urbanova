@@ -35,3 +35,6 @@ npm-debug.log*
 
 # Vercel
 .vercel
+
+# Local-dev upload fallback (production uses Vercel Blob)
+public/uploads/
