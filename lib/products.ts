@@ -1,11 +1,13 @@
 import { prisma } from './db'
 import { Prisma } from '@prisma/client'
+import { sellableProductWhere, storeProductWhere } from './market'
 
 export type ProductWithDetails = Prisma.ProductGetPayload<{
   include: {
     category: true
     images: true
     variants: true
+    partner: { select: { name: true; slug: true; logoUrl: true; location: true } }
   }
 }>
 
@@ -19,7 +21,7 @@ export type ProductSummary = Prisma.ProductGetPayload<{
 export async function getFeaturedProducts(): Promise<ProductSummary[]> {
   try {
     return await prisma.product.findMany({
-      where: { featured: true },
+      where: { featured: true, ...storeProductWhere },
       include: {
         images: { orderBy: { sortOrder: 'asc' }, take: 1 },
         variants: { select: { priceOverride: true, stockQuantity: true } },
@@ -40,7 +42,7 @@ type ProductFilter = {
 }
 
 export async function getProducts(filter: ProductFilter = {}): Promise<ProductSummary[]> {
-  const where: Prisma.ProductWhereInput = {}
+  const where: Prisma.ProductWhereInput = { ...storeProductWhere }
 
   if (filter.category) {
     where.category = { slug: filter.category }
@@ -74,12 +76,14 @@ export async function getProducts(filter: ProductFilter = {}): Promise<ProductSu
 
 export async function getProductBySlug(slug: string): Promise<ProductWithDetails | null> {
   try {
-    return await prisma.product.findUnique({
-      where: { slug },
+    // findFirst so the visibility rule applies: hidden products 404
+    return await prisma.product.findFirst({
+      where: { slug, ...sellableProductWhere },
       include: {
         category: true,
         images: { orderBy: { sortOrder: 'asc' } },
         variants: { orderBy: [{ color: 'asc' }, { size: 'asc' }] },
+        partner: { select: { name: true, slug: true, logoUrl: true, location: true } },
       },
     })
   } catch {
@@ -91,7 +95,7 @@ export type CategoryRow = Prisma.CategoryGetPayload<Record<string, never>>
 
 export async function getCategories(): Promise<CategoryRow[]> {
   try {
-    return await prisma.category.findMany({ orderBy: { name: 'asc' } })
+    return await prisma.category.findMany({ where: { kind: 'store' }, orderBy: { name: 'asc' } })
   } catch {
     return []
   }

@@ -9,6 +9,7 @@ interface Props {
 }
 
 const LINKS = [
+  { href: '/market', label: 'Nova Market' },
   { href: '/about', label: 'About' },
   { href: '/movement', label: 'Movement' },
   { href: '/vision-mission', label: 'Vision & Mission' },

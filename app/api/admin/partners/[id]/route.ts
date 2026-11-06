@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { requireAdmin } from '@/lib/authz'
 import { AdminPartnerSchema, adminPartnerData, isUniqueViolation } from '@/lib/partners'
+import { revalidateMarketPages } from '@/lib/market-cache'
 
 export const dynamic = 'force-dynamic'
 
@@ -34,6 +35,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
   try {
     const partner = await prisma.partner.update({ where: { id }, data: adminPartnerData(parsed.data) })
+    revalidateMarketPages() // status, name or logo may change what the market shows
     return NextResponse.json({ id: partner.id })
   } catch (err) {
     if (isUniqueViolation(err)) {

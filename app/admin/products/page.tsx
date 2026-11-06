@@ -6,7 +6,8 @@ export const dynamic = 'force-dynamic'
 
 async function getProducts(q?: string, filter?: string) {
   try {
-    const where: any = {}
+    // URBANOVA's own products only — partner products are managed from each partner's page
+    const where: any = { partnerId: null }
 
     if (filter === 'featured') {
       where.featured = true

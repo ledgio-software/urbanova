@@ -6,6 +6,8 @@ import type { Metadata } from 'next'
 import { getProductBySlug, getFeaturedProducts, type ProductSummary } from '@/lib/products'
 import { ProductCard } from '@/components/storefront/ProductCard'
 import { AddToCartForm } from '@/components/storefront/AddToCartForm'
+import { MarketAddToCartForm } from '@/components/storefront/MarketAddToCartForm'
+import { getMoreFromPartner } from '@/lib/market-queries'
 import { formatPrice } from '@/lib/format'
 
 export const revalidate = 60
@@ -35,16 +37,29 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
 
   if (!product) notFound()
 
-  const relatedProducts = related.filter((p: ProductSummary) => p.id !== product.id).slice(0, 4)
+  // Nova Market items show more from the same partner; URBANOVA items show featured clothing
+  const relatedProducts = product.partnerId
+    ? await getMoreFromPartner(product.partnerId, product.id)
+    : related.filter((p: ProductSummary) => p.id !== product.id).slice(0, 4)
   const mainImage = product.images[0]?.url ?? null
 
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
       {/* Breadcrumb */}
       <p className="text-xs font-body uppercase tracking-widest text-brand-black/40 mb-8">
-        <Link href="/shop" className="hover:text-brand-red transition-colors">Shop</Link>
-        {' / '}
-        <Link href={`/shop/${product.category.slug}`} className="hover:text-brand-red transition-colors">{product.category.name}</Link>
+        {product.partner ? (
+          <>
+            <Link href="/market" className="hover:text-brand-red transition-colors">Nova Market</Link>
+            {' / '}
+            <Link href={`/partners/${product.partner.slug}`} className="hover:text-brand-red transition-colors">{product.partner.name}</Link>
+          </>
+        ) : (
+          <>
+            <Link href="/shop" className="hover:text-brand-red transition-colors">Shop</Link>
+            {' / '}
+            <Link href={`/shop/${product.category.slug}`} className="hover:text-brand-red transition-colors">{product.category.name}</Link>
+          </>
+        )}
         {' / '}
         <span className="text-brand-black">{product.name}</span>
       </p>
@@ -82,10 +97,35 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
         {/* Product info */}
         <div className="mt-8 lg:mt-0">
           <h1 className="font-headline text-display-md uppercase text-brand-black">{product.name}</h1>
+          {product.partner && (
+            <p className="mt-2 font-body text-sm text-brand-black/60" data-testid="sold-by">
+              Sold by{' '}
+              <Link href={`/partners/${product.partner.slug}`} className="font-semibold text-brand-black underline underline-offset-4 hover:text-brand-red">
+                {product.partner.name}
+              </Link>{' '}
+              on Nova Market · Paid securely through URBANOVA
+            </p>
+          )}
           <p className="mt-1 font-headline text-2xl text-brand-black">{formatPrice(product.basePrice)}</p>
           <p className="mt-6 font-body text-brand-black/70 leading-relaxed">{product.description}</p>
 
           <div className="mt-8">
+            {product.partner ? (
+              <MarketAddToCartForm
+                productId={product.id}
+                productName={product.name}
+                basePrice={product.basePrice}
+                variants={product.variants.map((v) => ({
+                  id: v.id,
+                  size: v.size,
+                  color: v.color,
+                  stockQuantity: v.stockQuantity,
+                  priceOverride: v.priceOverride,
+                  sku: v.sku,
+                }))}
+                imageUrl={mainImage ?? undefined}
+              />
+            ) : (
             <AddToCartForm
               productId={product.id}
               productName={product.name}
@@ -100,6 +140,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
               }))}
               imageUrl={mainImage ?? undefined}
             />
+            )}
           </div>
 
           <p className="mt-6 text-xs font-body text-brand-black/40 uppercase tracking-widest">
@@ -111,9 +152,11 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
       {/* Related products */}
       {relatedProducts.length > 0 && (
         <div className="mt-20">
-          <h2 className="font-headline text-display-md uppercase text-brand-black mb-8">You May Also Like</h2>
+          <h2 className="font-headline text-display-md uppercase text-brand-black mb-8">
+            {product.partner ? `More from ${product.partner.name}` : 'You May Also Like'}
+          </h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
-            {relatedProducts.map((p: ProductSummary) => (
+            {relatedProducts.map((p) => (
               <ProductCard key={p.id} product={p} />
             ))}
           </div>

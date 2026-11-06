@@ -27,7 +27,7 @@ type OrderDetail = {
     id: string
     quantity: number
     unitPrice: number
-    variant: { sku: string; size: string; color: string; product: { name: string } }
+    variant: { sku: string; size: string; color: string; product: { name: string; partner: { id: string; name: string } | null } }
   }[]
 }
 
@@ -242,6 +242,11 @@ export default function OrderDetailPage() {
               <tr key={item.id}>
                 <td className="px-5 py-3.5">
                   <p className="font-semibold text-brand-black">{item.variant.product.name}</p>
+                  {item.variant.product.partner && (
+                    <Link href={`/admin/partners/${item.variant.product.partner.id}`} className="text-xs text-brand-red underline">
+                      Sold by {item.variant.product.partner.name} (Nova Market)
+                    </Link>
+                  )}
                   <p className="text-xs text-gray-400 font-mono mt-0.5">
                     Size: {item.variant.size} · Color: {item.variant.color} · SKU: {item.variant.sku}
                   </p>

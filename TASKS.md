@@ -89,8 +89,12 @@ A task is only `[x]` when the feature is verified working — not just coded.
 - [x] Admin: add / edit / suspend partners, commission, logins, password reset
 - [x] Partner dashboard: login, first-login password change, dashboard, My Page editor
 - [ ] **Before merging part 1:** apply schema to production DB (`npx prisma db push`) or fix the Migrate DB workflow
-- [ ] Partner product listings (dashboard) + "Sold by" on products
-- [ ] Public partner pages `/partners/[slug]` + partners directory; partner products in Shop
+- [x] Partner product listings (dashboard) + "Sold by" on products; partner Sales list
+- [x] Nova Market page `/market` + public partner pages `/partners/[slug]` (Shop stays URBANOVA-only)
+- [x] Admin: market categories; hide/unhide partner products; "Sold by" on order items
+- [ ] **Before merging listings:** apply schema to production DB (`npx prisma db push`) — new product/category columns
+- [ ] Admin: add market categories (one click: "Add suggested categories") so partners can list
+- [ ] Founder decision: when stock goes down (at checkout or when payment is confirmed) — not deducted anywhere yet
 - [ ] Partner orders: per-partner order parts, shipped status, notifications; earnings/payout ledger in admin
 - [ ] Paystack business account (founder) → Paystack checkout → partner subaccounts + split payments
 - [ ] Lawyer review + publish Nova Market Seller Terms (Policies s.10)

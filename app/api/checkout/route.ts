@@ -4,6 +4,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { generateReference } from '@/lib/paystack'
+import { sellableProductWhere } from '@/lib/market'
 import { CheckoutSchema } from '@/lib/validators'
 import { rateLimit, getIp } from '@/lib/rate-limit'
 
@@ -36,7 +37,8 @@ export async function POST(req: NextRequest) {
   // Resolve variants and compute line prices
   const variantIds = input.cartItems.map((i) => i.variantId)
   const variants = await prisma.productVariant.findMany({
-    where: { id: { in: variantIds } },
+    // Hidden products and products from non-live partners can't be bought
+    where: { id: { in: variantIds }, product: sellableProductWhere },
     include: { product: { select: { name: true, basePrice: true } } },
   })
 

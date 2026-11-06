@@ -10,6 +10,8 @@ type Props = {
     basePrice: number
     images: { url: string; sortOrder: number }[]
     variants: { priceOverride: number | null; stockQuantity: number }[]
+    /** Set for Nova Market partner products — shown as "by {name}" */
+    partner?: { name: string } | null
   }
   /** Mark true for the first few visible cards so they load eagerly above the fold */
   priority?: boolean
@@ -56,6 +58,9 @@ export function ProductCard({ product, priority = false }: Props) {
         <p className="text-sm font-body text-brand-black dark:text-brand-white uppercase tracking-wide leading-tight">
           {product.name}
         </p>
+        {product.partner && (
+          <p className="mt-0.5 text-xs font-body text-brand-black/50">by {product.partner.name}</p>
+        )}
         <p className="mt-1 text-sm font-body text-brand-black/70 dark:text-brand-white/60">
           {formatPrice(product.basePrice)}
         </p>
