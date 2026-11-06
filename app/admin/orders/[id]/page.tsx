@@ -22,6 +22,7 @@ type OrderDetail = {
   paymentReference: string | null
   createdAt: string
   customer: { name: string; email: string; phone: string } | null
+  delivery: { id: string; status: string; trackingCode: string } | null
   items: {
     id: string
     quantity: number
@@ -168,6 +169,23 @@ export default function OrderDetailPage() {
             <p className="font-semibold text-brand-black">{order.deliveryZone}</p>
             <p className="text-gray-600 leading-relaxed">{order.deliveryAddress}</p>
           </div>
+          {order.delivery ? (
+            <Link
+              href={`/admin/deliveries/${order.delivery.id}`}
+              className="mt-2 block rounded border border-gray-200 bg-gray-50 p-2 text-xs font-body text-gray-700 hover:border-brand-black"
+            >
+              URBANOVA Delivery {order.delivery.trackingCode} · <span className="uppercase">{order.delivery.status.replace(/_/g, ' ')}</span> →
+            </Link>
+          ) : (
+            ['paid', 'packed'].includes(order.status) && (
+              <Link
+                href={`/admin/deliveries/new?orderId=${order.id}`}
+                className="mt-2 block rounded bg-brand-red px-3 py-2 text-center text-xs font-body font-semibold uppercase tracking-wider text-white hover:bg-brand-red/90"
+              >
+                Send with URBANOVA Delivery
+              </Link>
+            )
+          )}
         </div>
 
         {/* Payment Details */}

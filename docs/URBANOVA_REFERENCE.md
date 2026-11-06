@@ -961,4 +961,49 @@ Business identity (name, registration no., TIN, address, digital address, phone,
 
 ---
 
+## PART J — URBANOVA DELIVERY — founder-approved Nov 2026
+
+> Founder request (Nov 2026): an **URBANOVA delivery system** with URBANOVA's own riders, delivering website orders, partner orders (partners may choose URBANOVA delivery instead of delivering themselves — amends I.1 "Delivery") and parcels for outside businesses.
+
+### J.1 Founder decisions
+
+| Decision | Choice |
+|---|---|
+| Who it serves | Website orders, partner orders **and outside businesses** (courier service) |
+| Riders | **URBANOVA's own riders**, each with a rider dashboard on their phone |
+| Customer experience | **Tracking page**, **WhatsApp updates**, **delivery code** confirmed at the door |
+| Fees for partner orders using URBANOVA delivery | **Customer pays** the delivery fee at checkout (zone fee, as today) |
+| Outside-business pricing | **By distance** (needs a maps API key — open item) |
+| Messaging | **WhatsApp Business API** (needs a verified Meta Business account + approved templates — open item) |
+| Build order | Delivery core first, then partner parts 2–4, then messages, then outside bookings |
+
+### J.2 Schema (extends A.4)
+
+- **riders** — id, name, phone, email (unique login), password_hash, must_change_password, vehicle, status (`active` \| `suspended`), last_login_at, created_at
+- **delivery_jobs** — id, tracking_code (unique, public, `UD-XXXXXXXX`), delivery_code (4 digits), code_attempts, source (`store_order` \| `partner_order` \| `booking`), order_id (unique, nullable), rider_id, status (`pending` \| `assigned` \| `picked_up` \| `on_the_way` \| `delivered` \| `failed` \| `cancelled`), pickup name/phone/address, drop-off name/phone/address, notes, fee (pesewas), failure_reason, created_at, updated_at
+- **delivery_events** — id, job_id, status, note, actor (`admin` \| `rider` \| `system`), created_at — the timeline
+
+### J.3 Rules
+
+- Admin creates a delivery from a **paid/packed** website order (one per order) or as a manual **booking** (e.g. a business that called/WhatsApped); assigns/reassigns riders while the parcel isn't yet with a rider, or after a failed attempt; can cancel or override "delivered" with a recorded reason.
+- Riders see only their own jobs and move them one step at a time: assigned → picked up → on the way → delivered (or failed with a reason). **Delivered requires the customer's 4-digit code**; 5 wrong codes lock the job until the admin confirms.
+- Order status follows the delivery: picked up / on the way → `shipped`; delivered → `delivered` (never moves an order backwards).
+- Customers: order confirmation shows the delivery code + "Track your delivery"; `/track/[code]` shows progress and the rider's first name only — no addresses, phone numbers, surnames or the code.
+- `/rider` area requires the `rider` role (same isolation as `/admin` and `/partner`); riders set their own password on first login; login rate-limited.
+
+### J.4 Next steps
+
+1. WhatsApp Business API messages (pickup, on the way with tracking link + code) — needs Meta Business verification.
+2. Partner orders (Part I phase 4): each partner order chooses "partner delivers" or "URBANOVA delivers".
+3. Outside-business booking page with distance pricing (Google Maps API key) and payment (Paystack, Part I phase 5).
+4. Rider pay/earnings, proof-of-delivery photo, live location — not requested yet.
+
+### J.5 Open items
+
+- `STORE_PICKUP_ADDRESS` (where riders collect URBANOVA orders).
+- Meta Business account for WhatsApp; Google Maps API key for distance pricing.
+- Existing `/track-order` page finds orders by partial phone number — anyone can look up someone else's order. Should switch to order number + phone (or the new tracking code).
+
+---
+
 *End of URBANOVA Complete Project Reference — v1.0*

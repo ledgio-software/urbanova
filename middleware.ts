@@ -5,8 +5,8 @@ import { authConfig } from './auth.config'
 // Edge-safe auth (no providers) — only reads the session JWT.
 const { auth } = NextAuth(authConfig)
 
-// /admin and /partner are separate areas: each needs its own role, so a partner
-// session can never reach admin pages or APIs (and vice versa).
+// /admin, /partner and /rider are separate areas: each needs its own role, so e.g. a partner
+// or rider session can never reach admin pages or APIs (and vice versa).
 const inArea = (pathname: string, base: string) => pathname === base || pathname.startsWith(`${base}/`)
 
 export default auth((req) => {
@@ -21,8 +21,12 @@ export default auth((req) => {
     if (role !== 'partner') return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     return NextResponse.next()
   }
+  if (inArea(pathname, '/api/rider')) {
+    if (role !== 'rider') return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    return NextResponse.next()
+  }
 
-  for (const [base, requiredRole] of [['/admin', 'admin'], ['/partner', 'partner']] as const) {
+  for (const [base, requiredRole] of [['/admin', 'admin'], ['/partner', 'partner'], ['/rider', 'rider']] as const) {
     if (!inArea(pathname, base)) continue
     const loginPath = `${base}/login`
     if (pathname === loginPath) {
@@ -35,5 +39,5 @@ export default auth((req) => {
 })
 
 export const config = {
-  matcher: ['/admin/:path*', '/api/admin/:path*', '/partner/:path*', '/api/partner/:path*'],
+  matcher: ['/admin/:path*', '/api/admin/:path*', '/partner/:path*', '/api/partner/:path*', '/rider/:path*', '/api/rider/:path*'],
 }

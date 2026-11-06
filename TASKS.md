@@ -96,3 +96,15 @@ A task is only `[x]` when the feature is verified working — not just coded.
 - [ ] Lawyer review + publish Nova Market Seller Terms (Policies s.10)
 - [ ] Founder: set commission for each partner
 
+## URBANOVA Delivery — Reference Part J
+
+- [x] Riders (admin-managed logins), rider dashboard on phone
+- [x] Delivery jobs from paid orders + manual bookings; assign / reassign / cancel / override
+- [x] Delivery codes (4-digit, 5 tries) and public tracking page `/track/[code]`
+- [x] Order status follows delivery (shipped → delivered)
+- [ ] Founder: set `STORE_PICKUP_ADDRESS`; add riders
+- [ ] WhatsApp Business API messages (needs Meta Business verification)
+- [ ] Partner orders: choose "partner delivers" or "URBANOVA delivers"
+- [ ] Outside-business booking page with distance pricing (Google Maps API key) + payment
+- [ ] Fix `/track-order` privacy: don't find orders by partial phone number
+

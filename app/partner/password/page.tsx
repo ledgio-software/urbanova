@@ -1,6 +1,6 @@
-import { requirePartnerPage } from '@/lib/partner-page'
+import { requirePartnerPage } from '@/lib/dashboard-page'
 import { MIN_PASSWORD_LENGTH } from '@/lib/password'
-import { ChangePasswordForm } from '@/components/partner/ChangePasswordForm'
+import { ChangePasswordForm } from '@/components/dashboard/ChangePasswordForm'
 
 export const dynamic = 'force-dynamic'
 

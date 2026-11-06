@@ -18,6 +18,7 @@ export default async function OrderConfirmationPage({ params }: { params: Promis
     deliveryZone: string
     deliveryAddress: string
     customer: { name: string; email: string } | null
+    delivery: { trackingCode: string; deliveryCode: string; status: string } | null
     items: {
       id: string
       quantity: number
@@ -31,6 +32,7 @@ export default async function OrderConfirmationPage({ params }: { params: Promis
       where: { id },
       include: {
         customer: { select: { name: true, email: true } },
+        delivery: { select: { trackingCode: true, deliveryCode: true, status: true } },
         items: {
           include: {
             variant: {
@@ -98,6 +100,23 @@ export default async function OrderConfirmationPage({ params }: { params: Promis
           </>
         )}
       </div>
+
+      {/* URBANOVA Delivery: tracking link + the code the customer gives the rider */}
+      {order.delivery && !['delivered', 'cancelled'].includes(order.delivery.status) && (
+        <div className="mb-8 border border-brand-navy/20 bg-brand-navy p-6 text-brand-white">
+          <h2 className="font-headline text-lg uppercase tracking-wider">URBANOVA Delivery</h2>
+          <p className="mt-2 font-body text-sm text-brand-white/70">
+            Give this code to your rider when your order arrives. Don&apos;t share it before then.
+          </p>
+          <p className="mt-3 font-mono text-4xl tracking-[0.4em]" data-testid="customer-delivery-code">{order.delivery.deliveryCode}</p>
+          <Link
+            href={`/track/${order.delivery.trackingCode}`}
+            className="mt-4 inline-block bg-brand-red px-5 py-2.5 font-body text-xs uppercase tracking-widest text-white hover:bg-brand-red/80"
+          >
+            Track your delivery
+          </Link>
+        </div>
+      )}
 
       {/* MoMo Payment Instructions Card */}
       {!isPaid && (

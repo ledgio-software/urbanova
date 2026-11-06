@@ -10,7 +10,7 @@ import { getIp, rateLimit } from '@/lib/rate-limit'
 const LOGIN_LIMIT = 10
 const LOGIN_WINDOW_MS = 15 * 60_000
 
-const PartnerLoginSchema = z.object({
+const EmailLoginSchema = z.object({
   email: z.string().email().max(200),
   password: z.string().min(1).max(200),
 })
@@ -46,7 +46,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
       async authorize(credentials, request) {
         if (!rateLimit(`partner-login:${getIp(request)}`, LOGIN_LIMIT, LOGIN_WINDOW_MS)) return null
-        const parsed = PartnerLoginSchema.safeParse(credentials)
+        const parsed = EmailLoginSchema.safeParse(credentials)
         if (!parsed.success) return null
 
         const user = await prisma.partnerUser.findUnique({
@@ -58,6 +58,26 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         await prisma.partnerUser.update({ where: { id: user.id }, data: { lastLoginAt: new Date() } })
         return { id: user.id, name: user.name, email: user.email, role: 'partner', partnerId: user.partnerId }
+      },
+    }),
+    // URBANOVA delivery riders — accounts created by the admin (Reference Part J)
+    Credentials({
+      id: 'rider',
+      credentials: {
+        email: { label: 'Email', type: 'email' },
+        password: { label: 'Password', type: 'password' },
+      },
+      async authorize(credentials, request) {
+        if (!rateLimit(`rider-login:${getIp(request)}`, LOGIN_LIMIT, LOGIN_WINDOW_MS)) return null
+        const parsed = EmailLoginSchema.safeParse(credentials)
+        if (!parsed.success) return null
+
+        const rider = await prisma.rider.findUnique({ where: { email: parsed.data.email.toLowerCase() } })
+        if (!rider || rider.status !== 'active') return null
+        if (!(await verifyPassword(parsed.data.password, rider.passwordHash))) return null
+
+        await prisma.rider.update({ where: { id: rider.id }, data: { lastLoginAt: new Date() } })
+        return { id: rider.id, name: rider.name, email: rider.email, role: 'rider' }
       },
     }),
   ],

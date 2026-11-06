@@ -2,11 +2,23 @@
 
 import { useState } from 'react'
 
-// Shows a partner's one-time password once, with copy + WhatsApp share. It is never stored in plain text.
-export function OneTimePassword({ email, password, phone }: { email: string; password: string; phone?: string }) {
+// Shows a partner's or rider's one-time password once, with copy + WhatsApp share. It is never stored in plain text.
+export function OneTimePassword({
+  email,
+  password,
+  phone,
+  loginPath = '/partner/login',
+  title = 'URBANOVA partner dashboard',
+}: {
+  email: string
+  password: string
+  phone?: string
+  loginPath?: string
+  title?: string
+}) {
   const [copied, setCopied] = useState(false)
-  const loginUrl = typeof window === 'undefined' ? '/partner/login' : `${window.location.origin}/partner/login`
-  const message = `Your URBANOVA partner dashboard login\n${loginUrl}\nEmail: ${email}\nTemporary password: ${password}\nYou'll be asked to set your own password when you first log in.`
+  const loginUrl = typeof window === 'undefined' ? loginPath : `${window.location.origin}${loginPath}`
+  const message = `Your ${title} login\n${loginUrl}\nEmail: ${email}\nTemporary password: ${password}\nYou'll be asked to set your own password when you first log in.`
   const waDigits = phone ? phone.replace(/\D/g, '').replace(/^0/, '233') : ''
 
   return (

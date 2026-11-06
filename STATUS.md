@@ -4,6 +4,26 @@ Reverse-chronological. Update this file after every meaningful change.
 
 ---
 
+## 2026-11-06 — URBANOVA Delivery core: riders, delivery jobs, tracking, delivery codes
+
+**What:** First part of the URBANOVA delivery system (Reference Part J).
+- **Schema:** `riders`, `delivery_jobs`, `delivery_events`; `orders` ↔ one delivery.
+- **Rider role** (`/rider`, `/api/rider`) alongside admin and partner; admin-created logins with one-time passwords, forced password change, rate-limited login.
+- **Admin:** Riders page (add, suspend/reactivate, reset password); Deliveries list (Open / Delivered / Cancelled / All), "New booking" for parcels booked by phone/WhatsApp, delivery detail (code, pickup/drop-off with call + map, rider, timeline, assign/reassign, cancel, "mark delivered" override); "Send with URBANOVA Delivery" on paid/packed order pages. Sidebar: Deliveries, Riders. `STORE_PICKUP_ADDRESS` pre-fills pickup.
+- **Rider dashboard** (phone-first): assigned jobs with big Call / Map buttons, "I've picked it up", "On my way", "Delivered — enter code" (4-digit, 5 tries), "Can't complete" with reason; recent jobs.
+- **Customers:** delivery code + "Track your delivery" on the order confirmation page; public `/track/[code]` timeline (first names only, no addresses/phones/code).
+- **Order sync:** picked up → order `shipped`, delivered → order `delivered`.
+- **Fix:** admin login now refreshes after signing in, so the sidebar appears without a manual reload (pre-existing bug).
+- Shared password-change handler and form for partners and riders.
+
+**Verified:** typecheck + production build; 46-check browser test on a real Postgres: order → paid → sent with delivery from the order page; unpaid/duplicate refused; customer sees code + tracking; tracking page leaks no address/phone/surname/code on a fresh load; rider first login, sees only own jobs, can't skip steps, wrong code counted, correct code delivers; order goes shipped → delivered; manual booking; another rider's job → 404; 5 wrong codes lock out; reassign blocked once picked up; admin override + timeline note; failed → reassign; cancel is final; role isolation (rider ↔ admin ↔ partner ↔ anonymous); suspended rider logged out and can't be assigned; no page errors. Partner suite (36 checks) re-run: all pass.
+
+**Deploy warning:** new tables — the production database needs `npx prisma db push` (see Part I entry).
+
+**Not built yet:** WhatsApp messages, partner-order delivery choice, outside-business booking page + distance pricing — Reference J.4.
+
+---
+
 ## 2026-11-06 — Partner marketplace, part 1: roles, partner accounts, dashboard
 
 **What:** Foundations for Nova Market (Reference Part I) — partners get a login and a dashboard; the admin onboards and manages them.

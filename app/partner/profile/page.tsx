@@ -1,4 +1,4 @@
-import { requirePartnerPage } from '@/lib/partner-page'
+import { requirePartnerPage } from '@/lib/dashboard-page'
 import { PartnerProfileForm } from '@/components/partner/PartnerProfileForm'
 
 export const dynamic = 'force-dynamic'

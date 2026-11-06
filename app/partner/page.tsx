@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { requirePartnerPage } from '@/lib/partner-page'
+import { requirePartnerPage } from '@/lib/dashboard-page'
 import { formatCommission, PAYOUT_METHODS } from '@/lib/partners'
 
 export const dynamic = 'force-dynamic'

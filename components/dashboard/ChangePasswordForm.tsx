@@ -3,7 +3,17 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 
-export function ChangePasswordForm({ firstLogin, minLength }: { firstLogin: boolean; minLength: number }) {
+export function ChangePasswordForm({
+  firstLogin,
+  minLength,
+  endpoint = '/api/partner/password',
+  home = '/partner',
+}: {
+  firstLogin: boolean
+  minLength: number
+  endpoint?: string
+  home?: string
+}) {
   const router = useRouter()
   const [form, setForm] = useState({ currentPassword: '', newPassword: '', confirm: '' })
   const [error, setError] = useState<string | null>(null)
@@ -19,7 +29,7 @@ export function ChangePasswordForm({ firstLogin, minLength }: { firstLogin: bool
     }
     setSaving(true)
     try {
-      const res = await fetch('/api/partner/password', {
+      const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ currentPassword: form.currentPassword, newPassword: form.newPassword }),
@@ -32,7 +42,7 @@ export function ChangePasswordForm({ firstLogin, minLength }: { firstLogin: bool
       setDone(true)
       setForm({ currentPassword: '', newPassword: '', confirm: '' })
       if (firstLogin) {
-        router.push('/partner')
+        router.push(home)
         router.refresh()
       }
     } catch {

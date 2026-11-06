@@ -22,3 +22,13 @@ export async function getPartnerContext() {
 }
 
 export type PartnerContext = NonNullable<Awaited<ReturnType<typeof getPartnerContext>>>
+
+export async function getRiderContext() {
+  const session = await auth()
+  const { role, id } = session?.user ?? {}
+  if (role !== 'rider' || !id) return null
+
+  const rider = await prisma.rider.findUnique({ where: { id } })
+  if (!rider || rider.status !== 'active') return null
+  return { rider }
+}
