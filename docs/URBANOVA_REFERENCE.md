@@ -21,7 +21,7 @@ Brand tone carries into the UI: bold, high-contrast, confident. Apply colors and
 |---|---|---|
 | Framework | Next.js (App Router) | Single codebase for frontend + API routes/Server Actions |
 | Language | TypeScript | Strict mode on |
-| Database | Vercel Postgres | Use `@vercel/postgres` or Prisma/Drizzle ORM |
+| Database | Supabase Postgres (founder decision Nov 2026; was Vercel Postgres) | Prisma ORM. Migration steps: `docs/SUPABASE_MIGRATION.md` |
 | ORM | Prisma (recommended) | Simpler migrations for a solo/small team |
 | Styling | Tailwind CSS | Use design tokens from Brand Brief |
 | Auth (admin) | Auth.js (NextAuth) | Credential-based admin login only |
@@ -929,25 +929,34 @@ Business identity (name, registration no., TIN, address, digital address, phone,
 | Listing approval | **Live immediately** — partner products go live when posted; admin can hide anything. |
 | What partners sell | **Anything legal** (not only clothing). Prohibited items per the Nova Market Seller Terms (Policies s.10). |
 | Who joins | Admin creates and approves partners (no public self-signup yet). |
+| Where partner products show | Their own **Nova Market** section (`/market`) and partner pages. The main **Shop stays URBANOVA-only**. (Nov 2026) |
+| Market categories | Separate from Shop categories, managed by the admin; a suggested starter list is offered. (Nov 2026) |
+| Buying now | Customers **can buy partner items now** through the normal checkout. URBANOVA handles those orders manually; admin order pages show "Sold by"; partners get a read-only Sales list. (Nov 2026) |
 
 ### I.2 Schema (extends A.4)
 
 - **partners** — id, name, slug (unique, page address), tagline, description, logo_url, banner_url, contact_email, contact_phone, location, status (`pending` \| `active` \| `suspended`), commission_bps, payout_method, payout_account_name, payout_account_number, created_at, updated_at
 - **partner_users** — id, partner_id (FK, cascade), name, email (unique, lowercase), password_hash (scrypt), must_change_password, last_login_at, created_at
-- **products.partner_id** — nullable FK; null = sold by URBANOVA. Partner products will use their own SKU prefix (not `URB-`), defined with the product-listing build.
+- **products.partner_id** — nullable FK; null = sold by URBANOVA.
+- **products.is_active** (default true) — the partner's own show/hide switch. **products.admin_hidden** (default false) — URBANOVA's override; a partner cannot undo it.
+- **categories.kind** (`store` \| `market`, default `store`) and **categories.sort_order**. Shop pages and admin product forms use `store` categories only; partner products must use a `market` category. Market category slugs are prefixed `nm-`.
+- **Partner SKUs:** `NM-[PARTNER]-[RANDOM]` — partner slug without dashes, uppercased, first 10 characters, then 6 random characters (e.g. `NM-GALLERYNOV-7KQ2MX`). Kept apart from URBANOVA's `URB-` format (C.6).
+- Partner items without sizes/colours store `One size` / `Standard`; these labels are hidden on the storefront.
 
 ### I.3 Access rules
 
 - Two roles in the session: `admin` and `partner`. `/admin` + `/api/admin/*` require `admin`; `/partner` + `/api/partner/*` require `partner` (middleware + per-route checks).
 - A partner can only read/write their own partner record — the id always comes from the session, never the request.
 - Suspending a partner hides them and blocks their logins; existing sessions end on their next request.
+- **Visibility:** a partner product shows and sells only when `is_active`, not `admin_hidden`, and its partner is `active`. URBANOVA products show only when `is_active` and not `admin_hidden`. Every storefront query, the sitemap and checkout use the same rule (`lib/market.ts`), so a hidden product or a product from a pending/suspended partner can't be viewed or bought.
+- Partners can't delete a product that has orders (they hide it instead) or remove an option that has been ordered.
 - Partner logins: admin creates them with a one-time password (shown once, shareable on WhatsApp); the partner must set their own password (10+ characters) before using the dashboard. Login and password-change endpoints are rate-limited.
 
 ### I.4 Build phases
 
 1. **Foundations (done):** roles, schema, admin partner management, partner login / password / dashboard / page editor.
-2. Partner product listings in the dashboard (photos, variants or simple items, stock), "Sold by" on products.
-3. Public partner pages (`/partners/[slug]`) and a partners directory; partner products in Shop.
+2. **Product listings (done):** partner product editor (up to 6 photos, options with stock and optional price), show/hide, Sales list; "Sold by" on products and admin orders; admin market categories and hide/unhide override.
+3. **Storefront (done):** Nova Market page (`/market`) with partners strip and category filter, partner pages (`/partners/[slug]`), "More from …" on product pages. Partner products stay out of the main Shop (founder decision, Nov 2026).
 4. Orders: split each order into per-partner parts; partner order view + shipped status; partner notification; earnings/payout ledger in admin (interim manual payouts).
 5. Paystack checkout for the whole store, then partner subaccounts + split payments.
 6. Publish Nova Market Seller Terms (Policies s.10) after legal review — needed before partners take real orders.
@@ -957,6 +966,7 @@ Business identity (name, registration no., TIN, address, digital address, phone,
 - Commission rate(s) per partner.
 - Paystack business account (needs business registration).
 - Lawyer review of Nova Market Seller Terms, especially who is the legal seller to the customer (Act 772).
+- Stock is not yet deducted when an order is placed or paid (applies to the whole store, not only partners) — founder to decide when stock should go down.
 - Production database must receive schema changes (the Migrate DB workflow has been failing — see STATUS).
 
 ---

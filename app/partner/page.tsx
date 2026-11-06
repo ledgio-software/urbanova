@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { prisma } from '@/lib/db'
 import { requirePartnerPage } from '@/lib/dashboard-page'
 import { formatCommission, PAYOUT_METHODS } from '@/lib/partners'
 
@@ -12,7 +13,7 @@ const STATUS_COPY = {
   },
   active: {
     title: 'Live',
-    body: 'Your partner account is active.',
+    body: 'Your page and products are live on Nova Market.',
     tone: 'border-green-300 bg-green-50 text-green-900',
   },
   suspended: {
@@ -25,12 +26,14 @@ const STATUS_COPY = {
 export default async function PartnerDashboardPage() {
   const { user, partner } = await requirePartnerPage()
   const status = STATUS_COPY[partner.status]
+  const productCount = await prisma.product.count({ where: { partnerId: partner.id } })
 
   const checklist = [
     { done: Boolean(partner.logoUrl), label: 'Add your logo' },
     { done: Boolean(partner.bannerUrl), label: 'Add a banner image' },
     { done: Boolean(partner.tagline && partner.description), label: 'Write your tagline and “About” text' },
     { done: Boolean(partner.payoutMethod && partner.payoutAccountNumber), label: 'Add where to send your payouts' },
+    { done: productCount > 0, label: 'Add your first product' },
   ]
   const payoutLabel = PAYOUT_METHODS.find((m) => m.value === partner.payoutMethod)?.label
 
@@ -74,9 +77,12 @@ export default async function PartnerDashboardPage() {
               <dd className="text-right">{payoutLabel ? `${payoutLabel} · ${partner.payoutAccountNumber ?? ''}` : 'Not set'}</dd>
             </div>
           </dl>
-          <p className="mt-4 text-xs text-gray-400">
-            Product listings, orders and earnings are coming to this dashboard next.
-          </p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Link href="/partner/products" className="bg-brand-black px-4 py-2 text-xs uppercase tracking-wider text-white">Products</Link>
+            {partner.status === 'active' && (
+              <Link href={`/partners/${partner.slug}`} target="_blank" className="border border-gray-300 px-4 py-2 text-xs uppercase tracking-wider text-gray-700">View my page</Link>
+            )}
+          </div>
         </section>
       </div>
     </div>

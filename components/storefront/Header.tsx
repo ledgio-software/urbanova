@@ -56,6 +56,12 @@ export async function Header() {
                 About
               </Link>
               <Link
+                href="/market"
+                className="text-sm font-body uppercase tracking-widest text-brand-white/80 hover:text-brand-white transition-colors"
+              >
+                Nova Market
+              </Link>
+              <Link
                 href="/movement"
                 className="text-sm font-body uppercase tracking-widest text-brand-white/80 hover:text-brand-white transition-colors"
               >

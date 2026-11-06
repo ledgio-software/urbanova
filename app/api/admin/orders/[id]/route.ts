@@ -12,7 +12,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
       customer: true,
       delivery: { select: { id: true, status: true, trackingCode: true } },
       items: {
-        include: { variant: { include: { product: { select: { name: true } } } } },
+        include: { variant: { include: { product: { select: { name: true, partner: { select: { id: true, name: true } } } } } } },
       },
     },
   })

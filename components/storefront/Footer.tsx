@@ -22,6 +22,7 @@ export function Footer() {
               <li><Link href="/shop" className="text-sm text-brand-white/70 hover:text-brand-white transition-colors">All Products</Link></li>
               <li><Link href="/shop/t-shirts" className="text-sm text-brand-white/70 hover:text-brand-white transition-colors">T-Shirts</Link></li>
               <li><Link href="/shop/hoodies" className="text-sm text-brand-white/70 hover:text-brand-white transition-colors">Hoodies</Link></li>
+              <li><Link href="/market" className="text-sm text-brand-white/70 hover:text-brand-white transition-colors">Nova Market</Link></li>
             </ul>
           </div>
 

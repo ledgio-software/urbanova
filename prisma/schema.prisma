@@ -10,11 +10,19 @@ datasource db {
 
 // ─── Categories ───────────────────────────────────────────────────────────────
 
+// store = URBANOVA's own clothing (Shop); market = Nova Market partner categories (Reference Part I)
+enum CategoryKind {
+  store
+  market
+}
+
 model Category {
-  id          String    @id @default(cuid())
+  id          String       @id @default(cuid())
   name        String
-  slug        String    @unique
+  slug        String       @unique
   description String?
+  kind        CategoryKind @default(store)
+  sortOrder   Int          @default(0)
   products    Product[]
 
   @@map("categories")
@@ -35,6 +43,8 @@ model Product {
 
   // null = sold by URBANOVA itself; set = listed by a marketplace partner (Reference Part I)
   partnerId   String?
+  isActive    Boolean          @default(true)  // partner's own show/hide switch
+  adminHidden Boolean          @default(false) // URBANOVA override — partner can't undo it
 
   category    Category         @relation(fields: [categoryId], references: [id])
   partner     Partner?         @relation(fields: [partnerId], references: [id])

@@ -1,4 +1,4 @@
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import { ProductForm } from '@/components/admin/ProductForm'
 import { prisma } from '@/lib/db'
 
@@ -15,11 +15,13 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
         where: { id },
         include: { variants: true, images: { orderBy: { sortOrder: 'asc' } } },
       }),
-      prisma.category.findMany({ select: { id: true, name: true }, orderBy: { name: 'asc' } }),
+      prisma.category.findMany({ where: { kind: 'store' }, select: { id: true, name: true }, orderBy: { name: 'asc' } }),
     ])
   } catch {}
 
   if (!product) notFound()
+  // Partner products are edited by the partner; admins manage them from the partner's page
+  if (product.partnerId) redirect(`/admin/partners/${product.partnerId}#products`)
 
   return (
     <div className="max-w-2xl">

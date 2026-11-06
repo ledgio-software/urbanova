@@ -10,6 +10,7 @@ const NAV = [
   { href: '/admin/orders', label: 'Orders' },
   { href: '/admin/products', label: 'Products' },
   { href: '/admin/partners', label: 'Partners' },
+  { href: '/admin/market-categories', label: 'Market Categories' },
   { href: '/admin/deliveries', label: 'Deliveries' },
   { href: '/admin/riders', label: 'Riders' },
   { href: '/admin/delivery-zones', label: 'Delivery Zones' },

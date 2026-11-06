@@ -32,7 +32,8 @@ Add these under **repo → Settings → Secrets and variables → Actions**:
 
 | Secret | Description |
 |---|---|
-| `DATABASE_URL` | Vercel Postgres connection string |
+| `DATABASE_URL` | Supabase transaction pooler URL (port 6543, `?pgbouncer=true&connection_limit=1`) |
+| `DIRECT_URL` | Supabase session pooler URL (port 5432), used for schema changes |
 | `JWT_SECRET` | Generate: `openssl rand -hex 32` |
 | `CREDENTIAL_ENCRYPTION_KEY` | Generate: `openssl rand -hex 32` |
 | `ANTHROPIC_API_KEY` | console.anthropic.com → API keys |
@@ -41,8 +42,8 @@ Add these under **repo → Settings → Secrets and variables → Actions**:
 
 | Layer | How to roll back |
 |---|---|
-| **Backend code** | Render → service → Deploys → click the last working deploy → **Rollback** |
-| **Database** | Render PostgreSQL supports point-in-time recovery (PITR). Open a support ticket with the timestamp to restore to. |
+| **Backend code** | Same as frontend — the API runs inside the Vercel deployment (see below) |
+| **Database** | Supabase → project → Database → Backups (daily backups on Pro; point-in-time recovery is a paid add-on). Restore a `urbanova-backup-*.sql` file with `psql`. |
 | **Frontend** | Vercel → project → Deployments → find the last working deployment → **Promote to Production** |
 
 ## Local development setup
