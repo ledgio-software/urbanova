@@ -4,17 +4,22 @@ import { prisma } from '@/lib/db'
 import { requireAdmin } from '@/lib/authz'
 import { SUGGESTED_MARKET_CATEGORIES } from '@/lib/market'
 import { slugify } from '@/lib/partners'
+import { adminServerError } from '@/lib/api-errors'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET() {
   if (!(await requireAdmin())) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  const categories = await prisma.category.findMany({
-    where: { kind: 'market' },
-    orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }],
-    include: { _count: { select: { products: true } } },
-  })
-  return NextResponse.json(categories)
+  try {
+    const categories = await prisma.category.findMany({
+      where: { kind: 'market' },
+      orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }],
+      include: { _count: { select: { products: true } } },
+    })
+    return NextResponse.json(categories)
+  } catch (err) {
+    return adminServerError(err, 'Loading categories')
+  }
 }
 
 const CreateSchema = z.union([z.object({ name: z.string().trim().min(2).max(40) }), z.object({ suggested: z.literal(true) })])
@@ -34,12 +39,16 @@ export async function POST(req: NextRequest) {
   if (!parsed.success) return NextResponse.json({ error: 'Enter a name (2–40 characters)' }, { status: 422 })
 
   const names = 'suggested' in parsed.data ? SUGGESTED_MARKET_CATEGORIES : [parsed.data.name]
-  const existing = new Set((await prisma.category.findMany({ select: { slug: true } })).map((c) => c.slug))
-  const toCreate = names.filter((n) => !existing.has(marketSlug(n)))
-  if (toCreate.length === 0) return NextResponse.json({ error: 'That category already exists' }, { status: 409 })
+  try {
+    const existing = new Set((await prisma.category.findMany({ select: { slug: true } })).map((c) => c.slug))
+    const toCreate = names.filter((n) => !existing.has(marketSlug(n)))
+    if (toCreate.length === 0) return NextResponse.json({ error: 'That category already exists' }, { status: 409 })
 
-  await prisma.category.createMany({
-    data: toCreate.map((name, i) => ({ name, slug: marketSlug(name), kind: 'market' as const, sortOrder: i })),
-  })
-  return NextResponse.json({ created: toCreate.length }, { status: 201 })
+    await prisma.category.createMany({
+      data: toCreate.map((name, i) => ({ name, slug: marketSlug(name), kind: 'market' as const, sortOrder: i })),
+    })
+    return NextResponse.json({ created: toCreate.length }, { status: 201 })
+  } catch (err) {
+    return adminServerError(err, 'Adding categories')
+  }
 }

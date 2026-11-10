@@ -4,6 +4,12 @@ import { useEffect, useState } from 'react'
 
 type Cat = { id: string; name: string; slug: string; _count: { products: number } }
 
+// Server replies are read defensively: a crash page (HTML) must still show a message, not do nothing.
+async function readError(res: Response, fallback: string): Promise<string> {
+  const data = (await res.json().catch(() => null)) as { error?: string } | null
+  return data?.error ?? `${fallback} (server error ${res.status})`
+}
+
 export default function MarketCategoriesPage() {
   const [cats, setCats] = useState<Cat[]>([])
   const [loading, setLoading] = useState(true)
@@ -13,7 +19,10 @@ export default function MarketCategoriesPage() {
   async function load() {
     try {
       const res = await fetch('/api/admin/market-categories')
-      setCats(await res.json())
+      if (res.ok) setCats(await res.json())
+      else setError(await readError(res, 'Could not load categories'))
+    } catch {
+      setError('Network error — check your connection and reload')
     } finally {
       setLoading(false)
     }
@@ -24,25 +33,28 @@ export default function MarketCategoriesPage() {
 
   async function create(body: object) {
     setError(null)
-    const res = await fetch('/api/admin/market-categories', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
-    const data = await res.json()
-    if (!res.ok) setError(data.error ?? 'Could not add')
-    else setName('')
-    load()
+    try {
+      const res = await fetch('/api/admin/market-categories', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+      if (!res.ok) return setError(await readError(res, 'Could not add'))
+      setName('')
+      load()
+    } catch {
+      setError('Network error — check your connection and try again')
+    }
   }
 
   async function rename(c: Cat) {
     const next = prompt('New name', c.name)
     if (!next || next === c.name) return
     const res = await fetch(`/api/admin/market-categories/${c.id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: next }) })
-    if (!res.ok) setError((await res.json()).error ?? 'Could not rename')
+    if (!res.ok) setError(await readError(res, 'Could not rename'))
     load()
   }
 
   async function remove(c: Cat) {
     if (!confirm(`Delete “${c.name}”?`)) return
     const res = await fetch(`/api/admin/market-categories/${c.id}`, { method: 'DELETE' })
-    if (!res.ok) setError((await res.json()).error ?? 'Could not delete')
+    if (!res.ok) setError(await readError(res, 'Could not delete'))
     load()
   }
 
@@ -67,7 +79,7 @@ export default function MarketCategoriesPage() {
 
       {loading ? (
         <p className="font-body text-sm text-gray-500">Loading…</p>
-      ) : cats.length === 0 ? (
+      ) : cats.length === 0 && !error ? (
         <div className="space-y-3 border border-gray-200 bg-white p-5 font-body text-sm">
           <p>No market categories yet. Partners need at least one before they can add products.</p>
           <button type="button" onClick={() => create({ suggested: true })} className="bg-brand-black px-4 py-2 text-xs uppercase tracking-wider text-white">
