@@ -247,6 +247,11 @@ Bold, ambitious young people who want to feel seen and confident. They want:
 - Real models with confident poses
 - Avoid: soft pastel tones, overly polished studio-only shots
 
+**Product photo standard (founder-approved Nov 2026)** — applies to everything URBANOVA and partners post:
+- Every product photo shows in the same **3:4 portrait frame**, whole item visible (never cut off), on the off-white product-photo background (`brand.white`) — shop, Nova Market, partner pages/websites, product pages, bag.
+- Uploads (admin and partner product forms) go through a **crop step**: fit the photo to the 3:4 frame (drag, zoom, "show the whole photo"); saved as 1200 × 1600 JPEG. Photos added by link are shown in the same frame.
+- A **photo guide** with the example shot (`public/images/product-photo-example.jpg`: item on a hanger against a plain light wall, phone upright, whole item in shot) sits next to every product photo upload.
+
 ---
 
 ### B.6 Logo Concept Directions (for designer)
@@ -978,12 +983,27 @@ Business identity (name, registration no., TIN, address, digital address, phone,
 
 Rules: if a stockist is switched to the `market` type, their URBANOVA-item copies stop being sellable (and come back if switched back). An URBANOVA product that stockists list can't be deleted (hide it instead). A live stockist can't remove their payment details.
 
+### I.7 Partner websites — founder-approved Nov 2026
+
+> Founder request (Nov 2026): partners get their own website, findable online, ideally with a .com, while hosting stays on Vercel.
+
+| Decision | Choice |
+|---|---|
+| Address | **Both**: a free address `<page-address>.<PARTNER_ROOT_DOMAIN>` for every live partner, and optionally the partner's own domain (`partners.custom_domain`, unique, stored lowercase without `www.`). |
+| Look | **Partner's own brand**: their logo/name header, only their products, Shop / About / Cart; footer "Powered by URBANOVA" (+ "Official URBANOVA Stockist" for stockists) with links to URBANOVA's Terms/Privacy. |
+| Domain setup | **Admin types the domain** in the partner's Website card; the page shows the DNS steps; the domain is added once in Vercel → Domains by hand. |
+| Hosting | Same Vercel project. Middleware picks the partner by host name and serves `/site/[host]/…`; dashboards, policies and tracking redirect to the main site. |
+| Search | Per-site `robots.txt` + `sitemap.xml`, titles/descriptions from the partner's name and tagline; canonical = their own domain when set. |
+
+Setup: `docs/PARTNER_WEBSITES.md` (wildcard domain on Vercel nameservers, `PARTNER_ROOT_DOMAIN`, `NEXT_PUBLIC_SITE_URL`, `MAIN_SITE_HOSTS`).
+
 ### I.5 Open items
 
 - Commission rate(s) per partner.
 - Paystack business account (needs business registration).
 - Lawyer review of Nova Market Seller Terms, especially who is the legal seller to the customer (Act 772).
 - Stockists: delivery fees use URBANOVA's zones/fees (stockists may want their own); site-wide promo banner (free Accra delivery / promo code) also shows on stockist pages — confirm stockists honour it or limit it to URBANOVA; privacy policy should mention that stockists receive their customers' contact details; wholesale (bulk) ordering by stockists from URBANOVA is still handled outside the site.
+- Partner websites: URBANOVA's domain for free addresses (`PARTNER_ROOT_DOMAIN`) and moving it to Vercel nameservers; Vercel Pro plan for commercial use; partner-specific browser icon.
 - Stock is not yet deducted when an order is placed or paid (applies to the whole store, not only partners) — founder to decide when stock should go down.
 - Production database must receive schema changes (the Migrate DB workflow has been failing — see STATUS).
 

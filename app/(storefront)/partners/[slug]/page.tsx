@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { ProductCard } from '@/components/storefront/ProductCard'
+import { PartnerProductSections } from '@/components/storefront/PartnerProductSections'
 import { getLivePartnerPage } from '@/lib/market-queries'
 import { whatsappUrlFor } from '@/lib/phone'
 
@@ -27,16 +27,7 @@ export default async function PartnerPage({ params }: { params: Promise<{ slug: 
 
   const dataUrl = (u: string | null) => Boolean(u?.startsWith('data:'))
   const stockist = partner.type === 'stockist'
-  const official = partner.products.filter((p) => p.sourceProductId)
-  const own = partner.products.filter((p) => !p.sourceProductId)
   const whatsapp = stockist ? whatsappUrlFor(partner.contactPhone) : undefined
-  const grid = (items: typeof partner.products, testId: string) => (
-    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-6 lg:grid-cols-4" data-testid={testId}>
-      {items.map((p, i) => (
-        <ProductCard key={p.id} product={{ ...p, partner: null }} priority={i < 4} />
-      ))}
-    </div>
-  )
 
   return (
     <div>
@@ -88,32 +79,7 @@ export default async function PartnerPage({ params }: { params: Promise<{ slug: 
           </section>
         )}
 
-        {partner.products.length === 0 ? (
-          <>
-            <h2 className="mb-6 font-headline text-2xl uppercase tracking-widest text-brand-black">Shop {partner.name}</h2>
-            <p className="font-body text-brand-black/60">Nothing here yet — check back for the next drop.</p>
-          </>
-        ) : stockist ? (
-          <div className="space-y-12">
-            {official.length > 0 && (
-              <section>
-                <h2 className="mb-6 font-headline text-2xl uppercase tracking-widest text-brand-black">URBANOVA at {partner.name}</h2>
-                {grid(official, 'stockist-urbanova-products')}
-              </section>
-            )}
-            {own.length > 0 && (
-              <section>
-                <h2 className="mb-6 font-headline text-2xl uppercase tracking-widest text-brand-black">Also from {partner.name}</h2>
-                {grid(own, 'stockist-own-products')}
-              </section>
-            )}
-          </div>
-        ) : (
-          <>
-            <h2 className="mb-6 font-headline text-2xl uppercase tracking-widest text-brand-black">Shop {partner.name}</h2>
-            {grid(partner.products, 'partner-products-public')}
-          </>
-        )}
+        <PartnerProductSections partner={partner} />
       </div>
     </div>
   )

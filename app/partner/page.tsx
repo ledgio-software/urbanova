@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { prisma } from '@/lib/db'
 import { requirePartnerPage } from '@/lib/dashboard-page'
 import { formatCommission, PAYOUT_METHODS } from '@/lib/partners'
+import { partnerSiteUrls } from '@/lib/partner-hosts'
 
 export const dynamic = 'force-dynamic'
 
@@ -46,6 +47,7 @@ export default async function PartnerDashboardPage() {
     ...(stockist ? [{ done: officialCount > 0, label: 'Add the URBANOVA items you stock' }] : []),
     { done: productCount > officialCount, label: stockist ? 'Add your own products (optional)' : 'Add your first product' },
   ]
+  const sites = partnerSiteUrls(partner)
   const payoutLabel = PAYOUT_METHODS.find((m) => m.value === partner.payoutMethod)?.label
 
   return (
@@ -97,9 +99,18 @@ export default async function PartnerDashboardPage() {
           <div className="mt-4 flex flex-wrap gap-2">
             <Link href="/partner/products" className="bg-brand-black px-4 py-2 text-xs uppercase tracking-wider text-white">Products</Link>
             {partner.status === 'active' && (
-              <Link href={`/partners/${partner.slug}`} target="_blank" className="border border-gray-300 px-4 py-2 text-xs uppercase tracking-wider text-gray-700">View my page</Link>
+              <a href={sites.primary ?? `/partners/${partner.slug}`} target="_blank" rel="noopener noreferrer" className="border border-gray-300 px-4 py-2 text-xs uppercase tracking-wider text-gray-700">View my website</a>
             )}
           </div>
+          {partner.status === 'active' && (sites.custom || sites.subdomain) && (
+            <div className="mt-4 space-y-1 text-xs" data-testid="my-websites">
+              <p className="uppercase tracking-widest text-gray-500">Your website</p>
+              {[sites.custom, sites.subdomain].filter(Boolean).map((u) => (
+                <p key={u}><a href={u} target="_blank" rel="noopener noreferrer" className="font-mono text-brand-red underline">{u!.replace('https://', '')}</a></p>
+              ))}
+              <p className="text-gray-500">Share this link on WhatsApp, Instagram and TikTok. Want your own .com? Buy one and ask URBANOVA to connect it.</p>
+            </div>
+          )}
         </section>
       </div>
     </div>

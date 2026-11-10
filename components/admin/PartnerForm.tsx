@@ -12,6 +12,7 @@ export interface PartnerFormValues {
   slug: string
   status: 'pending' | 'active' | 'suspended'
   type: 'market' | 'stockist'
+  customDomain: string
   commissionPercent: string
   tagline: string
   description: string
@@ -30,6 +31,7 @@ export const EMPTY_PARTNER: PartnerFormValues = {
   slug: '',
   status: 'pending',
   type: 'market',
+  customDomain: '',
   commissionPercent: '',
   tagline: '',
   description: '',
@@ -76,7 +78,17 @@ function errorMessage(data: ApiError): string {
   return data.error?.formErrors?.[0] ?? 'Something went wrong'
 }
 
-export function PartnerForm({ mode, partnerId, initial }: { mode: 'new' | 'edit'; partnerId?: string; initial: PartnerFormValues }) {
+export function PartnerForm({
+  mode,
+  partnerId,
+  initial,
+  rootDomain,
+}: {
+  mode: 'new' | 'edit'
+  partnerId?: string
+  initial: PartnerFormValues
+  rootDomain?: string // PARTNER_ROOT_DOMAIN, for showing the free sub-address
+}) {
   const router = useRouter()
   const [values, setValues] = useState(initial)
   const [login, setLogin] = useState({ userName: '', userEmail: '' })
@@ -99,6 +111,7 @@ export function PartnerForm({ mode, partnerId, initial }: { mode: 'new' | 'edit'
       ...values,
       commissionPercent: values.type === 'stockist' || values.commissionPercent === '' ? null : Number(values.commissionPercent),
       payoutMethod: values.payoutMethod || null,
+      customDomain: values.customDomain.trim() || null,
       ...(mode === 'new' ? login : {}),
     }
     try {
@@ -212,6 +225,28 @@ export function PartnerForm({ mode, partnerId, initial }: { mode: 'new' | 'edit'
             </Field>
           )}
         </div>
+      </Card>
+
+      <Card title="Website">
+        <p className="text-xs font-body text-gray-500">
+          {rootDomain ? (
+            <>
+              Free address: <span className="font-mono">{(mode === 'edit' ? initial.slug : values.slug) || 'shop-name'}.{rootDomain}</span> — works as soon as the partner is live.
+            </>
+          ) : (
+            <>Free addresses (shop-name.yourdomain) switch on once URBANOVA&apos;s domain is set as PARTNER_ROOT_DOMAIN.</>
+          )}
+        </p>
+        <Field label="Partner's own domain (optional)" hint="If they bought one, e.g. kumasidrip.com. Leave empty if not.">
+          <input className={inputClass} value={values.customDomain} placeholder="kumasidrip.com" onChange={(e) => set('customDomain', e.target.value)} />
+        </Field>
+        {values.customDomain.trim() && (
+          <ol className="list-decimal space-y-1 pl-5 text-xs font-body text-gray-600" data-testid="dns-steps">
+            <li>In Vercel → urbanova → Settings → Domains, add <span className="font-mono">{values.customDomain.trim().replace(/^www\./, '')}</span> and <span className="font-mono">www.{values.customDomain.trim().replace(/^www\./, '')}</span>.</li>
+            <li>Where the domain was bought, add the DNS records Vercel shows — usually an <span className="font-mono">A</span> record for <span className="font-mono">@</span> → <span className="font-mono">76.76.21.21</span> and a <span className="font-mono">CNAME</span> for <span className="font-mono">www</span> → <span className="font-mono">cname.vercel-dns.com</span>.</li>
+            <li>It can take up to a few hours to start working. Vercel shows a green tick when it&apos;s connected.</li>
+          </ol>
+        )}
       </Card>
 
       {mode === 'new' && (

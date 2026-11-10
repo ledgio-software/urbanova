@@ -4,6 +4,31 @@ Reverse-chronological. Update this file after every meaningful change.
 
 ---
 
+## 2026-11-11 — Product photos: one look for everything posted
+
+**What:** Founder request — every product posted by URBANOVA or partners should look like the example tee photo (Reference B.5 "Product photo standard").
+- **Same frame everywhere:** product cards, product pages (main site and partner websites), thumbnails and the bag use a 3:4 portrait frame with the whole item visible (`object-contain`) on the off-white product-photo background (`brand.white`). Existing photos included.
+- **Photo guide:** example photo (`public/images/product-photo-example.jpg`) + tips next to the photo uploads in the admin and partner product forms.
+- **Crop step:** chosen photos open one by one in a cropper (drag, zoom, "Show the whole photo", "Leave out"); saved as 1200 × 1600 JPEG on the product-photo background, then uploaded. No new dependencies (canvas).
+
+**Verified:** typecheck + production build; 14-check browser test (guide shown, cropper queue "1 of 2 / 2 of 2", drag, fit-whole, leave out, upload is 1200 × 1600 JPEG in admin and partner forms, 3:4 frames on shop card and product page, `object-contain`, no page errors). Partner websites (40), stockists (51), Nova Market (45, updated for the crop step), partners (36), delivery (46): all pass.
+
+---
+
+## 2026-11-10 — Partner websites (own address + .com) and checkout redirect fix
+
+**What:** Each live partner gets their own branded website on the same Vercel project (Reference I.7).
+- **Addresses:** free `<page-address>.<PARTNER_ROOT_DOMAIN>`, plus their own domain (`partners.customDomain`, unique, normalised; URBANOVA's domains and `*.vercel.app` refused). Admin "Website" card with DNS steps; links in admin and the partner dashboard.
+- **Routing:** middleware runs on every request; non-URBANOVA hosts are rewritten to `/site/[host]/…` (home, product, cart, checkout, order confirmation, about/contact, robots.txt, sitemap.xml); dashboards/policies/tracking go to the main site via `/site/[host]/to-main` (absolute redirect, same-site paths only). `/site/…` is 404 on the main site. Handled before the Auth.js wrapper, which re-bases URLs onto the main site. `MAIN_SITE_HOSTS` lists extra main-site domains.
+- **Pages:** partner-branded header/footer (logo, Shop/About/Cart, WhatsApp/email, "Powered by URBANOVA", stockist badge), only that partner's live products, metadata/OG per partner, canonical to their own domain, per-site robots + sitemap. Shared `PartnerProductSections` for `/partners/[slug]` and the site home.
+- **Fix (pre-existing, affected every order):** after **Place Order**, the checkout's "empty bag → /shop" effect fired when the bag was cleared and replaced the jump to the confirmation page, so customers never saw their MoMo payment instructions. Checkout also had a hydration mismatch on direct loads (bag only exists in the browser): the form now renders after mount and the empty-bag redirect waits for it.
+
+**Verified:** typecheck + production build; 40-check browser test with real host names (sub-address, own domain, www, branding, sections, canonical, title, browse → cart → checkout → confirmation on the partner domain with the stockist's MoMo, other partners'/URBANOVA products 404, about/contact, robots, sitemap, redirects to main site, no open redirect, APIs + admin API protection, market-partner site, pending/unknown/suspended → 404, main site unchanged, main-site Place Order lands on confirmation, no page errors). Stockist (51), Nova Market (45), partners (36), delivery (46) re-run: all pass. Known: the partners suite showed an intermittent React hydration warning (#418) on Admin → Add partner in ~1 of 5 runs after the Website card was added; React recovers on its own and nothing visible changes; cause not pinned down.
+
+**Deploy:** new column `partners.customDomain` → `npx prisma db push`. Then follow `docs/PARTNER_WEBSITES.md`.
+
+---
+
 ## 2026-11-10 — URBANOVA Stockists: partners selling URBANOVA stock + their own items, paid directly
 
 **What:** New partner type for shops that buy URBANOVA clothing and resell it alongside their own goods, with no commission (Reference I.6).

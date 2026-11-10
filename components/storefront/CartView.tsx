@@ -38,9 +38,9 @@ export function CartView() {
           {items.map((item) => (
             <div key={item.variantId} className="flex gap-4 border-b border-brand-black/10 pb-6">
               {/* Image */}
-              <div className="relative h-24 w-20 flex-shrink-0 bg-brand-white rounded overflow-hidden">
+              <div className="relative aspect-[3/4] w-20 flex-shrink-0 bg-brand-white rounded overflow-hidden">
                 {item.imageUrl ? (
-                  <Image src={item.imageUrl} alt={item.productName} fill className="object-cover" sizes="80px" />
+                  <Image src={item.imageUrl} alt={item.productName} fill className="object-contain" sizes="80px" />
                 ) : (
                   <div className="absolute inset-0 flex items-center justify-center bg-brand-navy/5">
                     <span className="font-headline text-2xl text-brand-navy/20">U</span>

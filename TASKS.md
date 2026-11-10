@@ -98,6 +98,11 @@ A task is only `[x]` when the feature is verified working — not just coded.
 - [ ] Admin: add market categories (one click: "Add suggested categories") so partners can list
 - [x] URBANOVA Stockists (Reference I.6): partner type, URBANOVA items from own stock, own items, customers pay stockist directly, stockist Orders page
 - [ ] Founder: confirm stockist delivery fees and whether the site-wide promo applies on stockist pages
+- [x] Partner websites (Reference I.7): free sub-address + own domain, partner-branded pages, per-site sitemap/robots
+- [ ] Founder: set PARTNER_ROOT_DOMAIN + NEXT_PUBLIC_SITE_URL, add wildcard domain in Vercel (docs/PARTNER_WEBSITES.md)
+- [x] Fix: checkout sent customers to /shop instead of the confirmation/payment page after Place Order
+- [x] Product photos: same 3:4 frame everywhere, photo guide with example, crop step on upload (admin + partners)
+- [ ] Optional later: automatic background clean-up for uploads (paid service + API key)
 - [ ] Founder decision: when stock goes down (at checkout or when payment is confirmed) — not deducted anywhere yet
 - [ ] Partner orders: per-partner order parts, shipped status, notifications; earnings/payout ledger in admin
 - [ ] Paystack business account (founder) → Paystack checkout → partner subaccounts + split payments

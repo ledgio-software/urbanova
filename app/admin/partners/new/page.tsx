@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { EMPTY_PARTNER, PartnerForm } from '@/components/admin/PartnerForm'
+import { partnerRootDomain } from '@/lib/partner-hosts'
 
 export default function NewPartnerPage() {
   return (
@@ -10,7 +11,7 @@ export default function NewPartnerPage() {
         </Link>
         <h1 className="mt-2 font-headline text-2xl uppercase tracking-widest text-brand-black">Add Partner</h1>
       </div>
-      <PartnerForm mode="new" initial={EMPTY_PARTNER} />
+      <PartnerForm mode="new" initial={EMPTY_PARTNER} rootDomain={partnerRootDomain()} />
     </div>
   )
 }

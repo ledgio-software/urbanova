@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useCart } from '@/lib/cart'
 import { formatPrice } from '@/lib/format'
@@ -27,6 +27,12 @@ export function CheckoutForm({ zones }: Props) {
   const router = useRouter()
   const { items, subtotal, clearCart } = useCart()
   const [submitting, setSubmitting] = useState(false)
+  // Set once the order is placed: emptying the bag must not send the customer to /shop
+  // instead of the confirmation page with their payment instructions.
+  const orderPlaced = useRef(false)
+  // The bag lives in this browser only; render the form after mount so server and browser HTML match
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => setMounted(true), [])
   const [error, setError] = useState<string | null>(null)
 
   const [form, setForm] = useState({
@@ -62,10 +68,11 @@ export function CheckoutForm({ zones }: Props) {
     }
   }
 
-  // Redirect to shop if cart is empty
+  // Redirect to shop if cart is empty (but not right after placing an order).
+  // Waits for mount: while hydrating, the store reports its empty server-side state.
   useEffect(() => {
-    if (items.length === 0) router.replace('/shop')
-  }, [items.length, router])
+    if (mounted && items.length === 0 && !orderPlaced.current) router.replace('/shop')
+  }, [mounted, items.length, router])
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }))
@@ -93,14 +100,19 @@ export function CheckoutForm({ zones }: Props) {
         return
       }
 
-      clearCart()
-      // Redirect to Order Confirmation page with MoMo instructions
+      orderPlaced.current = true
+      // Order Confirmation page with MoMo instructions, then empty the bag
       router.push(`/order-confirmation/${data.orderId}`)
+      clearCart()
     } catch {
       setError('Network error. Please check your connection and try again.')
     } finally {
       setSubmitting(false)
     }
+  }
+
+  if (!mounted) {
+    return <div className="mx-auto max-w-5xl px-4 py-24 text-center font-body text-sm text-brand-black/50">Loading your bag…</div>
   }
 
   return (
