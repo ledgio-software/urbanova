@@ -4,6 +4,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { generateReference } from '@/lib/paystack'
+import { sellableProductWhere } from '@/lib/market'
 import { CheckoutSchema } from '@/lib/validators'
 import { rateLimit, getIp } from '@/lib/rate-limit'
 
@@ -36,13 +37,25 @@ export async function POST(req: NextRequest) {
   // Resolve variants and compute line prices
   const variantIds = input.cartItems.map((i) => i.variantId)
   const variants = await prisma.productVariant.findMany({
-    where: { id: { in: variantIds } },
-    include: { product: { select: { name: true, basePrice: true } } },
+    // Hidden products and products from non-live partners can't be bought
+    where: { id: { in: variantIds }, product: sellableProductWhere },
+    include: { product: { select: { name: true, basePrice: true, partner: { select: { id: true, name: true, type: true } } } } },
   })
 
   if (variants.length !== variantIds.length) {
     return NextResponse.json({ error: 'One or more items are no longer available' }, { status: 400 })
   }
+
+  // One payee per order: URBANOVA (incl. Nova Market partners) or a single URBANOVA stockist, paid directly
+  const payeeOf = (v: (typeof variants)[number]) => (v.product.partner?.type === 'stockist' ? v.product.partner : null)
+  const payees = new Set(variants.map((v) => payeeOf(v)?.id ?? 'urbanova'))
+  if (payees.size > 1) {
+    return NextResponse.json(
+      { error: 'Your bag has items from different sellers that are paid separately. Please check them out one seller at a time.' },
+      { status: 400 },
+    )
+  }
+  const sellerPartnerId = payeeOf(variants[0])?.id ?? null
 
   // Check stock
   for (const cartItem of input.cartItems) {
@@ -86,6 +99,7 @@ export async function POST(req: NextRequest) {
       deliveryZone: zone.name,
       deliveryAddress: input.deliveryAddress,
       paymentMethod: input.paymentMethod,
+      sellerPartnerId,
       items: { create: orderItems },
     },
   })

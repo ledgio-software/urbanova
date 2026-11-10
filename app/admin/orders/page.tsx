@@ -38,7 +38,7 @@ async function getOrders(status?: string, q?: string) {
 
     return await prisma.order.findMany({
       where,
-      include: { customer: { select: { name: true, email: true, phone: true } } },
+      include: { customer: { select: { name: true, email: true, phone: true } }, sellerPartner: { select: { name: true } } },
       orderBy: { createdAt: 'desc' },
       take: 100,
     })
@@ -156,6 +156,7 @@ export default async function OrdersPage({
                 </td>
                 <td className="px-4 py-3 text-xs text-gray-500 capitalize">
                   {order.paymentMethod.replace(/_/g, ' ')}
+                  {order.sellerPartner && <span className="block normal-case text-amber-700">Paid to {order.sellerPartner.name}</span>}
                 </td>
                 <td className="px-4 py-3 text-right font-semibold text-brand-black">
                   {formatPrice(order.total)}

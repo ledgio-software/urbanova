@@ -20,6 +20,12 @@ export async function PUT(req: NextRequest) {
   const parsed = PartnerProfileSchema.safeParse(body)
   if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 422 })
 
+  // Customers pay a live stockist directly, so their Mobile Money details can't be removed
+  const d = parsed.data
+  if (ctx.partner.type === 'stockist' && ctx.partner.status === 'active' && !(d.payoutMethod && d.payoutAccountName && d.payoutAccountNumber)) {
+    return NextResponse.json({ error: 'Customers pay you directly — keep your payment method, account name and number filled in.' }, { status: 422 })
+  }
+
   await prisma.partner.update({ where: { id: ctx.partner.id }, data: parsed.data })
   return NextResponse.json({ ok: true })
 }

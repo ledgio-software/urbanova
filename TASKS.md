@@ -9,6 +9,8 @@ A task is only `[x]` when the feature is verified working — not just coded.
 - [x] Scaffold Next.js project (App Router, TypeScript strict mode)
 - [x] Configure Tailwind CSS with URBANOVA design tokens (colors, typography)
 - [x] Set up Vercel Postgres + Prisma ORM
+- [x] Supabase migration script + guide (`docs/SUPABASE_MIGRATION.md`)
+- [ ] Founder: create Supabase project, run `scripts/move-db-to-supabase.sh`, update Vercel + GitHub secrets, redeploy, check live site
 - [x] Write Prisma schema (categories, products, product_variants, product_images, customers, orders, order_items, delivery_zones)
 - [ ] Run initial Prisma migration (needs real DATABASE_URL — run `npm run db:migrate` locally after filling .env.local)
 - [x] Seed database with sample catalog data (per Reference doc Part C, Section C.6 examples) — run `npm run db:seed` after migration
@@ -89,8 +91,14 @@ A task is only `[x]` when the feature is verified working — not just coded.
 - [x] Admin: add / edit / suspend partners, commission, logins, password reset
 - [x] Partner dashboard: login, first-login password change, dashboard, My Page editor
 - [ ] **Before merging part 1:** apply schema to production DB (`npx prisma db push`) or fix the Migrate DB workflow
-- [ ] Partner product listings (dashboard) + "Sold by" on products
-- [ ] Public partner pages `/partners/[slug]` + partners directory; partner products in Shop
+- [x] Partner product listings (dashboard) + "Sold by" on products; partner Sales list
+- [x] Nova Market page `/market` + public partner pages `/partners/[slug]` (Shop stays URBANOVA-only)
+- [x] Admin: market categories; hide/unhide partner products; "Sold by" on order items
+- [ ] **Before merging listings:** apply schema to production DB (`npx prisma db push`) — new product/category columns
+- [ ] Admin: add market categories (one click: "Add suggested categories") so partners can list
+- [x] URBANOVA Stockists (Reference I.6): partner type, URBANOVA items from own stock, own items, customers pay stockist directly, stockist Orders page
+- [ ] Founder: confirm stockist delivery fees and whether the site-wide promo applies on stockist pages
+- [ ] Founder decision: when stock goes down (at checkout or when payment is confirmed) — not deducted anywhere yet
 - [ ] Partner orders: per-partner order parts, shipped status, notifications; earnings/payout ledger in admin
 - [ ] Paystack business account (founder) → Paystack checkout → partner subaccounts + split payments
 - [ ] Lawyer review + publish Nova Market Seller Terms (Policies s.10)

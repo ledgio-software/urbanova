@@ -13,6 +13,18 @@ export type CartItem = {
   price: number // pesewas
   quantity: number
   imageUrl?: string
+  // Set for items sold by an URBANOVA stockist, who is paid directly — their items are checked out on their own
+  seller?: { id: string; name: string }
+}
+
+/** Who the customer pays for this item: an URBANOVA stockist, or URBANOVA (also for Nova Market partners). */
+export const sellerKey = (item: Pick<CartItem, 'seller'>) => item.seller?.id ?? 'urbanova'
+export const sellerName = (item: Pick<CartItem, 'seller'>) => item.seller?.name ?? 'URBANOVA'
+
+/** The bag item that blocks adding an item from a different payee, if any. */
+export function payeeConflict(items: CartItem[], seller?: CartItem['seller']): CartItem | undefined {
+  const key = seller?.id ?? 'urbanova'
+  return items.find((i) => sellerKey(i) !== key)
 }
 
 type CartState = {

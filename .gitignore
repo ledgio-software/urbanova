@@ -38,3 +38,6 @@ npm-debug.log*
 
 # Local-dev upload fallback (production uses Vercel Blob)
 public/uploads/
+
+# Database backups from scripts/move-db-to-supabase.sh (contain customer data)
+urbanova-backup-*.sql

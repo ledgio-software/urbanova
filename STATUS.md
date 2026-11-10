@@ -4,6 +4,55 @@ Reverse-chronological. Update this file after every meaningful change.
 
 ---
 
+## 2026-11-10 — URBANOVA Stockists: partners selling URBANOVA stock + their own items, paid directly
+
+**What:** New partner type for shops that buy URBANOVA clothing and resell it alongside their own goods, with no commission (Reference I.6).
+- **Schema:** `partners.type` (`market` | `stockist`), `products.sourceProductId` (a stockist's listing of an URBANOVA item, unique per stockist), `orders.sellerPartnerId` (paid directly to that stockist).
+- **Admin:** partner type picker (stockists: no commission field; Mobile Money details required before going live); type column in the partner list; "Paid to {stockist}" on orders; URBANOVA product edits sync to stockist copies; a product stockists list can't be deleted.
+- **Stockist dashboard:** "Add URBANOVA item" catalogue → set price + stock per size (name/photos/description locked to URBANOVA's); own items as before; **Orders** page (confirm payment, packed, sent, delivered, cancel — forward-only, own orders only) with call/WhatsApp/email for the customer; dashboard checklist + "orders to handle" alert; Sales shows no commission.
+- **Storefront:** stockist page badged "Official URBANOVA Stockist" with WhatsApp button and URBANOVA / own-items sections; product pages show "Official URBANOVA" + "You pay {stockist} directly"; Nova Market shows stockists' own goods only; Shop unchanged.
+- **Checkout:** one payee per order — bag blocks mixing (notice with link to the bag), checkout refuses mixed carts; the confirmation page shows the stockist's Mobile Money name/number instead of URBANOVA's.
+- Shared `lib/phone.ts` WhatsApp link helper.
+
+**Verified:** typecheck + production build; 51-check browser test on Postgres 16 (admin type/validation, stockist login, catalogue add, locked fields, later-added size, own item, public page sections + badge + WhatsApp, Nova Market/Shop separation, bag + server mixing refusal, confirmation shows stockist MoMo while URBANOVA orders still pay URBANOVA, admin banner, stockist order flow incl. skip refused, isolation between partners, Sales, payment details guard, rename sync, delete guard, type switch withdraws/restores copies, no page errors). Nova Market (45), partners (36) and delivery (46) suites re-run: all pass.
+
+**Deploy:** new columns/enum — included in the Supabase migration script's `prisma db push` (or run `npx prisma db push`).
+
+---
+
+## 2026-11-06 — Database moving to Supabase (prepared, not yet switched)
+
+**What:** Founder decision to move the production database from Vercel Postgres to Supabase, keeping all data.
+- `scripts/move-db-to-supabase.sh`: backs up the current database, restores it into an empty Supabase project in one transaction (refuses a non-empty target), applies this branch's schema with `prisma db push`, then compares row counts for every table. It never writes to the old database.
+- `docs/SUPABASE_MIGRATION.md`: step-by-step for the founder (create project, which URLs to use, run the script, update Vercel + GitHub secrets, redeploy, check, roll back).
+- Supabase connection format in `.env.example`: `DATABASE_URL` = transaction pooler (6543, `?pgbouncer=true&connection_limit=1`), `DIRECT_URL` = session pooler (5432). Tech stack updated in README, CLAUDE.md, CONTRIBUTING (also corrected the stale Render rollback rows) and Reference A.
+- `.gitignore` excludes `urbanova-backup-*.sql` (customer data).
+
+**Verified:** script run locally against Postgres 16: database built from `main`'s schema with data → empty database owned by a non-superuser (like Supabase's `postgres` role) → all 13 tables match, new Nova Market columns added with defaults; a second run refuses to overwrite.
+
+**Not done here:** the switch itself — needs the founder's Supabase project and Vercel access (this environment can't reach outside databases). Running the script also applies the Nova Market schema, which replaces the separate `prisma db push` step for PR #28.
+
+---
+
+## 2026-11-06 — Nova Market: partners list and sell their products
+
+**What:** Partners can now list products, and customers can browse and buy them (Reference Part I, phases 2–3).
+- **Schema:** `categories.kind` (`store` | `market`) + `sortOrder`; `products.isActive` (partner's show/hide) + `adminHidden` (URBANOVA override).
+- **One visibility rule everywhere** (`lib/market.ts`): Shop, product pages, product API, sitemap and checkout only show/sell items that are active, not admin-hidden and (for partner items) from an active partner. Checkout refuses anything else with "no longer available".
+- **Partner dashboard:** Products (list with Live / Hidden / Hidden by URBANOVA, quick Hide/Show, View), add/edit form (name, market category, price, description, up to 6 photos, options with size/type, colour, stock and optional price; simple items need no size/colour), delete (refused once an item has orders — hide it instead). Sales page: paid orders for their items with URBANOVA commission and their share. Checklist step "Add your first product". Partner SKUs `NM-[PARTNER]-[RANDOM]`.
+- **Storefront:** `/market` (Nova Market: partners strip, category chips, product grid), `/partners/[slug]` (banner, logo, about, products), product pages show "Sold by" + Nova Market breadcrumb, option buttons for partner items and "More from {partner}". Shop stays URBANOVA-only. "Nova Market" link in header, mobile menu and footer.
+- **Admin:** Market Categories page (add, rename, delete when empty, "Add suggested categories"); partner page lists their products with Hide/Unhide; order items show "Sold by {partner} (Nova Market)"; admin Products list/forms stay URBANOVA-only (partner items redirect to the partner page).
+- Storefront caches are cleared whenever a listing, partner or market category changes, so hiding/suspending takes effect at once.
+- **Fix (pre-existing):** the header cart badge caused a React hydration error on every page once the cart had items; it now renders after mount.
+
+**Verified:** typecheck + production build; 45-check browser test on a real Postgres: suggested categories; partner adds a product with photos and options; Live status; appears on /market, partner page and product API but not in Shop; PDP "Sold by", sold-out option disabled, add to cart; checkout of a partner item; admin order shows "Sold by"; partner Sales shows the sale, 10% commission and share; partner hide → 404 + checkout refused, show again; admin hide overrides partner, unhide; other partner can't edit/hide/delete (404); Shop categories refused for partners; can't delete ordered products or remove ordered options; duplicate options rejected; admin Products stays store-only; suspended partner's page/products disappear; no page errors. Partner (36) and delivery (46) suites re-run: all pass.
+
+**Deploy warning:** new columns — the production database needs `npx prisma db push` before this is merged, otherwise product queries fail and the shop breaks. Then add market categories in admin.
+
+**Found, not changed:** stock is never deducted when orders are placed or paid (whole store). Needs a founder decision.
+
+---
+
 ## 2026-11-06 — URBANOVA Delivery core: riders, delivery jobs, tracking, delivery codes
 
 **What:** First part of the URBANOVA delivery system (Reference Part J).

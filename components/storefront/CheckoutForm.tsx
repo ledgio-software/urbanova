@@ -200,6 +200,11 @@ export function CheckoutForm({ zones }: Props) {
         <div className="mt-10 lg:mt-0">
           <div className="bg-brand-black/5 rounded p-6 sticky top-24">
             <h2 className="font-headline text-lg uppercase tracking-widest text-brand-black mb-4">Order Summary</h2>
+            {items[0]?.seller && (
+              <p className="mb-4 font-body text-xs text-brand-black/60">
+                Sold by <strong>{items[0].seller.name}</strong>, an URBANOVA stockist. You pay them directly — their Mobile Money details are shown after you place the order.
+              </p>
+            )}
             <div className="space-y-3 mb-4">
               {items.map((item) => (
                 <div key={item.variantId} className="flex justify-between text-sm font-body">

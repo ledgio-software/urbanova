@@ -10,11 +10,19 @@ datasource db {
 
 // ─── Categories ───────────────────────────────────────────────────────────────
 
+// store = URBANOVA's own clothing (Shop); market = Nova Market partner categories (Reference Part I)
+enum CategoryKind {
+  store
+  market
+}
+
 model Category {
-  id          String    @id @default(cuid())
+  id          String       @id @default(cuid())
   name        String
-  slug        String    @unique
+  slug        String       @unique
   description String?
+  kind        CategoryKind @default(store)
+  sortOrder   Int          @default(0)
   products    Product[]
 
   @@map("categories")
@@ -23,27 +31,35 @@ model Category {
 // ─── Products ─────────────────────────────────────────────────────────────────
 
 model Product {
-  id          String           @id @default(cuid())
+  id          String   @id @default(cuid())
   name        String
-  slug        String           @unique
+  slug        String   @unique
   categoryId  String
   description String
-  basePrice   Int              // stored in pesewas (smallest GHS unit)
-  featured    Boolean          @default(false)
+  basePrice   Int // stored in pesewas (smallest GHS unit)
+  featured    Boolean  @default(false)
   tags        String[]
-  createdAt   DateTime         @default(now())
+  createdAt   DateTime @default(now())
 
   // null = sold by URBANOVA itself; set = listed by a marketplace partner (Reference Part I)
-  partnerId   String?
+  partnerId       String?
+  isActive        Boolean @default(true) // partner's own show/hide switch
+  adminHidden     Boolean @default(false) // URBANOVA override — partner can't undo it
+  // Set on a stockist's listing of an official URBANOVA item: the URBANOVA product it is a copy of
+  sourceProductId String?
 
-  category    Category         @relation(fields: [categoryId], references: [id])
-  partner     Partner?         @relation(fields: [partnerId], references: [id])
-  variants    ProductVariant[]
-  images      ProductImage[]
+  category       Category         @relation(fields: [categoryId], references: [id])
+  partner        Partner?         @relation(fields: [partnerId], references: [id])
+  sourceProduct  Product?         @relation("StockistCopies", fields: [sourceProductId], references: [id], onDelete: Restrict)
+  stockistCopies Product[]        @relation("StockistCopies")
+  variants       ProductVariant[]
+  images         ProductImage[]
 
+  @@unique([partnerId, sourceProductId]) // a stockist lists each URBANOVA item once
   @@index([slug])
   @@index([featured])
   @@index([partnerId])
+  @@index([sourceProductId])
   @@map("products")
 }
 
@@ -52,17 +68,17 @@ model Product {
 // e.g. URB-TS-SKYLINE-BLK-M
 
 model ProductVariant {
-  id            String         @id @default(cuid())
+  id            String @id @default(cuid())
   productId     String
-  sku           String         @unique
+  sku           String @unique
   size          String
   color         String
-  stockQuantity Int            @default(0)
-  priceOverride Int?           // nullable — falls back to product.basePrice
+  stockQuantity Int    @default(0)
+  priceOverride Int? // nullable — falls back to product.basePrice
 
-  product       Product        @relation(fields: [productId], references: [id])
-  images        ProductImage[]
-  orderItems    OrderItem[]
+  product    Product        @relation(fields: [productId], references: [id])
+  images     ProductImage[]
+  orderItems OrderItem[]
 
   @@index([sku])
   @@map("product_variants")
@@ -71,14 +87,14 @@ model ProductVariant {
 // ─── Product Images ───────────────────────────────────────────────────────────
 
 model ProductImage {
-  id        String          @id @default(cuid())
+  id        String  @id @default(cuid())
   productId String
-  variantId String?         // nullable — color-specific images link to a variant
+  variantId String? // nullable — color-specific images link to a variant
   url       String
-  sortOrder Int             @default(0)
+  sortOrder Int     @default(0)
 
-  product   Product         @relation(fields: [productId], references: [id])
-  variant   ProductVariant? @relation(fields: [variantId], references: [id])
+  product Product         @relation(fields: [productId], references: [id])
+  variant ProductVariant? @relation(fields: [variantId], references: [id])
 
   @@map("product_images")
 }
@@ -92,7 +108,7 @@ model Customer {
   phone     String
   createdAt DateTime @default(now())
 
-  orders    Order[]
+  orders Order[]
 
   @@map("customers")
 }
@@ -111,37 +127,41 @@ enum OrderStatus {
 
 model Order {
   id               String      @id @default(cuid())
-  customerId       String?     // nullable — guest checkout
+  customerId       String? // nullable — guest checkout
   status           OrderStatus @default(pending_payment)
-  subtotal         Int         // pesewas
-  deliveryFee      Int         // pesewas
-  total            Int         // pesewas
+  subtotal         Int // pesewas
+  deliveryFee      Int // pesewas
+  total            Int // pesewas
   deliveryZone     String
   deliveryAddress  String
   paymentMethod    String
-  paymentReference String?     // Paystack transaction reference — set after webhook confirms payment
+  paymentReference String? // Paystack transaction reference — set after webhook confirms payment
+  // Set when the customer pays a stockist directly (Reference I.6); null = paid to URBANOVA
+  sellerPartnerId  String?
 
-  createdAt        DateTime    @default(now())
+  createdAt DateTime @default(now())
 
-  customer         Customer?   @relation(fields: [customerId], references: [id])
-  items            OrderItem[]
-  delivery         DeliveryJob?
+  customer      Customer?    @relation(fields: [customerId], references: [id])
+  items         OrderItem[]
+  delivery      DeliveryJob?
+  sellerPartner Partner?     @relation(fields: [sellerPartnerId], references: [id])
 
   @@index([status])
+  @@index([sellerPartnerId])
   @@map("orders")
 }
 
 // ─── Order Items ──────────────────────────────────────────────────────────────
 
 model OrderItem {
-  id        String         @id @default(cuid())
+  id        String @id @default(cuid())
   orderId   String
   variantId String
   quantity  Int
-  unitPrice Int            // pesewas — snapshot of price at time of purchase
+  unitPrice Int // pesewas — snapshot of price at time of purchase
 
-  order     Order          @relation(fields: [orderId], references: [id])
-  variant   ProductVariant @relation(fields: [variantId], references: [id])
+  order   Order          @relation(fields: [orderId], references: [id])
+  variant ProductVariant @relation(fields: [variantId], references: [id])
 
   @@map("order_items")
 }
@@ -154,7 +174,7 @@ model DeliveryZone {
   id            String @id @default(cuid())
   name          String
   estimatedDays String // e.g. "1–2 business days"
-  fee           Int    // pesewas — editable from admin panel
+  fee           Int // pesewas — editable from admin panel
 
   @@map("delivery_zones")
 }
@@ -164,13 +184,19 @@ model DeliveryZone {
 // Partners get a page on the site and a dashboard; URBANOVA keeps a commission.
 
 enum PartnerStatus {
-  pending   // created by admin, not yet live
-  active    // public page + products visible
+  pending // created by admin, not yet live
+  active // public page + products visible
   suspended // hidden; partner logins blocked
+}
+
+enum PartnerType {
+  market // Nova Market partner: sells own items, URBANOVA collects payment and takes commission
+  stockist // URBANOVA stockist: sells its own stock of URBANOVA clothing + own items, paid directly, no commission
 }
 
 model Partner {
   id                  String        @id @default(cuid())
+  type                PartnerType   @default(market)
   name                String
   slug                String        @unique
   tagline             String?
@@ -178,18 +204,19 @@ model Partner {
   logoUrl             String?
   bannerUrl           String?
   contactEmail        String
-  contactPhone        String        // WhatsApp-reachable number
+  contactPhone        String // WhatsApp-reachable number
   location            String?
   status              PartnerStatus @default(pending)
-  commissionBps       Int?          // URBANOVA's cut in basis points (1000 = 10%); set by admin before activation
-  payoutMethod        String?       // e.g. mtn_momo, telecel_cash, at_money, bank
+  commissionBps       Int? // URBANOVA's cut in basis points (1000 = 10%); set by admin before activation
+  payoutMethod        String? // e.g. mtn_momo, telecel_cash, at_money, bank
   payoutAccountName   String?
   payoutAccountNumber String?
   createdAt           DateTime      @default(now())
   updatedAt           DateTime      @updatedAt
 
-  users               PartnerUser[]
-  products            Product[]
+  users    PartnerUser[]
+  products Product[]
+  orders   Order[] // stockist orders paid directly to this partner
 
   @@index([status])
   @@map("partners")
@@ -200,12 +227,12 @@ model PartnerUser {
   partnerId          String
   name               String
   email              String    @unique // stored lowercase
-  passwordHash       String    // scrypt — see lib/password.ts
+  passwordHash       String // scrypt — see lib/password.ts
   mustChangePassword Boolean   @default(true)
   lastLoginAt        DateTime?
   createdAt          DateTime  @default(now())
 
-  partner            Partner   @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+  partner Partner @relation(fields: [partnerId], references: [id], onDelete: Cascade)
 
   @@index([partnerId])
   @@map("partner_users")
@@ -221,47 +248,47 @@ enum RiderStatus {
 }
 
 model Rider {
-  id                 String        @id @default(cuid())
+  id                 String      @id @default(cuid())
   name               String
   phone              String
-  email              String        @unique // login, stored lowercase
-  passwordHash       String        // scrypt — see lib/password.ts
-  mustChangePassword Boolean       @default(true)
-  vehicle            String?       // e.g. "Motorbike GR-1234-24"
-  status             RiderStatus   @default(active)
+  email              String      @unique // login, stored lowercase
+  passwordHash       String // scrypt — see lib/password.ts
+  mustChangePassword Boolean     @default(true)
+  vehicle            String? // e.g. "Motorbike GR-1234-24"
+  status             RiderStatus @default(active)
   lastLoginAt        DateTime?
-  createdAt          DateTime      @default(now())
+  createdAt          DateTime    @default(now())
 
-  jobs               DeliveryJob[]
+  jobs DeliveryJob[]
 
   @@map("riders")
 }
 
 enum DeliveryStatus {
-  pending    // created, no rider yet
-  assigned   // rider assigned, not collected
-  picked_up  // rider has the parcel
+  pending // created, no rider yet
+  assigned // rider assigned, not collected
+  picked_up // rider has the parcel
   on_the_way // heading to the customer
-  delivered  // confirmed with the customer's delivery code
-  failed     // couldn't deliver (reason recorded)
+  delivered // confirmed with the customer's delivery code
+  failed // couldn't deliver (reason recorded)
   cancelled
 }
 
 enum DeliverySource {
-  store_order   // URBANOVA website order
+  store_order // URBANOVA website order
   partner_order // marketplace partner order (Part I)
-  booking       // outside business parcel booking
+  booking // outside business parcel booking
 }
 
 model DeliveryJob {
-  id             String         @id @default(cuid())
-  trackingCode   String         @unique // public, used in /track/[code]
-  deliveryCode   String         // 4-digit PIN the customer gives the rider; never shown on public/rider views
-  codeAttempts   Int            @default(0)
-  source         DeliverySource
-  orderId        String?        @unique
-  riderId        String?
-  status         DeliveryStatus @default(pending)
+  id           String         @id @default(cuid())
+  trackingCode String         @unique // public, used in /track/[code]
+  deliveryCode String // 4-digit PIN the customer gives the rider; never shown on public/rider views
+  codeAttempts Int            @default(0)
+  source       DeliverySource
+  orderId      String?        @unique
+  riderId      String?
+  status       DeliveryStatus @default(pending)
 
   pickupName     String
   pickupPhone    String
@@ -270,15 +297,15 @@ model DeliveryJob {
   dropoffPhone   String
   dropoffAddress String
   notes          String?
-  fee            Int            // pesewas charged for the delivery
+  fee            Int // pesewas charged for the delivery
   failureReason  String?
 
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  order          Order?         @relation(fields: [orderId], references: [id])
-  rider          Rider?         @relation(fields: [riderId], references: [id])
-  events         DeliveryEvent[]
+  order  Order?          @relation(fields: [orderId], references: [id])
+  rider  Rider?          @relation(fields: [riderId], references: [id])
+  events DeliveryEvent[]
 
   @@index([status])
   @@index([riderId])
@@ -290,10 +317,10 @@ model DeliveryEvent {
   jobId     String
   status    DeliveryStatus
   note      String?
-  actor     String         // "admin" | "rider" | "system"
+  actor     String // "admin" | "rider" | "system"
   createdAt DateTime       @default(now())
 
-  job       DeliveryJob    @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  job DeliveryJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
 
   @@index([jobId])
   @@map("delivery_events")

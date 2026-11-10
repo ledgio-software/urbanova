@@ -1,11 +1,11 @@
 # URBANOVA
 
-Streetwear e-commerce website — built with Next.js, Vercel Postgres, Tailwind CSS, and Paystack.
+Streetwear e-commerce website — built with Next.js, Supabase Postgres, Tailwind CSS, and Paystack.
 
 ## Stack
 
 - **Framework:** Next.js (App Router) + TypeScript
-- **Database:** Vercel Postgres + Prisma ORM
+- **Database:** Supabase Postgres + Prisma ORM (moved from Vercel Postgres, Nov 2026 — see `docs/SUPABASE_MIGRATION.md`)
 - **Styling:** Tailwind CSS
 - **Payments:** Paystack (mobile money + card)
 - **Images:** Vercel Blob

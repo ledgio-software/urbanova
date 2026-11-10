@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { useCart } from '@/lib/cart'
+import { payeeConflict, sellerName, useCart, type CartItem } from '@/lib/cart'
+import { SellerConflictNotice } from './SellerConflictNotice'
 import { formatPrice } from '@/lib/format'
 
 type Variant = {
@@ -19,12 +20,14 @@ type Props = {
   basePrice: number
   variants: Variant[]
   imageUrl?: string
+  seller?: CartItem['seller'] // an URBANOVA stockist selling this piece from their own stock
 }
 
 const SIZE_ORDER = ['S', 'M', 'L', 'XL', 'XXL']
 
-export function AddToCartForm({ productId, productName, basePrice, variants, imageUrl }: Props) {
+export function AddToCartForm({ productId, productName, basePrice, variants, imageUrl, seller }: Props) {
   const addItem = useCart((s) => s.addItem)
+  const [conflict, setConflict] = useState<string | null>(null)
 
   const colors = Array.from(new Set(variants.map((v) => v.color)))
   const [selectedColor, setSelectedColor] = useState<string>(colors[0] ?? '')
@@ -37,6 +40,9 @@ export function AddToCartForm({ productId, productName, basePrice, variants, ima
 
   function handleAdd() {
     if (!selectedVariant) return
+    const blocker = payeeConflict(useCart.getState().items, seller)
+    if (blocker) return setConflict(sellerName(blocker))
+    setConflict(null)
     addItem({
       variantId: selectedVariant.id,
       productId,
@@ -47,6 +53,7 @@ export function AddToCartForm({ productId, productName, basePrice, variants, ima
       price: selectedVariant.priceOverride ?? basePrice,
       quantity: 1,
       imageUrl,
+      ...(seller ? { seller } : {}),
     })
     setAdded(true)
     setTimeout(() => setAdded(false), 2000)
@@ -126,6 +133,7 @@ export function AddToCartForm({ productId, productName, basePrice, variants, ima
       </p>
 
       {/* Add to cart */}
+      {conflict && <SellerConflictNotice inBag={conflict} thisItem={seller?.name ?? 'URBANOVA'} />}
       <button
         onClick={handleAdd}
         disabled={!canAdd}

@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { z } from 'zod'
+import { syncStockistCopies } from '@/lib/stockist'
+import { revalidateMarketPages } from '@/lib/market-cache'
 
 export const dynamic = 'force-dynamic'
 
@@ -103,11 +105,16 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       variants: true,
     },
   })
+  await syncStockistCopies(id) // stockists' listings of this item show the official name/photos
+  revalidateMarketPages()
   return NextResponse.json(product)
 }
 
 export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
+  if (await prisma.product.count({ where: { sourceProductId: id } })) {
+    return NextResponse.json({ error: 'URBANOVA stockists sell this item, so it can’t be deleted. Hide it instead.' }, { status: 409 })
+  }
   // Delete related images and variants first to clean up foreign keys
   await prisma.productImage.deleteMany({ where: { productId: id } })
   await prisma.productVariant.deleteMany({ where: { productId: id } })

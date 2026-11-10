@@ -2,11 +2,14 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { useCart } from '@/lib/cart'
+import { sellerKey, sellerName, useCart } from '@/lib/cart'
 import { formatPrice } from '@/lib/format'
 
 export function CartView() {
   const { items, removeItem, updateQuantity, subtotal } = useCart()
+  // Each checkout pays one seller: URBANOVA, or one URBANOVA stockist (paid directly)
+  const payees = Array.from(new Map(items.map((i) => [sellerKey(i), sellerName(i)])).values())
+  const stockistName = items[0]?.seller?.name
 
   if (items.length === 0) {
     return (
@@ -105,12 +108,25 @@ export function CartView() {
               <span>{formatPrice(subtotal())}</span>
             </div>
 
-            <Link
-              href="/checkout"
-              className="mt-6 block w-full bg-brand-red text-white text-center font-body text-sm uppercase tracking-widest py-4 hover:bg-brand-red/80 transition-colors"
-            >
-              Checkout →
-            </Link>
+            {payees.length > 1 ? (
+              <p className="mt-6 border border-amber-300 bg-amber-50 p-3 font-body text-sm text-amber-900" role="status" data-testid="mixed-sellers">
+                Your bag has items from {payees.join(' and ')}, which are paid for separately. Remove the items from one of them to check out.
+              </p>
+            ) : (
+              <>
+                {stockistName && (
+                  <p className="mt-6 font-body text-xs text-brand-black/60" data-testid="pay-stockist-note">
+                    You&apos;ll pay <strong>{stockistName}</strong>, an URBANOVA stockist, directly.
+                  </p>
+                )}
+                <Link
+                  href="/checkout"
+                  className="mt-6 block w-full bg-brand-red text-white text-center font-body text-sm uppercase tracking-widest py-4 hover:bg-brand-red/80 transition-colors"
+                >
+                  Checkout →
+                </Link>
+              </>
+            )}
             <Link
               href="/shop"
               className="mt-3 block w-full text-center text-xs font-body uppercase tracking-widest text-brand-black/50 hover:text-brand-black transition-colors py-2"

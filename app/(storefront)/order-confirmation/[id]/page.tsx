@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/db'
 import { formatPrice } from '@/lib/format'
+import { PAYOUT_METHODS } from '@/lib/partners'
 
 export const dynamic = 'force-dynamic'
 
@@ -19,6 +20,14 @@ export default async function OrderConfirmationPage({ params }: { params: Promis
     deliveryAddress: string
     customer: { name: string; email: string } | null
     delivery: { trackingCode: string; deliveryCode: string; status: string } | null
+    sellerPartner: {
+      name: string
+      slug: string
+      contactPhone: string
+      payoutMethod: string | null
+      payoutAccountName: string | null
+      payoutAccountNumber: string | null
+    } | null
     items: {
       id: string
       quantity: number
@@ -33,6 +42,9 @@ export default async function OrderConfirmationPage({ params }: { params: Promis
       include: {
         customer: { select: { name: true, email: true } },
         delivery: { select: { trackingCode: true, deliveryCode: true, status: true } },
+        sellerPartner: {
+          select: { name: true, slug: true, contactPhone: true, payoutMethod: true, payoutAccountName: true, payoutAccountNumber: true },
+        },
         items: {
           include: {
             variant: {
@@ -53,6 +65,15 @@ export default async function OrderConfirmationPage({ params }: { params: Promis
   if (!order) notFound()
 
   const shortId = order.id.slice(-8).toUpperCase()
+  // Orders from an URBANOVA stockist are paid to the stockist directly (Reference I.6)
+  const seller = order.sellerPartner
+  const payTo = seller
+    ? {
+        number: seller.payoutAccountNumber ?? seller.contactPhone,
+        name: seller.payoutAccountName ?? seller.name,
+        method: PAYOUT_METHODS.find((m) => m.value === seller.payoutMethod)?.label ?? 'Mobile Money',
+      }
+    : { number: '0557786833', name: 'ISAAC OKYERE', method: 'Mobile Money' }
   const isPaid = order.status === 'paid' || order.status === 'packed' || order.status === 'shipped' || order.status === 'delivered'
 
   // Find estimated delivery days from delivery zone name
@@ -130,17 +151,21 @@ export default async function OrderConfirmationPage({ params }: { params: Promis
             </h2>
           </div>
           <p className="text-sm font-body text-amber-900 mb-4">
-            Please transfer <strong>{formatPrice(order.total)}</strong> via Mobile Money to complete your order:
+            {seller ? (
+              <>This order is sold by <strong>{seller.name}</strong>, an URBANOVA stockist. Pay them directly — transfer <strong>{formatPrice(order.total)}</strong> via {payTo.method}:</>
+            ) : (
+              <>Please transfer <strong>{formatPrice(order.total)}</strong> via Mobile Money to complete your order:</>
+            )}
           </p>
 
           <div className="bg-white border border-amber-200 rounded p-4 space-y-3 text-sm font-body mb-4">
             <div className="flex justify-between items-center pb-2 border-b border-amber-100">
               <span className="text-amber-800 font-medium">MoMo Number:</span>
-              <span className="font-mono font-bold text-base text-brand-black tracking-wide">0557786833</span>
+              <span className="font-mono font-bold text-base text-brand-black tracking-wide" data-testid="pay-number">{payTo.number}</span>
             </div>
             <div className="flex justify-between items-center pb-2 border-b border-amber-100">
               <span className="text-amber-800 font-medium">Account Name:</span>
-              <span className="font-bold text-brand-black">ISAAC OKYERE</span>
+              <span className="font-bold text-brand-black" data-testid="pay-name">{payTo.name}</span>
             </div>
             <div className="flex justify-between items-center pb-2 border-b border-amber-100">
               <span className="text-amber-800 font-medium">Amount to Send:</span>
@@ -153,7 +178,7 @@ export default async function OrderConfirmationPage({ params }: { params: Promis
           </div>
 
           <p className="text-xs font-body text-amber-900/80 leading-relaxed">
-            💡 <strong>Important:</strong> Enter <strong>#{shortId}</strong> in the reference field when making your Mobile Money transfer. Once sent, we will verify your payment and process your shipment!
+            💡 <strong>Important:</strong> Enter <strong>#{shortId}</strong> in the reference field when making your Mobile Money transfer. Once sent, {seller ? `${seller.name} will confirm your payment and arrange delivery.` : 'we will verify your payment and process your shipment!'}
           </p>
         </div>
       )}
@@ -201,10 +226,10 @@ export default async function OrderConfirmationPage({ params }: { params: Promis
           Continue Shopping
         </Link>
         <Link
-          href="/contact"
+          href={seller ? `/partners/${seller.slug}` : '/contact'}
           className="flex-1 border border-brand-black/20 text-center font-body text-sm uppercase tracking-widest py-4 hover:border-brand-black transition-colors text-brand-black"
         >
-          Questions? Contact Us
+          {seller ? `Questions? Contact ${seller.name}` : 'Questions? Contact Us'}
         </Link>
       </div>
     </div>

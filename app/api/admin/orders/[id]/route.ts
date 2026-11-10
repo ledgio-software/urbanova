@@ -11,8 +11,9 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
     include: {
       customer: true,
       delivery: { select: { id: true, status: true, trackingCode: true } },
+      sellerPartner: { select: { id: true, name: true } },
       items: {
-        include: { variant: { include: { product: { select: { name: true } } } } },
+        include: { variant: { include: { product: { select: { name: true, partner: { select: { id: true, name: true, type: true } } } } } } },
       },
     },
   })

@@ -5,12 +5,13 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { ImageUploadField } from '@/components/dashboard/ImageUploadField'
 import { OneTimePassword } from './OneTimePassword'
-import { PAYOUT_METHODS, slugify } from '@/lib/partners'
+import { PARTNER_TYPES, PAYOUT_METHODS, slugify } from '@/lib/partners'
 
 export interface PartnerFormValues {
   name: string
   slug: string
   status: 'pending' | 'active' | 'suspended'
+  type: 'market' | 'stockist'
   commissionPercent: string
   tagline: string
   description: string
@@ -28,6 +29,7 @@ export const EMPTY_PARTNER: PartnerFormValues = {
   name: '',
   slug: '',
   status: 'pending',
+  type: 'market',
   commissionPercent: '',
   tagline: '',
   description: '',
@@ -95,7 +97,7 @@ export function PartnerForm({ mode, partnerId, initial }: { mode: 'new' | 'edit'
     setSaving(true)
     const payload = {
       ...values,
-      commissionPercent: values.commissionPercent === '' ? null : Number(values.commissionPercent),
+      commissionPercent: values.type === 'stockist' || values.commissionPercent === '' ? null : Number(values.commissionPercent),
       payoutMethod: values.payoutMethod || null,
       ...(mode === 'new' ? login : {}),
     }
@@ -145,6 +147,23 @@ export function PartnerForm({ mode, partnerId, initial }: { mode: 'new' | 'edit'
   return (
     <form onSubmit={submit} className="max-w-3xl space-y-6">
       <Card title="Partner">
+        <fieldset>
+          <legend className={labelClass}>Partner type</legend>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {PARTNER_TYPES.map((t) => (
+              <label
+                key={t.value}
+                className={`flex cursor-pointer gap-3 border p-3 ${values.type === t.value ? 'border-brand-black bg-gray-50' : 'border-gray-200'}`}
+              >
+                <input type="radio" name="partner-type" value={t.value} checked={values.type === t.value} onChange={() => set('type', t.value)} className="mt-1" />
+                <span>
+                  <span className="block font-body text-sm font-semibold text-brand-black">{t.label}</span>
+                  <span className="block font-body text-xs text-gray-500">{t.hint}</span>
+                </span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Business name">
             <input
@@ -175,17 +194,23 @@ export function PartnerForm({ mode, partnerId, initial }: { mode: 'new' | 'edit'
               <option value="suspended">Suspended</option>
             </select>
           </Field>
-          <Field label="URBANOVA commission (%)" hint="Required before going live. Taken from each sale.">
-            <input
-              className={inputClass}
-              type="number"
-              min={0}
-              max={100}
-              step={0.5}
-              value={values.commissionPercent}
-              onChange={(e) => set('commissionPercent', e.target.value)}
-            />
-          </Field>
+          {values.type === 'market' ? (
+            <Field label="URBANOVA commission (%)" hint="Required before going live. Taken from each sale.">
+              <input
+                className={inputClass}
+                type="number"
+                min={0}
+                max={100}
+                step={0.5}
+                value={values.commissionPercent}
+                onChange={(e) => set('commissionPercent', e.target.value)}
+              />
+            </Field>
+          ) : (
+            <Field label="URBANOVA commission">
+              <p className="py-2 font-body text-sm text-gray-700">None — stockists keep all their sales.</p>
+            </Field>
+          )}
         </div>
       </Card>
 
@@ -232,8 +257,12 @@ export function PartnerForm({ mode, partnerId, initial }: { mode: 'new' | 'edit'
         </div>
       </Card>
 
-      <Card title="Payouts">
-        <p className="text-xs font-body text-gray-500">Where URBANOVA sends the partner&apos;s share of each sale.</p>
+      <Card title={values.type === 'stockist' ? 'Customer payments' : 'Payouts'}>
+        <p className="text-xs font-body text-gray-500">
+          {values.type === 'stockist'
+            ? 'Customers pay the stockist directly to this account — it is shown at checkout. Required before going live.'
+            : 'Where URBANOVA sends the partner\u2019s share of each sale.'}
+        </p>
         <div className="grid gap-4 sm:grid-cols-3">
           <Field label="Method">
             <select className={inputClass} value={values.payoutMethod} onChange={(e) => set('payoutMethod', e.target.value)}>
