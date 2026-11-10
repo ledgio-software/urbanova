@@ -13,7 +13,7 @@ const NAV = [
   { href: '/partner/password', label: 'Password' },
 ]
 
-export function PartnerNav({ name }: { name: string }) {
+export function PartnerNav({ name, stockist = false }: { name: string; stockist?: boolean }) {
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
 
@@ -21,7 +21,7 @@ export function PartnerNav({ name }: { name: string }) {
 
   const links = (
     <nav className="flex flex-col gap-1 p-4">
-      {NAV.map((item) => {
+      {(stockist ? [...NAV.slice(0, 2), { href: '/partner/orders', label: 'Orders' }, ...NAV.slice(2)] : NAV).map((item) => {
         const active = item.exact ? pathname === item.href : pathname.startsWith(item.href)
         return (
           <Link

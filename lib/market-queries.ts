@@ -12,7 +12,8 @@ const cardInclude = {
 export async function getMarketProducts(categorySlug?: string) {
   try {
     return await prisma.product.findMany({
-      where: { ...marketProductWhere, ...(categorySlug ? { category: { slug: categorySlug, kind: 'market' } } : {}) },
+      // Stockists' copies of URBANOVA items stay on their own page — Nova Market shows partners' own goods
+      where: { ...marketProductWhere, sourceProductId: null, ...(categorySlug ? { category: { slug: categorySlug, kind: 'market' } } : {}) },
       include: cardInclude,
       orderBy: { createdAt: 'desc' },
       take: 120,
@@ -39,7 +40,7 @@ export async function getLivePartners() {
     return await prisma.partner.findMany({
       where: { status: 'active' },
       orderBy: { name: 'asc' },
-      select: { id: true, name: true, slug: true, tagline: true, logoUrl: true, location: true },
+      select: { id: true, name: true, slug: true, tagline: true, logoUrl: true, location: true, type: true },
     })
   } catch {
     return []
@@ -59,6 +60,8 @@ export async function getLivePartnerPage(slug: string) {
         logoUrl: true,
         bannerUrl: true,
         location: true,
+        type: true,
+        contactPhone: true,
         products: { where: marketProductWhere, include: cardInclude, orderBy: { createdAt: 'desc' } },
       },
     })

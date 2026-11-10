@@ -961,11 +961,29 @@ Business identity (name, registration no., TIN, address, digital address, phone,
 5. Paystack checkout for the whole store, then partner subaccounts + split payments.
 6. Publish Nova Market Seller Terms (Policies s.10) after legal review — needed before partners take real orders.
 
+### I.6 URBANOVA Stockists — founder-approved Nov 2026
+
+> Founder request (Nov 2026): partners who sell URBANOVA clothing (bought from URBANOVA, e.g. in bulk) and their own goods, with a shop on the platform, **without paying commission**.
+
+| Decision | Choice |
+|---|---|
+| Partner types | `partners.type`: **`market`** (Nova Market partner — own goods, URBANOVA collects payment, commission) or **`stockist`** (URBANOVA Stockist). Admin picks the type. |
+| Commission | Stockists: **none** (`commission_bps` stored as 0). |
+| URBANOVA items | From the stockist's **own stock**. They choose items from URBANOVA's catalogue; the listing is a copy (`products.source_product_id`) whose name, description, category and photos always follow URBANOVA's product (synced when URBANOVA edits it). The stockist sets **their price**, **stock per size** and visibility. One listing per item per stockist. SKUs use the partner format `NM-[PARTNER]-[RANDOM]`. |
+| Own items | Listed like Nova Market partners (market categories); they also appear on Nova Market. URBANOVA-item copies appear only on the stockist's page, never in the Shop or Nova Market grid. |
+| Payment | **Customers pay the stockist directly** (their Mobile Money details, required before going live, shown at checkout). URBANOVA doesn't handle the money. |
+| Orders | `orders.seller_partner_id` = the stockist. One payee per order: a bag can't mix a stockist's items with URBANOVA/Nova Market items or another stockist's (blocked in the bag and at checkout). Stockists manage these orders in their dashboard (**Orders**: confirm payment → packed/sent → delivered, or cancel); admin sees them labelled "Paid to {stockist}". |
+| Website | Their shop page on the URBANOVA site, `/partners/[slug]`, badged **Official URBANOVA Stockist**, with WhatsApp contact; sections "URBANOVA at {name}" and "Also from {name}". |
+| Delivery | Stockists deliver their own orders. The customer pays the URBANOVA delivery-zone fee shown at checkout, to the stockist. |
+
+Rules: if a stockist is switched to the `market` type, their URBANOVA-item copies stop being sellable (and come back if switched back). An URBANOVA product that stockists list can't be deleted (hide it instead). A live stockist can't remove their payment details.
+
 ### I.5 Open items
 
 - Commission rate(s) per partner.
 - Paystack business account (needs business registration).
 - Lawyer review of Nova Market Seller Terms, especially who is the legal seller to the customer (Act 772).
+- Stockists: delivery fees use URBANOVA's zones/fees (stockists may want their own); site-wide promo banner (free Accra delivery / promo code) also shows on stockist pages — confirm stockists honour it or limit it to URBANOVA; privacy policy should mention that stockists receive their customers' contact details; wholesale (bulk) ordering by stockists from URBANOVA is still handled outside the site.
 - Stock is not yet deducted when an order is placed or paid (applies to the whole store, not only partners) — founder to decide when stock should go down.
 - Production database must receive schema changes (the Migrate DB workflow has been failing — see STATUS).
 

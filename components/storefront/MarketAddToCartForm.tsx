@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { useCart } from '@/lib/cart'
+import { payeeConflict, sellerName, useCart, type CartItem } from '@/lib/cart'
+import { SellerConflictNotice } from './SellerConflictNotice'
 import { formatPrice } from '@/lib/format'
 import { optionLabel } from '@/lib/market'
 
@@ -22,14 +23,17 @@ export function MarketAddToCartForm({
   basePrice,
   variants,
   imageUrl,
+  seller,
 }: {
   productId: string
   productName: string
   basePrice: number
   variants: Variant[]
   imageUrl?: string
+  seller?: CartItem['seller']
 }) {
   const addItem = useCart((s) => s.addItem)
+  const [conflict, setConflict] = useState<string | null>(null)
   const single = variants.length === 1
   const [selectedId, setSelectedId] = useState<string>(single ? variants[0].id : '')
   const [added, setAdded] = useState(false)
@@ -38,6 +42,9 @@ export function MarketAddToCartForm({
 
   function handleAdd() {
     if (!selected) return
+    const blocker = payeeConflict(useCart.getState().items, seller)
+    if (blocker) return setConflict(sellerName(blocker))
+    setConflict(null)
     addItem({
       variantId: selected.id,
       productId,
@@ -48,6 +55,7 @@ export function MarketAddToCartForm({
       price: selected.priceOverride ?? basePrice,
       quantity: 1,
       imageUrl,
+      ...(seller ? { seller } : {}),
     })
     setAdded(true)
     setTimeout(() => setAdded(false), 2000)
@@ -90,6 +98,7 @@ export function MarketAddToCartForm({
 
       <p className="font-headline text-2xl text-brand-black">{formatPrice(selected?.priceOverride ?? basePrice)}</p>
 
+      {conflict && <SellerConflictNotice inBag={conflict} thisItem={seller?.name ?? 'URBANOVA'} />}
       <button
         type="button"
         onClick={handleAdd}

@@ -23,11 +23,12 @@ type OrderDetail = {
   createdAt: string
   customer: { name: string; email: string; phone: string } | null
   delivery: { id: string; status: string; trackingCode: string } | null
+  sellerPartner: { id: string; name: string } | null // paid directly to an URBANOVA stockist
   items: {
     id: string
     quantity: number
     unitPrice: number
-    variant: { sku: string; size: string; color: string; product: { name: string; partner: { id: string; name: string } | null } }
+    variant: { sku: string; size: string; color: string; product: { name: string; partner: { id: string; name: string; type: string } | null } }
   }[]
 }
 
@@ -128,6 +129,13 @@ export default function OrderDetailPage() {
           </h1>
           <OrderStatusBadge status={order.status} />
         </div>
+        {order.sellerPartner && (
+          <p className="border border-amber-300 bg-amber-50 px-3 py-2 font-body text-xs text-amber-900 sm:order-last sm:w-full" data-testid="stockist-order">
+            Paid directly to stockist{' '}
+            <Link href={`/admin/partners/${order.sellerPartner.id}`} className="font-semibold underline">{order.sellerPartner.name}</Link>
+            {' '}— they confirm payment and deliver it from their dashboard.
+          </p>
+        )}
 
         {whatsappUrl && (
           <a
@@ -244,7 +252,7 @@ export default function OrderDetailPage() {
                   <p className="font-semibold text-brand-black">{item.variant.product.name}</p>
                   {item.variant.product.partner && (
                     <Link href={`/admin/partners/${item.variant.product.partner.id}`} className="text-xs text-brand-red underline">
-                      Sold by {item.variant.product.partner.name} (Nova Market)
+                      Sold by {item.variant.product.partner.name} ({item.variant.product.partner.type === 'stockist' ? 'Stockist' : 'Nova Market'})
                     </Link>
                   )}
                   <p className="text-xs text-gray-400 font-mono mt-0.5">

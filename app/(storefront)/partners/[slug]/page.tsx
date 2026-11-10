@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ProductCard } from '@/components/storefront/ProductCard'
 import { getLivePartnerPage } from '@/lib/market-queries'
+import { whatsappUrlFor } from '@/lib/phone'
 
 export const revalidate = 60
 
@@ -12,8 +13,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const partner = await getLivePartnerPage(slug)
   if (!partner) return {}
   return {
-    title: `${partner.name} — Nova Market`,
-    description: partner.tagline ?? `${partner.name} on URBANOVA Nova Market.`,
+    title: partner.type === 'stockist' ? `${partner.name} — URBANOVA Stockist` : `${partner.name} — Nova Market`,
+    description: partner.tagline ?? (partner.type === 'stockist' ? `Official URBANOVA stockist ${partner.name}.` : `${partner.name} on URBANOVA Nova Market.`),
     openGraph: partner.bannerUrl && !partner.bannerUrl.startsWith('data:') ? { images: [{ url: partner.bannerUrl }] } : undefined,
   }
 }
@@ -25,6 +26,17 @@ export default async function PartnerPage({ params }: { params: Promise<{ slug: 
   if (!partner) notFound()
 
   const dataUrl = (u: string | null) => Boolean(u?.startsWith('data:'))
+  const stockist = partner.type === 'stockist'
+  const official = partner.products.filter((p) => p.sourceProductId)
+  const own = partner.products.filter((p) => !p.sourceProductId)
+  const whatsapp = stockist ? whatsappUrlFor(partner.contactPhone) : undefined
+  const grid = (items: typeof partner.products, testId: string) => (
+    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-6 lg:grid-cols-4" data-testid={testId}>
+      {items.map((p, i) => (
+        <ProductCard key={p.id} product={{ ...p, partner: null }} priority={i < 4} />
+      ))}
+    </div>
+  )
 
   return (
     <div>
@@ -45,11 +57,25 @@ export default async function PartnerPage({ params }: { params: Promise<{ slug: 
           </div>
           <div>
             <p className="font-body text-xs uppercase tracking-[0.3em] text-brand-red">
-              <Link href="/market" className="hover:underline">Nova Market</Link>
+              {stockist ? (
+                <span data-testid="stockist-badge">Official URBANOVA Stockist</span>
+              ) : (
+                <Link href="/market" className="hover:underline">Nova Market</Link>
+              )}
             </p>
             <h1 className="mt-1 font-headline text-display-md uppercase tracking-widest">{partner.name}</h1>
             {partner.tagline && <p className="mt-1 font-body text-brand-white/80">{partner.tagline}</p>}
             {partner.location && <p className="mt-1 font-body text-sm text-brand-white/50">{partner.location}</p>}
+            {whatsapp && (
+              <a
+                href={whatsapp}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-4 inline-block bg-brand-red px-5 py-2 font-body text-xs uppercase tracking-widest text-white hover:bg-brand-red/80"
+              >
+                WhatsApp {partner.name}
+              </a>
+            )}
           </div>
         </div>
       </section>
@@ -62,15 +88,31 @@ export default async function PartnerPage({ params }: { params: Promise<{ slug: 
           </section>
         )}
 
-        <h2 className="mb-6 font-headline text-2xl uppercase tracking-widest text-brand-black">Shop {partner.name}</h2>
         {partner.products.length === 0 ? (
-          <p className="font-body text-brand-black/60">Nothing here yet — check back for the next drop.</p>
-        ) : (
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-6 lg:grid-cols-4" data-testid="partner-products-public">
-            {partner.products.map((p, i) => (
-              <ProductCard key={p.id} product={{ ...p, partner: null }} priority={i < 4} />
-            ))}
+          <>
+            <h2 className="mb-6 font-headline text-2xl uppercase tracking-widest text-brand-black">Shop {partner.name}</h2>
+            <p className="font-body text-brand-black/60">Nothing here yet — check back for the next drop.</p>
+          </>
+        ) : stockist ? (
+          <div className="space-y-12">
+            {official.length > 0 && (
+              <section>
+                <h2 className="mb-6 font-headline text-2xl uppercase tracking-widest text-brand-black">URBANOVA at {partner.name}</h2>
+                {grid(official, 'stockist-urbanova-products')}
+              </section>
+            )}
+            {own.length > 0 && (
+              <section>
+                <h2 className="mb-6 font-headline text-2xl uppercase tracking-widest text-brand-black">Also from {partner.name}</h2>
+                {grid(own, 'stockist-own-products')}
+              </section>
+            )}
           </div>
+        ) : (
+          <>
+            <h2 className="mb-6 font-headline text-2xl uppercase tracking-widest text-brand-black">Shop {partner.name}</h2>
+            {grid(partner.products, 'partner-products-public')}
+          </>
         )}
       </div>
     </div>

@@ -5,6 +5,7 @@ import { getPartnerContext } from '@/lib/authz'
 import { PartnerProductSchema } from '@/lib/market-products'
 import { deletePartnerProduct, ProductRuleError, updatePartnerProduct } from '@/lib/partner-products-db'
 import { revalidateMarketPages } from '@/lib/market-cache'
+import { OfficialCopySchema, updateOfficialCopy } from '@/lib/stockist'
 
 export const dynamic = 'force-dynamic'
 
@@ -13,7 +14,7 @@ async function ownProduct(id: string) {
   const ctx = await getPartnerContext()
   if (!ctx) return { error: NextResponse.json({ error: 'Unauthorized' }, { status: 401 }) }
   if (ctx.user.mustChangePassword) return { error: NextResponse.json({ error: 'Set your password first' }, { status: 403 }) }
-  const product = await prisma.product.findUnique({ where: { id }, select: { id: true, partnerId: true } })
+  const product = await prisma.product.findUnique({ where: { id }, select: { id: true, partnerId: true, sourceProductId: true } })
   if (!product || product.partnerId !== ctx.partner.id) return { error: NextResponse.json({ error: 'Not found' }, { status: 404 }) }
   return { ctx, product }
 }
@@ -36,6 +37,18 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   const { id } = await params
   const own = await ownProduct(id)
   if (own.error) return own.error
+  if (own.product.sourceProductId) {
+    // An URBANOVA item: only price, stock and visibility are the stockist's to change
+    const copy = OfficialCopySchema.safeParse(await readJson(req))
+    if (!copy.success) return NextResponse.json({ error: copy.error.issues[0]?.message ?? 'Please check the form' }, { status: 422 })
+    try {
+      await updateOfficialCopy(own.ctx.partner, id, copy.data)
+      revalidateMarketPages()
+      return NextResponse.json({ ok: true })
+    } catch (err) {
+      return ruleOrServerError(err, 'Update')
+    }
+  }
   const parsed = PartnerProductSchema.safeParse(await readJson(req))
   if (!parsed.success) return NextResponse.json({ error: parsed.error.issues[0]?.message ?? 'Please check the form' }, { status: 422 })
   try {

@@ -29,14 +29,16 @@ export default async function PartnerSalesPage() {
       <div className="border-b border-gray-200 pb-5">
         <h1 className="font-headline text-2xl uppercase tracking-widest text-brand-black">Sales</h1>
         <p className="mt-1 text-sm font-body text-gray-500">
-          Paid orders that include your products. URBANOVA will contact you about delivery and pays your share to your payout account.
+          {partner.type === 'stockist'
+            ? 'Orders you’ve confirmed as paid. Customers pay you directly and URBANOVA takes no commission.'
+            : 'Paid orders that include your products. URBANOVA will contact you about delivery and pays your share to your payout account.'}
         </p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
         {[
           ['Sales', formatPrice(gross)],
-          [`URBANOVA commission (${formatCommission(partner.commissionBps)})`, commission === null ? '—' : formatPrice(commission)],
+          [partner.type === 'stockist' ? 'URBANOVA commission' : `URBANOVA commission (${formatCommission(partner.commissionBps)})`, partner.type === 'stockist' ? 'None' : commission === null ? '—' : formatPrice(commission)],
           ['Your share', commission === null ? '—' : formatPrice(gross - commission)],
         ].map(([label, value]) => (
           <div key={label} className="border border-gray-200 bg-white p-5 font-body">

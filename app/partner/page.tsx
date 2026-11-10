@@ -25,15 +25,26 @@ const STATUS_COPY = {
 
 export default async function PartnerDashboardPage() {
   const { user, partner } = await requirePartnerPage()
-  const status = STATUS_COPY[partner.status]
-  const productCount = await prisma.product.count({ where: { partnerId: partner.id } })
+  const stockist = partner.type === 'stockist'
+  const status =
+    stockist && partner.status === 'active'
+      ? { ...STATUS_COPY.active, body: 'Your shop page is live. Customers pay you directly for their orders.' }
+      : STATUS_COPY[partner.status]
+  const [productCount, officialCount, openOrders] = await Promise.all([
+    prisma.product.count({ where: { partnerId: partner.id } }),
+    prisma.product.count({ where: { partnerId: partner.id, sourceProductId: { not: null } } }),
+    stockist ? prisma.order.count({ where: { sellerPartnerId: partner.id, status: { in: ['pending_payment', 'paid', 'packed', 'shipped'] } } }) : 0,
+  ])
 
   const checklist = [
     { done: Boolean(partner.logoUrl), label: 'Add your logo' },
     { done: Boolean(partner.bannerUrl), label: 'Add a banner image' },
     { done: Boolean(partner.tagline && partner.description), label: 'Write your tagline and “About” text' },
-    { done: Boolean(partner.payoutMethod && partner.payoutAccountNumber), label: 'Add where to send your payouts' },
-    { done: productCount > 0, label: 'Add your first product' },
+    stockist
+      ? { done: Boolean(partner.payoutMethod && partner.payoutAccountName && partner.payoutAccountNumber), label: 'Add the Mobile Money account customers pay into' }
+      : { done: Boolean(partner.payoutMethod && partner.payoutAccountNumber), label: 'Add where to send your payouts' },
+    ...(stockist ? [{ done: officialCount > 0, label: 'Add the URBANOVA items you stock' }] : []),
+    { done: productCount > officialCount, label: stockist ? 'Add your own products (optional)' : 'Add your first product' },
   ]
   const payoutLabel = PAYOUT_METHODS.find((m) => m.value === partner.payoutMethod)?.label
 
@@ -45,9 +56,15 @@ export default async function PartnerDashboardPage() {
       </div>
 
       <div className={`border p-4 font-body text-sm ${status.tone}`}>
-        <p className="font-semibold uppercase tracking-wider">{status.title}</p>
+        <p className="font-semibold uppercase tracking-wider">{status.title}{stockist ? ' · URBANOVA Stockist' : ''}</p>
         <p className="mt-1">{status.body}</p>
       </div>
+
+      {stockist && openOrders > 0 && (
+        <Link href="/partner/orders" className="block border border-brand-red bg-white p-4 font-body text-sm text-brand-black hover:bg-red-50" data-testid="open-orders-alert">
+          <strong>{openOrders}</strong> order{openOrders === 1 ? '' : 's'} to handle → Orders
+        </Link>
+      )}
 
       <div className="grid gap-4 sm:grid-cols-2">
         <section className="border border-gray-200 bg-white p-5">
@@ -70,10 +87,10 @@ export default async function PartnerDashboardPage() {
           <dl className="mt-3 space-y-2">
             <div className="flex justify-between gap-4">
               <dt className="text-gray-500">URBANOVA commission</dt>
-              <dd className="font-semibold">{formatCommission(partner.commissionBps)}</dd>
+              <dd className="font-semibold">{stockist ? 'None' : formatCommission(partner.commissionBps)}</dd>
             </div>
             <div className="flex justify-between gap-4">
-              <dt className="text-gray-500">Payouts to</dt>
+              <dt className="text-gray-500">{stockist ? 'Customers pay' : 'Payouts to'}</dt>
               <dd className="text-right">{payoutLabel ? `${payoutLabel} · ${partner.payoutAccountNumber ?? ''}` : 'Not set'}</dd>
             </div>
           </dl>

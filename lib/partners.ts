@@ -47,6 +47,11 @@ export const PartnerProfileSchema = z.object({
 
 export type PartnerProfileInput = z.infer<typeof PartnerProfileSchema>
 
+export const PARTNER_TYPES = [
+  { value: 'market', label: 'Nova Market partner', hint: 'Sells their own items. Customers pay URBANOVA; URBANOVA takes a commission.' },
+  { value: 'stockist', label: 'URBANOVA Stockist', hint: 'Sells their own stock of URBANOVA clothing plus their own items. Customers pay them directly. No commission.' },
+] as const
+
 export const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
 
 /** Admin edit: everything a partner can edit, plus identity, status and commission. */
@@ -59,12 +64,19 @@ export const AdminPartnerSchema = PartnerProfileSchema.extend({
     .max(60)
     .regex(SLUG_PATTERN, 'Use lowercase letters, numbers and dashes only'),
   status: z.enum(['pending', 'active', 'suspended']),
-  // Percent in the form (e.g. 12.5); stored as basis points
+  // market = Nova Market partner (commission); stockist = sells URBANOVA stock + own items, paid directly
+  type: z.enum(['market', 'stockist']).default('market'),
+  // Percent in the form (e.g. 12.5); stored as basis points. Ignored for stockists (always 0).
   commissionPercent: z.number().min(0).max(100).nullable(),
-}).refine((p) => p.status !== 'active' || p.commissionPercent !== null, {
-  message: 'Set a commission before making a partner active',
-  path: ['commissionPercent'],
 })
+  .refine((p) => p.type === 'stockist' || p.status !== 'active' || p.commissionPercent !== null, {
+    message: 'Set a commission before making a partner active',
+    path: ['commissionPercent'],
+  })
+  .refine((p) => p.type !== 'stockist' || p.status !== 'active' || (!!p.payoutMethod && !!p.payoutAccountName && !!p.payoutAccountNumber), {
+    message: 'Customers pay stockists directly — add their Mobile Money details before making them live',
+    path: ['payoutAccountNumber'],
+  })
 
 export type AdminPartnerInput = z.infer<typeof AdminPartnerSchema>
 
@@ -99,7 +111,7 @@ export function slugify(name: string): string {
 /** Data written to the Partner table from a validated admin payload. */
 export function adminPartnerData(input: AdminPartnerInput) {
   const { commissionPercent, ...rest } = input
-  return { ...rest, commissionBps: percentToBps(commissionPercent) }
+  return { ...rest, commissionBps: input.type === 'stockist' ? 0 : percentToBps(commissionPercent) }
 }
 
 /** Prisma unique-constraint violation (e.g. duplicate slug or login email). */

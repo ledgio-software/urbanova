@@ -46,6 +46,7 @@ export default async function PartnersPage() {
               <tr>
                 <th className="px-4 py-3">Partner</th>
                 <th className="px-4 py-3">Status</th>
+                <th className="px-4 py-3">Type</th>
                 <th className="px-4 py-3">Commission</th>
                 <th className="px-4 py-3">Products</th>
                 <th className="px-4 py-3">Logins</th>
@@ -62,7 +63,8 @@ export default async function PartnersPage() {
                     <p className="text-xs text-gray-400">/partners/{p.slug}</p>
                   </td>
                   <td className="px-4 py-3"><PartnerStatusBadge status={p.status} /></td>
-                  <td className="px-4 py-3">{formatCommission(p.commissionBps)}</td>
+                  <td className="px-4 py-3">{p.type === 'stockist' ? 'Stockist' : 'Nova Market'}</td>
+                  <td className="px-4 py-3">{p.type === 'stockist' ? 'None' : formatCommission(p.commissionBps)}</td>
                   <td className="px-4 py-3">{p._count.products}</td>
                   <td className="px-4 py-3">{p._count.users}</td>
                   <td className="px-4 py-3 text-gray-600">{p.contactPhone}</td>

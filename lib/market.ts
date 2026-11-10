@@ -10,12 +10,13 @@ export const storeProductWhere: Prisma.ProductWhereInput = {
   adminHidden: false,
 }
 
-/** Nova Market partner products — only from live partners. */
+/** Partner products — only from live partners. A stockist's copy of an URBANOVA item only while they are a stockist. */
 export const marketProductWhere: Prisma.ProductWhereInput = {
   partnerId: { not: null },
   isActive: true,
   adminHidden: false,
   partner: { status: 'active' },
+  AND: [{ OR: [{ sourceProductId: null }, { partner: { type: 'stockist' } }] }],
 }
 
 /** Anything a customer may see or buy. */
@@ -28,10 +29,13 @@ export function isSellable(product: {
   partnerId: string | null
   isActive: boolean
   adminHidden: boolean
-  partner: { status: string } | null
+  sourceProductId?: string | null
+  partner: { status: string; type?: string } | null
 }): boolean {
   if (!product.isActive || product.adminHidden) return false
-  return product.partnerId === null || product.partner?.status === 'active'
+  if (product.partnerId === null) return true
+  if (product.partner?.status !== 'active') return false
+  return !product.sourceProductId || product.partner.type === 'stockist'
 }
 
 /** Default categories offered to the admin when no market categories exist yet. */

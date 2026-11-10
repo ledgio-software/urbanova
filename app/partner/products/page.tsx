@@ -30,11 +30,20 @@ export default async function PartnerProductsPage() {
       <div className="flex flex-col justify-between gap-4 border-b border-gray-200 pb-5 sm:flex-row sm:items-center">
         <div>
           <h1 className="font-headline text-2xl uppercase tracking-widest text-brand-black">Products</h1>
-          <p className="mt-1 text-sm font-body text-gray-500">What you sell on Nova Market. Changes show on the site right away.</p>
+          <p className="mt-1 text-sm font-body text-gray-500">
+            {partner.type === 'stockist' ? 'URBANOVA items from your stock and your own products.' : 'What you sell on Nova Market.'} Changes show on the site right away.
+          </p>
         </div>
-        <Link href="/partner/products/new" className="self-start bg-brand-red px-4 py-2 text-xs font-body font-semibold uppercase tracking-wider text-white hover:bg-brand-red/90 sm:self-auto">
-          + Add product
-        </Link>
+        <div className="flex flex-wrap gap-2 self-start sm:self-auto">
+          {partner.type === 'stockist' && (
+            <Link href="/partner/products/urbanova" className="bg-brand-black px-4 py-2 text-xs font-body font-semibold uppercase tracking-wider text-white hover:bg-brand-black/80">
+              + Add URBANOVA item
+            </Link>
+          )}
+          <Link href="/partner/products/new" className="bg-brand-red px-4 py-2 text-xs font-body font-semibold uppercase tracking-wider text-white hover:bg-brand-red/90">
+            {partner.type === 'stockist' ? '+ Add your own product' : '+ Add product'}
+          </Link>
+        </div>
       </div>
 
       {products.length === 0 ? (
@@ -51,6 +60,9 @@ export default async function PartnerProductsPage() {
                   {p.images[0] && <img src={p.images[0].url} alt="" className="h-full w-full object-cover" />}
                 </div>
                 <div className="min-w-0 flex-1">
+                  {p.sourceProductId && (
+                    <span className="mr-2 bg-brand-black px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-white">URBANOVA</span>
+                  )}
                   <Link href={`/partner/products/${p.id}`} className="font-semibold text-brand-black hover:text-brand-red">{p.name}</Link>
                   <p className="text-xs text-gray-500">
                     {p.category.name} · {formatPrice(p.basePrice)} · {stock} in stock

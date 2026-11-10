@@ -42,6 +42,17 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
     ? await getMoreFromPartner(product.partnerId, product.id)
     : related.filter((p: ProductSummary) => p.id !== product.id).slice(0, 4)
   const mainImage = product.images[0]?.url ?? null
+  // URBANOVA stockists are paid directly by the customer (Reference I.6)
+  const stockist = product.partner?.type === 'stockist' ? product.partner : null
+  const seller = stockist ? { id: stockist.id, name: stockist.name } : undefined
+  const variantProps = product.variants.map((v) => ({
+    id: v.id,
+    size: v.size,
+    color: v.color,
+    stockQuantity: v.stockQuantity,
+    priceOverride: v.priceOverride,
+    sku: v.sku,
+  }))
 
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
@@ -49,8 +60,12 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
       <p className="text-xs font-body uppercase tracking-widest text-brand-black/40 mb-8">
         {product.partner ? (
           <>
-            <Link href="/market" className="hover:text-brand-red transition-colors">Nova Market</Link>
-            {' / '}
+            {!stockist && (
+              <>
+                <Link href="/market" className="hover:text-brand-red transition-colors">Nova Market</Link>
+                {' / '}
+              </>
+            )}
             <Link href={`/partners/${product.partner.slug}`} className="hover:text-brand-red transition-colors">{product.partner.name}</Link>
           </>
         ) : (
@@ -97,7 +112,20 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
         {/* Product info */}
         <div className="mt-8 lg:mt-0">
           <h1 className="font-headline text-display-md uppercase text-brand-black">{product.name}</h1>
-          {product.partner && (
+          {product.sourceProductId && (
+            <span className="mt-2 inline-block bg-brand-black px-2 py-0.5 font-body text-[10px] font-semibold uppercase tracking-wider text-white" data-testid="official-badge">
+              Official URBANOVA
+            </span>
+          )}
+          {stockist ? (
+            <p className="mt-2 font-body text-sm text-brand-black/60" data-testid="sold-by">
+              Sold by{' '}
+              <Link href={`/partners/${stockist.slug}`} className="font-semibold text-brand-black underline underline-offset-4 hover:text-brand-red">
+                {stockist.name}
+              </Link>
+              , an URBANOVA stockist · You pay {stockist.name} directly
+            </p>
+          ) : product.partner && (
             <p className="mt-2 font-body text-sm text-brand-black/60" data-testid="sold-by">
               Sold by{' '}
               <Link href={`/partners/${product.partner.slug}`} className="font-semibold text-brand-black underline underline-offset-4 hover:text-brand-red">
@@ -110,35 +138,23 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           <p className="mt-6 font-body text-brand-black/70 leading-relaxed">{product.description}</p>
 
           <div className="mt-8">
-            {product.partner ? (
+            {product.partner && !product.sourceProductId ? (
               <MarketAddToCartForm
                 productId={product.id}
                 productName={product.name}
                 basePrice={product.basePrice}
-                variants={product.variants.map((v) => ({
-                  id: v.id,
-                  size: v.size,
-                  color: v.color,
-                  stockQuantity: v.stockQuantity,
-                  priceOverride: v.priceOverride,
-                  sku: v.sku,
-                }))}
+                variants={variantProps}
                 imageUrl={mainImage ?? undefined}
+                seller={seller}
               />
             ) : (
             <AddToCartForm
               productId={product.id}
               productName={product.name}
               basePrice={product.basePrice}
-              variants={product.variants.map((v) => ({
-                id: v.id,
-                size: v.size,
-                color: v.color,
-                stockQuantity: v.stockQuantity,
-                priceOverride: v.priceOverride,
-                sku: v.sku,
-              }))}
+              variants={variantProps}
               imageUrl={mainImage ?? undefined}
+              seller={seller}
             />
             )}
           </div>

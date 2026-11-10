@@ -42,6 +42,7 @@ export default async function EditPartnerPage({ params }: { params: Promise<{ id
     name: partner.name,
     slug: partner.slug,
     status: partner.status,
+    type: partner.type,
     commissionPercent: percent === null ? '' : String(percent),
     tagline: partner.tagline ?? '',
     description: partner.description ?? '',

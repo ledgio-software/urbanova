@@ -7,7 +7,7 @@ export type ProductWithDetails = Prisma.ProductGetPayload<{
     category: true
     images: true
     variants: true
-    partner: { select: { name: true; slug: true; logoUrl: true; location: true } }
+    partner: { select: { id: true; name: true; slug: true; logoUrl: true; location: true; type: true } }
   }
 }>
 
@@ -83,7 +83,7 @@ export async function getProductBySlug(slug: string): Promise<ProductWithDetails
         category: true,
         images: { orderBy: { sortOrder: 'asc' } },
         variants: { orderBy: [{ color: 'asc' }, { size: 'asc' }] },
-        partner: { select: { name: true, slug: true, logoUrl: true, location: true } },
+        partner: { select: { id: true, name: true, slug: true, logoUrl: true, location: true, type: true } },
       },
     })
   } catch {

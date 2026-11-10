@@ -4,6 +4,22 @@ Reverse-chronological. Update this file after every meaningful change.
 
 ---
 
+## 2026-11-10 — URBANOVA Stockists: partners selling URBANOVA stock + their own items, paid directly
+
+**What:** New partner type for shops that buy URBANOVA clothing and resell it alongside their own goods, with no commission (Reference I.6).
+- **Schema:** `partners.type` (`market` | `stockist`), `products.sourceProductId` (a stockist's listing of an URBANOVA item, unique per stockist), `orders.sellerPartnerId` (paid directly to that stockist).
+- **Admin:** partner type picker (stockists: no commission field; Mobile Money details required before going live); type column in the partner list; "Paid to {stockist}" on orders; URBANOVA product edits sync to stockist copies; a product stockists list can't be deleted.
+- **Stockist dashboard:** "Add URBANOVA item" catalogue → set price + stock per size (name/photos/description locked to URBANOVA's); own items as before; **Orders** page (confirm payment, packed, sent, delivered, cancel — forward-only, own orders only) with call/WhatsApp/email for the customer; dashboard checklist + "orders to handle" alert; Sales shows no commission.
+- **Storefront:** stockist page badged "Official URBANOVA Stockist" with WhatsApp button and URBANOVA / own-items sections; product pages show "Official URBANOVA" + "You pay {stockist} directly"; Nova Market shows stockists' own goods only; Shop unchanged.
+- **Checkout:** one payee per order — bag blocks mixing (notice with link to the bag), checkout refuses mixed carts; the confirmation page shows the stockist's Mobile Money name/number instead of URBANOVA's.
+- Shared `lib/phone.ts` WhatsApp link helper.
+
+**Verified:** typecheck + production build; 51-check browser test on Postgres 16 (admin type/validation, stockist login, catalogue add, locked fields, later-added size, own item, public page sections + badge + WhatsApp, Nova Market/Shop separation, bag + server mixing refusal, confirmation shows stockist MoMo while URBANOVA orders still pay URBANOVA, admin banner, stockist order flow incl. skip refused, isolation between partners, Sales, payment details guard, rename sync, delete guard, type switch withdraws/restores copies, no page errors). Nova Market (45), partners (36) and delivery (46) suites re-run: all pass.
+
+**Deploy:** new columns/enum — included in the Supabase migration script's `prisma db push` (or run `npx prisma db push`).
+
+---
+
 ## 2026-11-06 — Database moving to Supabase (prepared, not yet switched)
 
 **What:** Founder decision to move the production database from Vercel Postgres to Supabase, keeping all data.
