@@ -4,6 +4,20 @@ Reverse-chronological. Update this file after every meaningful change.
 
 ---
 
+## 2026-11-10 — Partner websites (own address + .com) and checkout redirect fix
+
+**What:** Each live partner gets their own branded website on the same Vercel project (Reference I.7).
+- **Addresses:** free `<page-address>.<PARTNER_ROOT_DOMAIN>`, plus their own domain (`partners.customDomain`, unique, normalised; URBANOVA's domains and `*.vercel.app` refused). Admin "Website" card with DNS steps; links in admin and the partner dashboard.
+- **Routing:** middleware runs on every request; non-URBANOVA hosts are rewritten to `/site/[host]/…` (home, product, cart, checkout, order confirmation, about/contact, robots.txt, sitemap.xml); dashboards/policies/tracking go to the main site via `/site/[host]/to-main` (absolute redirect, same-site paths only). `/site/…` is 404 on the main site. Handled before the Auth.js wrapper, which re-bases URLs onto the main site. `MAIN_SITE_HOSTS` lists extra main-site domains.
+- **Pages:** partner-branded header/footer (logo, Shop/About/Cart, WhatsApp/email, "Powered by URBANOVA", stockist badge), only that partner's live products, metadata/OG per partner, canonical to their own domain, per-site robots + sitemap. Shared `PartnerProductSections` for `/partners/[slug]` and the site home.
+- **Fix (pre-existing, affected every order):** after **Place Order**, the checkout's "empty bag → /shop" effect fired when the bag was cleared and replaced the jump to the confirmation page, so customers never saw their MoMo payment instructions. Checkout also had a hydration mismatch on direct loads (bag only exists in the browser): the form now renders after mount and the empty-bag redirect waits for it.
+
+**Verified:** typecheck + production build; 40-check browser test with real host names (sub-address, own domain, www, branding, sections, canonical, title, browse → cart → checkout → confirmation on the partner domain with the stockist's MoMo, other partners'/URBANOVA products 404, about/contact, robots, sitemap, redirects to main site, no open redirect, APIs + admin API protection, market-partner site, pending/unknown/suspended → 404, main site unchanged, main-site Place Order lands on confirmation, no page errors). Stockist (51), Nova Market (45), partners (36), delivery (46) re-run: all pass. Known: the partners suite showed an intermittent React hydration warning (#418) on Admin → Add partner in ~1 of 5 runs after the Website card was added; React recovers on its own and nothing visible changes; cause not pinned down.
+
+**Deploy:** new column `partners.customDomain` → `npx prisma db push`. Then follow `docs/PARTNER_WEBSITES.md`.
+
+---
+
 ## 2026-11-10 — URBANOVA Stockists: partners selling URBANOVA stock + their own items, paid directly
 
 **What:** New partner type for shops that buy URBANOVA clothing and resell it alongside their own goods, with no commission (Reference I.6).

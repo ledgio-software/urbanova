@@ -1,5 +1,7 @@
 import { prisma } from '@/lib/db'
+import { cache } from 'react'
 import { marketProductWhere } from '@/lib/market'
+import { normalizeHost, subdomainSlug } from '@/lib/partner-hosts'
 
 // Public Nova Market data — always filtered through marketProductWhere / active partners.
 
@@ -47,28 +49,46 @@ export async function getLivePartners() {
   }
 }
 
+const partnerPageSelect = {
+  id: true,
+  name: true,
+  slug: true,
+  tagline: true,
+  description: true,
+  logoUrl: true,
+  bannerUrl: true,
+  location: true,
+  type: true,
+  contactPhone: true,
+  contactEmail: true,
+  customDomain: true,
+  products: { where: marketProductWhere, include: cardInclude, orderBy: { createdAt: 'desc' as const } },
+}
+
+export type LivePartnerPage = NonNullable<Awaited<ReturnType<typeof getLivePartnerPage>>>
+
 export async function getLivePartnerPage(slug: string) {
   try {
-    return await prisma.partner.findFirst({
-      where: { slug, status: 'active' },
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        tagline: true,
-        description: true,
-        logoUrl: true,
-        bannerUrl: true,
-        location: true,
-        type: true,
-        contactPhone: true,
-        products: { where: marketProductWhere, include: cardInclude, orderBy: { createdAt: 'desc' } },
-      },
-    })
+    return await prisma.partner.findFirst({ where: { slug, status: 'active' }, select: partnerPageSelect })
   } catch {
     return null
   }
 }
+
+/** The live partner whose website is served on this host: their own domain (with or without www) or <slug>.<root>. */
+export const getSitePartner = cache(async (rawHost: string) => {
+  const host = normalizeHost(decodeURIComponent(rawHost))
+  const slug = subdomainSlug(host)
+  const domain = host.replace(/^www\./, '')
+  try {
+    return await prisma.partner.findFirst({
+      where: { status: 'active', OR: [{ customDomain: domain }, ...(slug ? [{ slug }] : [])] },
+      select: partnerPageSelect,
+    })
+  } catch {
+    return null
+  }
+})
 
 /** Other items from the same partner, for "More from …" on a product page. */
 export async function getMoreFromPartner(partnerId: string, excludeId: string) {

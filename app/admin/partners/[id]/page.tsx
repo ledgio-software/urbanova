@@ -7,6 +7,7 @@ import { PartnerLogins } from '@/components/admin/PartnerLogins'
 import { PartnerStatusBadge } from '@/components/admin/PartnerStatusBadge'
 import { AdminHideProductButton } from '@/components/admin/AdminHideProductButton'
 import { formatPrice } from '@/lib/format'
+import { partnerRootDomain, partnerSiteUrls } from '@/lib/partner-hosts'
 
 export const dynamic = 'force-dynamic'
 
@@ -43,6 +44,7 @@ export default async function EditPartnerPage({ params }: { params: Promise<{ id
     slug: partner.slug,
     status: partner.status,
     type: partner.type,
+    customDomain: partner.customDomain ?? '',
     commissionPercent: percent === null ? '' : String(percent),
     tagline: partner.tagline ?? '',
     description: partner.description ?? '',
@@ -67,8 +69,15 @@ export default async function EditPartnerPage({ params }: { params: Promise<{ id
           <PartnerStatusBadge status={partner.status} />
         </div>
         <p className="mt-1 text-xs font-body text-gray-500">{partner._count.products} products</p>
+        {partner.status === 'active' && (
+          <p className="mt-1 flex flex-wrap gap-3 text-xs font-body" data-testid="partner-websites">
+            {[partnerSiteUrls(partner).custom, partnerSiteUrls(partner).subdomain].filter(Boolean).map((u) => (
+              <a key={u} href={u} target="_blank" rel="noopener noreferrer" className="text-brand-red underline">{u!.replace('https://', '')}</a>
+            ))}
+          </p>
+        )}
       </div>
-      <PartnerForm mode="edit" partnerId={partner.id} initial={initial} />
+      <PartnerForm mode="edit" partnerId={partner.id} initial={initial} rootDomain={partnerRootDomain()} />
       <section id="products" className="max-w-3xl scroll-mt-6 border border-gray-200 bg-white p-5">
         <h2 className="font-headline text-lg uppercase tracking-widest text-brand-black">Products</h2>
         <p className="mt-1 text-xs font-body text-gray-500">Added and edited by the partner. You can hide anything that breaks the seller rules.</p>

@@ -197,6 +197,7 @@ enum PartnerType {
 model Partner {
   id                  String        @id @default(cuid())
   type                PartnerType   @default(market)
+  customDomain        String?       @unique // partner's own website address, e.g. "kumasidrip.com" (Reference I.7)
   name                String
   slug                String        @unique
   tagline             String?

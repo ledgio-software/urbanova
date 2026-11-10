@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ id: partner.id, login: { email: userEmail, tempPassword } }, { status: 201 })
   } catch (err) {
     if (isUniqueViolation(err)) {
-      return NextResponse.json({ error: 'That page address or login email is already in use.' }, { status: 409 })
+      return NextResponse.json({ error: 'That page address, website address or login email is already in use.' }, { status: 409 })
     }
     console.error('Create partner failed:', err)
     return NextResponse.json({ error: 'Could not create partner' }, { status: 500 })

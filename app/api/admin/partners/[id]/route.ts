@@ -39,7 +39,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     return NextResponse.json({ id: partner.id })
   } catch (err) {
     if (isUniqueViolation(err)) {
-      return NextResponse.json({ error: 'That page address is already in use.' }, { status: 409 })
+      return NextResponse.json({ error: 'That page address or website address is already used by another partner.' }, { status: 409 })
     }
     if (typeof err === 'object' && err !== null && (err as { code?: string }).code === 'P2025') {
       return NextResponse.json({ error: 'Not found' }, { status: 404 })

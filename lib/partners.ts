@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { DOMAIN_PATTERN, normalizeCustomDomain, partnerRootDomain } from '@/lib/partner-hosts'
 
 // Validation for marketplace partner data (Reference Part I).
 // Admin controls identity (name, URL slug), status and commission; partners edit their own profile.
@@ -66,6 +67,20 @@ export const AdminPartnerSchema = PartnerProfileSchema.extend({
   status: z.enum(['pending', 'active', 'suspended']),
   // market = Nova Market partner (commission); stockist = sells URBANOVA stock + own items, paid directly
   type: z.enum(['market', 'stockist']).default('market'),
+  // Their own website address (optional). Entered as "kumasidrip.com" or "https://www.kumasidrip.com".
+  customDomain: z
+    .string()
+    .trim()
+    .max(253)
+    .optional()
+    .nullable()
+    .transform((v) => (v ? normalizeCustomDomain(v) : null))
+    .refine((v) => v === null || DOMAIN_PATTERN.test(v), 'Enter a web address like kumasidrip.com')
+    .refine((v) => {
+      if (v === null) return true
+      const root = partnerRootDomain()
+      return !v.endsWith('.vercel.app') && (!root || (v !== root && !v.endsWith(`.${root}`)))
+    }, 'That address can’t be used — enter the partner’s own domain'),
   // Percent in the form (e.g. 12.5); stored as basis points. Ignored for stockists (always 0).
   commissionPercent: z.number().min(0).max(100).nullable(),
 })
