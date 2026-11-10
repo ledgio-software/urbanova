@@ -55,9 +55,9 @@ export default async function PartnerSiteProduct(props: Params) {
       </p>
       <div className="lg:grid lg:grid-cols-2 lg:gap-12">
         <div className="space-y-4">
-          <div className="relative aspect-square overflow-hidden rounded bg-brand-white">
+          <div className="relative aspect-[3/4] overflow-hidden rounded bg-brand-white">
             {mainImage ? (
-              <Image src={mainImage} alt={product.name} fill priority sizes="(max-width: 1024px) 100vw, 50vw" unoptimized={mainImage.startsWith('data:')} className="object-cover" />
+              <Image src={mainImage} alt={product.name} fill priority sizes="(max-width: 1024px) 100vw, 50vw" unoptimized={mainImage.startsWith('data:')} className="object-contain" />
             ) : (
               <div className="absolute inset-0 flex items-center justify-center bg-brand-navy/5 font-headline text-8xl uppercase text-brand-navy/20">{partner.name.charAt(0)}</div>
             )}
@@ -65,8 +65,8 @@ export default async function PartnerSiteProduct(props: Params) {
           {product.images.length > 1 && (
             <div className="grid grid-cols-4 gap-2">
               {product.images.slice(1).map((img) => (
-                <div key={img.id} className="relative aspect-square overflow-hidden rounded bg-brand-white">
-                  <Image src={img.url} alt={product.name} fill sizes="25vw" unoptimized={img.url.startsWith('data:')} className="object-cover" />
+                <div key={img.id} className="relative aspect-[3/4] overflow-hidden rounded bg-brand-white">
+                  <Image src={img.url} alt={product.name} fill sizes="25vw" unoptimized={img.url.startsWith('data:')} className="object-contain" />
                 </div>
               ))}
             </div>

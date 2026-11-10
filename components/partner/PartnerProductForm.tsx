@@ -2,6 +2,8 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { PhotoCropper } from '@/components/dashboard/PhotoCropper'
+import { PhotoGuide } from '@/components/dashboard/PhotoGuide'
 
 export interface VariantRow {
   id?: string
@@ -44,19 +46,28 @@ export function PartnerProductForm({
   const setRow = (i: number, k: keyof VariantRow, value: string) =>
     setV((p) => ({ ...p, variants: p.variants.map((r, j) => (j === i ? { ...r, [k]: value } : r)) }))
 
-  async function upload(files: FileList | null) {
+  // Chosen photos are fitted to the portrait frame one by one (PhotoCropper), then uploaded
+  const [cropQueue, setCropQueue] = useState<{ files: File[]; total: number }>({ files: [], total: 0 })
+
+  function choose(files: FileList | null) {
     if (!files?.length) return
     setError(null)
+    const picked = Array.from(files).slice(0, 6 - v.images.length)
+    setCropQueue({ files: picked, total: picked.length })
+  }
+
+  const nextPhoto = () => setCropQueue((q) => ({ ...q, files: q.files.slice(1) }))
+
+  async function upload(file: File) {
+    nextPhoto()
     setUploading(true)
     try {
-      for (const file of Array.from(files).slice(0, 6 - v.images.length)) {
-        const form = new FormData()
-        form.append('file', file)
-        const res = await fetch('/api/partner/upload', { method: 'POST', body: form })
-        const data = (await res.json()) as { url?: string; error?: string }
-        if (!res.ok || !data.url) throw new Error(data.error ?? 'Upload failed')
-        setV((p) => ({ ...p, images: [...p.images, data.url!] }))
-      }
+      const form = new FormData()
+      form.append('file', file)
+      const res = await fetch('/api/partner/upload', { method: 'POST', body: form })
+      const data = (await res.json()) as { url?: string; error?: string }
+      if (!res.ok || !data.url) throw new Error(data.error ?? 'Upload failed')
+      setV((p) => ({ ...p, images: [...p.images, data.url!] }))
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Upload failed')
     } finally {
@@ -144,11 +155,21 @@ export function PartnerProductForm({
       <section className="space-y-3 border border-gray-200 bg-white p-5">
         <h2 className="font-headline text-lg uppercase tracking-widest text-brand-black">Photos</h2>
         <p className="text-xs font-body text-gray-500">1–6 photos. The first one is the main photo. JPG, PNG or WebP, up to 5 MB each.</p>
+        <PhotoGuide />
+        {cropQueue.files[0] && (
+          <PhotoCropper
+            key={`${cropQueue.total}-${cropQueue.files.length}`}
+            file={cropQueue.files[0]}
+            position={{ current: cropQueue.total - cropQueue.files.length + 1, total: cropQueue.total }}
+            onDone={upload}
+            onCancel={nextPhoto}
+          />
+        )}
         <div className="flex flex-wrap gap-3">
           {v.images.map((url, i) => (
-            <div key={url + i} className="relative h-24 w-24 overflow-hidden border border-gray-200 bg-gray-100">
+            <div key={url + i} className="relative h-32 w-24 overflow-hidden border border-gray-200 bg-brand-white">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={url} alt="" className="h-full w-full object-cover" />
+              <img src={url} alt="" className="h-full w-full object-contain" />
               {i === 0 && <span className="absolute left-0 top-0 bg-brand-black px-1 text-[9px] uppercase text-white">Main</span>}
               <div className="absolute inset-x-0 bottom-0 flex justify-between bg-black/60 text-[10px] text-white">
                 <button type="button" disabled={i === 0} onClick={() => set('images', [v.images[i], ...v.images.filter((_, j) => j !== i)])} className="px-1 disabled:opacity-30">Main</button>
@@ -157,9 +178,12 @@ export function PartnerProductForm({
             </div>
           ))}
           {v.images.length < 6 && (
-            <label className="flex h-24 w-24 cursor-pointer items-center justify-center border border-dashed border-gray-400 text-xs uppercase tracking-wider text-gray-500 hover:bg-gray-50">
+            <label className="flex h-32 w-24 cursor-pointer items-center justify-center border border-dashed border-gray-400 text-xs uppercase tracking-wider text-gray-500 hover:bg-gray-50">
               {uploading ? '…' : '+ Photo'}
-              <input type="file" accept="image/jpeg,image/png,image/webp" multiple className="sr-only" disabled={uploading} onChange={(e) => upload(e.target.files)} />
+              <input type="file" accept="image/jpeg,image/png,image/webp" multiple className="sr-only" disabled={uploading} onChange={(e) => {
+                  choose(e.target.files)
+                  e.target.value = '' // the same photo can be picked again
+                }} />
             </label>
           )}
         </div>

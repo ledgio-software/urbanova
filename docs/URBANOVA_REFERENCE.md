@@ -247,6 +247,11 @@ Bold, ambitious young people who want to feel seen and confident. They want:
 - Real models with confident poses
 - Avoid: soft pastel tones, overly polished studio-only shots
 
+**Product photo standard (founder-approved Nov 2026)** — applies to everything URBANOVA and partners post:
+- Every product photo shows in the same **3:4 portrait frame**, whole item visible (never cut off), on the off-white product-photo background (`brand.white`) — shop, Nova Market, partner pages/websites, product pages, bag.
+- Uploads (admin and partner product forms) go through a **crop step**: fit the photo to the 3:4 frame (drag, zoom, "show the whole photo"); saved as 1200 × 1600 JPEG. Photos added by link are shown in the same frame.
+- A **photo guide** with the example shot (`public/images/product-photo-example.jpg`: item on a hanger against a plain light wall, phone upright, whole item in shot) sits next to every product photo upload.
+
 ---
 
 ### B.6 Logo Concept Directions (for designer)

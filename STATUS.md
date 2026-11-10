@@ -4,6 +4,17 @@ Reverse-chronological. Update this file after every meaningful change.
 
 ---
 
+## 2026-11-11 — Product photos: one look for everything posted
+
+**What:** Founder request — every product posted by URBANOVA or partners should look like the example tee photo (Reference B.5 "Product photo standard").
+- **Same frame everywhere:** product cards, product pages (main site and partner websites), thumbnails and the bag use a 3:4 portrait frame with the whole item visible (`object-contain`) on the off-white product-photo background (`brand.white`). Existing photos included.
+- **Photo guide:** example photo (`public/images/product-photo-example.jpg`) + tips next to the photo uploads in the admin and partner product forms.
+- **Crop step:** chosen photos open one by one in a cropper (drag, zoom, "Show the whole photo", "Leave out"); saved as 1200 × 1600 JPEG on the product-photo background, then uploaded. No new dependencies (canvas).
+
+**Verified:** typecheck + production build; 14-check browser test (guide shown, cropper queue "1 of 2 / 2 of 2", drag, fit-whole, leave out, upload is 1200 × 1600 JPEG in admin and partner forms, 3:4 frames on shop card and product page, `object-contain`, no page errors). Partner websites (40), stockists (51), Nova Market (45, updated for the crop step), partners (36), delivery (46): all pass.
+
+---
+
 ## 2026-11-10 — Partner websites (own address + .com) and checkout redirect fix
 
 **What:** Each live partner gets their own branded website on the same Vercel project (Reference I.7).

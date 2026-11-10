@@ -82,13 +82,13 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
       <div className="lg:grid lg:grid-cols-2 lg:gap-12">
         {/* Images */}
         <div className="space-y-4">
-          <div className="relative aspect-square bg-brand-white rounded overflow-hidden">
+          <div className="relative aspect-[3/4] bg-brand-white rounded overflow-hidden">
             {mainImage ? (
               <Image
                 src={mainImage}
                 alt={product.name}
                 fill
-                className="object-cover"
+                className="object-contain"
                 sizes="(max-width: 1024px) 100vw, 50vw"
                 priority
               />
@@ -101,8 +101,8 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           {product.images.length > 1 && (
             <div className="grid grid-cols-4 gap-2">
               {product.images.slice(1).map((img) => (
-                <div key={img.id} className="relative aspect-square bg-brand-white rounded overflow-hidden">
-                  <Image src={img.url} alt={product.name} fill className="object-cover" sizes="25vw" />
+                <div key={img.id} className="relative aspect-[3/4] bg-brand-white rounded overflow-hidden">
+                  <Image src={img.url} alt={product.name} fill className="object-contain" sizes="25vw" />
                 </div>
               ))}
             </div>

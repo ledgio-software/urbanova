@@ -2,6 +2,8 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { PhotoCropper } from '@/components/dashboard/PhotoCropper'
+import { PhotoGuide } from '@/components/dashboard/PhotoGuide'
 
 type Category = { id: string; name: string }
 
@@ -82,39 +84,34 @@ export function ProductForm({ categories, product }: Props) {
     return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
   }
 
-  async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
+  // Chosen photos are fitted to the portrait frame one by one (PhotoCropper), then uploaded
+  const [cropQueue, setCropQueue] = useState<{ files: File[]; total: number }>({ files: [], total: 0 })
+
+  function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const files = e.target.files
-    if (!files || files.length === 0) return
+    if (files && files.length > 0) {
+      setError(null)
+      setCropQueue({ files: Array.from(files), total: files.length })
+    }
+    e.target.value = '' // the same photo can be picked again
+  }
 
+  const nextPhoto = () => setCropQueue((q) => ({ ...q, files: q.files.slice(1) }))
+
+  async function uploadCropped(file: File) {
+    nextPhoto()
     setUploading(true)
-    setError(null)
-
     try {
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i]
-        const formData = new FormData()
-        formData.append('file', file)
-
-        const res = await fetch('/api/admin/upload', {
-          method: 'POST',
-          body: formData,
-        })
-
-        if (!res.ok) {
-          const errData = await res.json()
-          throw new Error(errData.error || 'Failed to upload image')
-        }
-
-        const data = await res.json()
-        if (data.url) {
-          setImages((prev) => [...prev, data.url])
-        }
-      }
-    } catch (err: any) {
-      setError(err.message || 'Image upload failed')
+      const formData = new FormData()
+      formData.append('file', file)
+      const res = await fetch('/api/admin/upload', { method: 'POST', body: formData })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok || !data.url) throw new Error(data.error || 'Failed to upload image')
+      setImages((prev) => [...prev, data.url])
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Image upload failed')
     } finally {
       setUploading(false)
-      e.target.value = ''
     }
   }
 
@@ -252,6 +249,17 @@ export function ProductForm({ categories, product }: Props) {
           Product Images ({images.length})
         </label>
 
+        <PhotoGuide />
+        {cropQueue.files[0] && (
+          <PhotoCropper
+            key={`${cropQueue.total}-${cropQueue.files.length}`}
+            file={cropQueue.files[0]}
+            position={{ current: cropQueue.total - cropQueue.files.length + 1, total: cropQueue.total }}
+            onDone={uploadCropped}
+            onCancel={nextPhoto}
+          />
+        )}
+
         {/* Upload File Box */}
         <div className="border-2 border-dashed border-gray-200 rounded-lg p-5 text-center hover:border-brand-black transition-colors relative bg-gray-50/50">
           <input
@@ -301,9 +309,9 @@ export function ProductForm({ categories, product }: Props) {
         {images.length > 0 && (
           <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 pt-2">
             {images.map((url, idx) => (
-              <div key={idx} className="relative aspect-square bg-gray-100 rounded border border-gray-200 overflow-hidden group">
+              <div key={idx} className="relative aspect-[3/4] bg-brand-white rounded border border-gray-200 overflow-hidden group">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={url} alt={`Product image ${idx + 1}`} className="w-full h-full object-cover" />
+                <img src={url} alt={`Product image ${idx + 1}`} className="w-full h-full object-contain" />
                 {idx === 0 && (
                   <span className="absolute top-1 left-1 bg-brand-black text-white text-[9px] font-body px-1.5 py-0.5 uppercase tracking-wider rounded">
                     Main
