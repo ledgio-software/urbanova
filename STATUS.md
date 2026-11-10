@@ -4,6 +4,18 @@ Reverse-chronological. Update this file after every meaningful change.
 
 ---
 
+## 2026-11-11 — Fix: Market Categories page did nothing when the server failed
+
+**What:** Founder report: couldn't add market categories. When the live database hadn't been updated with the new columns (`npx prisma db push`), the categories API crashed, and the page swallowed the error: it showed "No market categories yet" and the Add buttons silently did nothing.
+- The page now reads server replies safely and shows the real error; the empty-state panel is hidden when loading failed.
+- `lib/api-errors.ts`: admin APIs answer a missing table/column (Prisma P2021/P2022) with a plain message — "The database hasn’t been updated for this version of the site yet. Run “npx prisma db push” on the live database" — used by the market categories API.
+
+**Verified:** browser test with the `kind` column dropped (as on an un-updated database): message shown on load and on Add, no misleading empty state; after `prisma db push`, suggested categories and a custom one add fine. Nova Market suite (45) passes.
+
+**Action for founder:** run `npx prisma db push` against the live database (it applies all columns from the Nova Market, Stockist and partner-website updates).
+
+---
+
 ## 2026-11-11 — Product photos: one look for everything posted
 
 **What:** Founder request — every product posted by URBANOVA or partners should look like the example tee photo (Reference B.5 "Product photo standard").
